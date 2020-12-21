@@ -13,7 +13,7 @@ class Choose(commands.Cog):
     async def on_ready(self):
         print('Choose online')
 
-    #commands
+    # commands
     @commands.command()
     async def choose(self, ctx, *, param):
         choice = random.choice(param.split(', '))
