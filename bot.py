@@ -35,13 +35,19 @@ async def unload(ctx, extension):
 
 
 @client.event
-async def on_member_join(member: discord.Member):
-    print("someone joined")
+async def on_member_join(member):
+    await member.guild.get_channel(681149093858508834).send(f'Welcome {member.name}! I\'m nibbles and I want all ur nom noms')
 
 
 @client.event
-async def on_member_remove(member: discord.Member):
-    print("someone left")
+async def on_member_remove(member):
+    await member.guild.get_channel(681149093858508834).send(f'Bai bai {member.name} it has been a fun time')
+
+
+@client.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("nibbles can't do anything because something is missing! <:ShibaNervous:703366029425901620>")
 
 
 client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.lFN86LS_ZVA1aeQ_4gtL4irUp0U')
