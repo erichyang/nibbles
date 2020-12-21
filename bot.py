@@ -1,9 +1,12 @@
 import discord
 import os
-from discord.ext import commands
+import random
+from discord.ext import commands, tasks
+from itertools import cycle
 
 client = commands.Bot(command_prefix='.',
                       intents=discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True))
+status = cycle(['cookie nomming', 'sleeping', 'tail chasing', 'grooming'])
 
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
@@ -12,7 +15,13 @@ for filename in os.listdir('./cogs'):
 
 @client.event
 async def on_ready():
+    change_status.start()
     print("Nibbles is awake!")
+
+
+@tasks.loop(minutes=random.randrange(10, 45))
+async def change_status():
+    await client.change_presence(activity=discord.Streaming(name=next(status), url='https://twitch.tv/bitnoms'))
 
 
 @client.command()
