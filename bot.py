@@ -6,7 +6,9 @@ from itertools import cycle
 
 client = commands.Bot(command_prefix='.',
                       intents=discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True))
-status = cycle(['cookie nomming', 'sleeping', 'tail chasing', 'grooming'])
+client.remove_command('help')
+
+status = cycle(['cookie nomming', 'sleeping', 'tail chasing', 'grooming', 'being a ball of fluff'])
 
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
@@ -49,23 +51,63 @@ async def on_member_remove(member):
 
 @client.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
+    if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content != '.help':
         await ctx.send("nibbles can't do anything because something is missing! <:ShibaNervous:703366029425901620>")
 
 
 @client.event
 async def on_member_update(prev, cur):
-
     if cur.activity is not None:
         role = discord.utils.get(cur.guild.roles, name=cur.activity.name)
         if role is not None:
             await cur.add_roles(role)
     else:
-        await cur.remove_roles(discord.utils.get(prev.guild.roles, name='League of Legends'))
-        await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Genshin Impact'))
-        await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Minecraft'))
-        await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Far Cry 5'))
-        await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Ooblets'))
+        try:
+            await cur.remove_roles(discord.utils.get(prev.guild.roles, name='League of Legends'))
+            await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Genshin Impact'))
+            await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Minecraft'))
+            await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Far Cry 5'))
+            await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Ooblets'))
+        except AttributeError:
+            pass
+
+
+@client.command()
+async def help(ctx, command):
+    embed_var = discord.Embed(title="Nibbles is here to help", color=0x8109e9)
+    desc = {
+        'choose': 'Nibbles helps you choose because you\'re too indecisive',
+        'coin_flip': 'Flips a coin!',
+        'poll': 'Nibbles helps you discover that other people are indecisive too',
+        'purge': 'pew pew destroy messages'
+    }
+    if command is None:
+        embed_var.add_field(name='choose', value=desc.get('choose'), inline=False)
+        embed_var.add_field(name='coin_flip', value=desc.get('coin_flip'), inline=False)
+        embed_var.add_field(name='poll', value=desc.get('poll'), inline=False)
+        embed_var.add_field(name='purge', value=desc.get('purge'), inline=False)
+        embed_var.set_footer(text="ask for more help on specific commands by using .help <command>")
+        await ctx.channel.send(embed=embed_var)
+    else:
+        example = {
+            'choose': '.choose go to work, play video games, something else',
+            'coin_flip': '.coin_flip',
+            'poll': '.poll Do you like nibbles?',
+            'purge': '.purge 5'
+        }
+        if desc.get(command, 'no such command') == 'no such command':
+            await ctx.send('this command doesn\'t exist!')
+        else:
+            embed_var.add_field(name='Command name', value=command, inline=False)
+            embed_var.add_field(name='Command description', value=desc.get(command, 'no such command'), inline=False)
+            embed_var.add_field(name='Command usage', value=example.get(command, 'no such command'), inline=False)
+            await ctx.channel.send(embed=embed_var)
+
+
+@help.error
+async def help_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await help(ctx, None)
 
 
 @client.event
@@ -74,5 +116,6 @@ async def on_message(message):
         await message.channel.send("nom")
     else:
         await client.process_commands(message)
+
 
 client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.lFN86LS_ZVA1aeQ_4gtL4irUp0U')

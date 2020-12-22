@@ -6,6 +6,9 @@ class Poll(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        self.name = "poll"
+        self.desc = 'nibbles helps you discover that other people are indecisive too'
+        self.example = '.poll Do you like nibbles?'
 
     # events
     @commands.Cog.listener()
@@ -18,6 +21,8 @@ class Poll(commands.Cog):
         message = await ctx.send(f'**{ctx.author.name}** asks {question}')
         await message.add_reaction('\N{THUMBS UP SIGN}')
         await message.add_reaction('\N{THUMBS DOWN SIGN}')
+        await ctx.message.delete()
+
 
 def setup(client):
     client.add_cog(Poll(client))
