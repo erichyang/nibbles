@@ -19,6 +19,7 @@ class Purge(commands.Cog):
     async def purge(self, ctx, amount):
         await ctx.channel.purge(limit=int(amount) + 1)
 
+    # error
     @purge.error
     async def purge_error(self, ctx, error):
         await ctx.send("hey you, kit told me you can't do that <:pout:734597385258270791>")

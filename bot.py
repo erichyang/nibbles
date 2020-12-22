@@ -36,12 +36,15 @@ async def unload(ctx, extension):
 
 @client.event
 async def on_member_join(member):
-    await member.guild.get_channel(681149093858508834).send(f'Welcome {member.name}! I\'m nibbles and I want all ur nom noms')
+    await member.guild.get_channel(681149093858508834).send(f'Heyaa {member.name}, '
+                                                            f'I\'m nibbles! <:kayaya:778399319803035699>')
+    await member.add_roles(discord.utils.get(member.guild.roles, name='Comets'))
+    await member.edit(nick=member.name.lower())
 
 
 @client.event
 async def on_member_remove(member):
-    await member.guild.get_channel(681149093858508834).send(f'Bai bai {member.name} it has been a fun time')
+    await member.guild.get_channel(681149093858508834).send(f'Bai bai {member.name} <:qiqi:781667748031103036>')
 
 
 @client.event
@@ -49,5 +52,27 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("nibbles can't do anything because something is missing! <:ShibaNervous:703366029425901620>")
 
+
+@client.event
+async def on_member_update(prev, cur):
+
+    if cur.activity is not None:
+        role = discord.utils.get(cur.guild.roles, name=cur.activity.name)
+        if role is not None:
+            await cur.add_roles(role)
+    else:
+        await cur.remove_roles(discord.utils.get(prev.guild.roles, name='League of Legends'))
+        await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Genshin Impact'))
+        await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Minecraft'))
+        await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Far Cry 5'))
+        await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Ooblets'))
+
+
+@client.event
+async def on_message(message):
+    if client.user.mentioned_in(message):
+        await message.channel.send("nom")
+    else:
+        await client.process_commands(message)
 
 client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.lFN86LS_ZVA1aeQ_4gtL4irUp0U')
