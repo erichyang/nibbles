@@ -7,9 +7,6 @@ class Choose(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.name = "choose"
-        self.desc = 'nibbles helps you choose because you\'re too indecisive'
-        self.example = '.choose go to work, play video games, something else'
 
     # events
     @commands.Cog.listener()

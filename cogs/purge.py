@@ -7,9 +7,6 @@ class Purge(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.name = "purge"
-        self.desc = 'pew pew destroy everything'
-        self.example = '.purge 5'
 
     # events
     @commands.Cog.listener()

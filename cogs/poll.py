@@ -6,9 +6,6 @@ class Poll(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.name = "poll"
-        self.desc = 'nibbles helps you discover that other people are indecisive too'
-        self.example = '.poll Do you like nibbles?'
 
     # events
     @commands.Cog.listener()

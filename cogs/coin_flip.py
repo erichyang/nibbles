@@ -7,9 +7,6 @@ class CoinFlip(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.name = "coin_flip"
-        self.desc = 'Flips a coin!'
-        self.example = '.coin_flip'
 
     # events
     @commands.Cog.listener()
