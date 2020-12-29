@@ -57,17 +57,24 @@ async def on_command_error(ctx, error):
 
 @client.event
 async def on_member_update(prev, cur):
-    if cur.activity is not None:
+    games = ['League of Legends', 'Genshin Impact', 'Minecraft', 'Heroes of Hammerwatch', 'Ooblets', 'Spotify']
+
+    if cur.activity is not None and cur.activity.name in games:
         role = discord.utils.get(cur.guild.roles, name=cur.activity.name)
-        if role is not None:
+        try:
             await cur.add_roles(role)
+        except AttributeError:
+            pass
+        if prev.activity is not None and prev.activity.name in games:
+            old = discord.utils.get(prev.roles, name=prev.activity.name)
+            try:
+                await prev.remove_roles(old)
+            except AttributeError:
+                pass
     else:
         try:
-            await cur.remove_roles(discord.utils.get(prev.guild.roles, name='League of Legends'))
-            await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Genshin Impact'))
-            await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Minecraft'))
-            await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Far Cry 5'))
-            await cur.remove_roles(discord.utils.get(prev.guild.roles, name='Ooblets'))
+            for game in games:
+                await cur.remove_roles(discord.utils.get(prev.guild.roles, name=game))
         except AttributeError:
             pass
 
@@ -118,4 +125,4 @@ async def on_message(message):
         await client.process_commands(message)
 
 
-client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.lFN86LS_ZVA1aeQ_4gtL4irUp0U')
+client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.xsWixaBVaiRICZWhoP1A8x4StXc')
