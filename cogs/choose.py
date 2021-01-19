@@ -16,7 +16,12 @@ class Choose(commands.Cog):
     # commands
     @commands.command()
     async def choose(self, ctx, *, param):
-        choice = random.choice(param.split(', '))
+        arr = param.split(', ')
+        if len(arr) == 1:
+            await ctx.send('stop making nibbles do your bidding, you meanie')
+            await ctx.send('<:kangy:747848239759491135>')
+            return
+        choice = random.choice(arr)
         await ctx.send(choice)
 
 
