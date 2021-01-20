@@ -1,7 +1,7 @@
 import discord
 import time
 from datetime import datetime
-from discord.ext import commands
+from discord.ext import commands, tasks
 import random
 import sqlite3
 
@@ -57,19 +57,35 @@ class Gamble(commands.Cog):
         self.conn = sqlite3.connect('user.db')
         self.c = self.conn.cursor()
         self.bj = {}
+        self.wheel = []
+        self.announce.start()
+
+    # 24 hr - task
+    @tasks.loop(hours=12)
+    async def announce(self):
+        channel = await self.client.fetch_channel(681149093858508834)
+        await channel.send('Your free wheel of fortune is now available!')
+        self.wheel = []
+
+    @announce.error
+    async def announce_error(self, error):
+        print(error)
 
     # events
     @commands.Cog.listener()
     async def on_ready(self):
-        print('Coin flip online')
+        print('Gamble online')
 
     # commands
-    @commands.command()
+    @commands.command(aliases=['flip', 'bet_flip', 'bet_coin'])
     async def gamble_coin(self, ctx, face, bet):
         _id = ctx.author.id
         bet = int(bet)
         if bet > 1000:
             await ctx.send("Please don't gamble more than 1000, nibbles can't count all these nom noms")
+            return
+        if bet <= 0:
+            await ctx.send("why don't you just use the normal coin flip ;-; ")
             return
         self.c.execute("SELECT bal FROM users WHERE user_id = " + str(_id))
         bal = self.c.fetchone()[0]
@@ -96,16 +112,14 @@ class Gamble(commands.Cog):
     async def gamble_coin_error(self, ctx, bet, face, error):
         self.gamble_coin(ctx, face, bet)
 
-    @commands.command()
+    @commands.command(aliases=['wheel'])
     async def gamble_wheel(self, ctx):
         self.c.execute("SELECT bal FROM users WHERE user_id = " + str(ctx.author.id))
         bal = self.c.fetchone()[0]
 
-        if bal < 320:
-            await ctx.send("You need 320 nom noms to spin the wheel!")
+        if ctx.author.id in self.wheel:
+            await ctx.send("You already used your free wheel of fortune!")
             return
-
-        self.c.execute("UPDATE users SET bal = bal-320 WHERE user_id = " + str(ctx.author.id))
 
         embed = discord.Embed(title="**SPINNING**", colour=discord.Colour(0x5e05df))
         embed.set_image(url="https://cdn.discordapp.com/attachments/703247498508238938/800820068426317854/wheel.gif")
@@ -132,11 +146,13 @@ class Gamble(commands.Cog):
         embed.set_thumbnail(url=ctx.author.avatar_url)
         embed.set_author(name=str(ctx.author))
         embed.add_field(name="Prize", value=str(prize) + " nom noms", inline=False)
-        embed.add_field(name="Current Balance", value=str(bal + prize - 320), inline=False)
+        embed.add_field(name="Current Balance", value=str(bal + prize), inline=False)
 
         self.c.execute("UPDATE users SET bal = bal+" + str(prize) + " WHERE user_id = " + str(ctx.author.id))
 
         await msg.edit(content='Wheel of Fortune Results', embed=embed)
+
+        self.wheel.append(ctx.author.id)
 
         self.conn.commit()
 
@@ -163,8 +179,16 @@ class Gamble(commands.Cog):
 
         self.conn.commit()
 
-    @commands.command()
+    @commands.command(aliases=['gamble_blackjack', 'blackjack', 'bj'])
     async def gamble_black_jack(self, ctx, amount):
+        if 'msg' in self.bj:
+            await ctx.send('there is already a black jack game going on!')
+            self.bj.pop('msg', None)
+            return
+
+        if int(amount) < 0:
+            await ctx.send('No you will not get money from losing')
+            return
         self.c.execute("SELECT bal FROM users WHERE user_id = " + str(ctx.author.id))
         if self.c.fetchone()[0] < int(amount):
             await ctx.send('Hey you don\'t have that much nom noms!')
@@ -183,7 +207,7 @@ class Gamble(commands.Cog):
 
             self.c.execute("SELECT bal FROM users WHERE user_id = " + str(user.id))
             if self.c.fetchone()[0] < self.bj['bet']:
-                await reaction.message.channel.send('Hey ' +  user.display_name + ", you don't have that much nom noms!")
+                await reaction.message.channel.send('Hey ' + user.display_name + ", you don't have that much nom noms!")
                 return
 
             await reaction.message.clear_reactions()
@@ -205,8 +229,9 @@ class Gamble(commands.Cog):
 
             await self._bj_send_dm('init')
             await self._bj_send_dm('chal')
-
         if not user.bot and 'init_msg' in self.bj and reaction.message == self.bj['init_msg']:
+            if 'init_end' in self.bj:
+                return
             if reaction.emoji == '👊':
                 if self._bj_hit('init') == 'stay':
                     await self._bj_end('init')
@@ -214,10 +239,11 @@ class Gamble(commands.Cog):
             elif reaction.emoji == '✋':
                 await self._bj_end('init')
         if not user.bot and 'chal_msg' in self.bj and reaction.message == self.bj['chal_msg']:
+            if 'chal_end' in self.bj:
+                return
             if reaction.emoji == '👊':
-                if self._bj_hit('init') == 'stay':
+                if self._bj_hit('chal') == 'stay':
                     await self._bj_end('chal')
-                self._bj_hit('chal')
                 await self._bj_send_dm('chal')
             elif reaction.emoji == '✋':
                 await self._bj_end('chal')
@@ -226,7 +252,7 @@ class Gamble(commands.Cog):
         if user == 'init':
             embed = discord.Embed(colour=discord.Colour(0xd954dd),
                                   description="Use the two reactions to either hit or stay\nonce both players stayed "
-                                              "or busted, \nthe game ends",
+                                              "or busted, \nthe game ends\n:punch: for hit and :raised_hand: for stay",
                                   timestamp=datetime.now())
             embed.set_author(name="Black Jack Battle",
                              icon_url="https://cdn.discordapp.com/emojis/765130388032192552.png?v=1")
@@ -262,9 +288,9 @@ class Gamble(commands.Cog):
 
     def _bj_hit(self, user: str):
         if user + '_hand' not in self.bj:
-            self.bj[user+'_hand'] = []
-        self.bj[user+'_hand'].append(self.bj['deck'].pop())
-        if _bj_total(self.bj[user+'_hand']) >= 21:
+            self.bj[user + '_hand'] = []
+        self.bj[user + '_hand'].append(self.bj['deck'].pop())
+        if _bj_total(self.bj[user + '_hand']) >= 21:
             return 'stay'
         return ''
 
@@ -276,8 +302,6 @@ class Gamble(commands.Cog):
             await self.bj[other].send("Your opponent is ready!")
             return
         chnl = self.bj[user].guild.get_channel(752676890413629471)
-        await chnl.send('<@!' + str(self.bj[user].id) + '> <@!' + str(self.bj[other].id) + '> Both players have finished! Here are the results')
-
         embed = discord.Embed(colour=discord.Colour(0x8109e9),
                               description="The results of the game",
                               timestamp=datetime.now())
@@ -292,22 +316,30 @@ class Gamble(commands.Cog):
                         inline=True)
         embed.add_field(name=self.bj['chal'].display_name + "'s Hand", value=output2 + "\nTotal score: " + str(chal),
                         inline=True)
+        if 'final' in self.bj:
+            return
+
+        await chnl.send(
+            '<@!' + str(self.bj[user].id) + '> <@!' + str(self.bj[other].id) + '> Both players have finished!')
 
         if init == chal or (init > 21 and chal > 21) or (init == 21 and chal == 21):
-            await chnl.send(content="The two players tied!", embed=embed)
-        elif init == 21 or chal > 21 or init > chal:
-            await chnl.send(content=self.bj['init'].display_name + ' has won the bet!', embed=embed)
+            self.bj['final'] = await chnl.send(content="The two players tied!", embed=embed)
+        elif init <= 21 and (init == 21 or chal > 21 or init > chal):
+            self.bj['final'] = await chnl.send(content=self.bj['init'].display_name + ' has won the bet!', embed=embed)
             self.c.execute(
-                "UPDATE users SET bal = bal+" + str(self.bj['bet']) + " WHERE user_id = " + self.bj['init'].id)
+                "UPDATE users SET bal = bal+" + str(self.bj['bet']) + " WHERE user_id = " + str(self.bj['init'].id))
             self.c.execute(
-                "UPDATE users SET bal = bal-" + str(self.bj['bet']) + " WHERE user_id = " + self.bj['chal'].id)
-        elif chal == 21 or init > 21 or chal > init:
-            await chnl.send(content=self.bj['chal'].display_name + ' has won the bet!', embed=embed)
+                "UPDATE users SET bal = bal-" + str(self.bj['bet']) + " WHERE user_id = " + str(self.bj['chal'].id))
+        else:
+            self.bj['final'] = await chnl.send(content=self.bj['chal'].display_name + ' has won the bet!', embed=embed)
             self.c.execute(
-                "UPDATE users SET bal = bal+" + str(self.bj['bet']) + " WHERE user_id = " + self.bj['chal'].id)
+                "UPDATE users SET bal = bal+" + str(self.bj['bet']) + " WHERE user_id = " + str(self.bj['chal'].id))
             self.c.execute(
-                "UPDATE users SET bal = bal-" + str(self.bj['bet']) + " WHERE user_id = " + self.bj['init'].id)
-        self.c.commit()
+                "UPDATE users SET bal = bal-" + str(self.bj['bet']) + " WHERE user_id = " + str(self.bj['init'].id))
+
+        self.bj.pop('msg', None)
+
+        self.conn.commit()
 
 
 def setup(client):

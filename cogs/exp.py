@@ -13,8 +13,8 @@ class Exp(commands.Cog):
         self.conn = sqlite3.connect('user.db')
         self.c = self.conn.cursor()
         self.vc = {}
-        # self.c.execute("UPDATE users SET bal = 99999 WHERE user_id = 437033597803692033")
-        # self.conn.commit()
+#        self.c.execute("UPDATE users SET bal = 99999")
+#        self.conn.commit()
 
     # events
     @commands.Cog.listener()
@@ -30,7 +30,7 @@ class Exp(commands.Cog):
         if record is None:
             if not message.author.bot:
                 self.c.execute("INSERT INTO users VALUES (" + str(_id) +
-                               ", 0, 0, '" + now.strftime('%H:%M:%S') + "')")
+                               ", 0, 320, '" + now.strftime('%H:%M:%S') + "')")
         else:
             last = datetime.strptime(record[3], '%H:%M:%S')
             tdelta = now - last
@@ -39,8 +39,7 @@ class Exp(commands.Cog):
             val = random.randrange(6, 8)
             self.c.execute("SELECT bal FROM users WHERE user_id = " + str(_id))
             temp_bal = self.c.fetchone()[0]
-            if temp_bal > 160 and (temp_bal % 160) < 8:
-                await message.add_reaction("💎")
+
             self.c.execute("UPDATE users SET pts = pts+" + str(val) + " WHERE user_id = " + str(_id))
             self.c.execute("UPDATE users SET bal = bal+" + str(val) + " WHERE user_id = " + str(_id))
             self.c.execute("UPDATE users SET time = '" + now.strftime('%H:%M:%S') + "' WHERE user_id = " + str(_id))
@@ -55,7 +54,7 @@ class Exp(commands.Cog):
             self.vc[member.id] = datetime.now()
         elif cur.channel is None:
             tdelta = datetime.now() - self.vc.pop(member.id)
-            val = int(tdelta.seconds / 50 * 2.5)
+            val = int(tdelta.seconds / 30)
             self.c.execute("UPDATE users SET pts = pts+" + str(val) + " WHERE user_id = " + str(member.id))
             self.c.execute("UPDATE users SET bal = bal+" + str(val) + " WHERE user_id = " + str(member.id))
 
@@ -95,17 +94,6 @@ class Exp(commands.Cog):
         embed_var.add_field(name='Name', value=name, inline=True)
         embed_var.add_field(name='Points', value=points, inline=True)
         await ctx.channel.send(embed=embed_var)
-
-    @commands.command()
-    @has_permissions(manage_guild=True)
-    async def init_table(self, ctx):
-        self.c.execute("DELETE FROM users")
-        self.c.execute("""CREATE TABLE users (
-                user_id integer primary key,
-                pts integer,
-                bal integer,
-                time text
-                )""")
 
     @commands.command()
     @has_permissions(manage_guild=True)

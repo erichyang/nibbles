@@ -10,7 +10,7 @@ client = commands.Bot(command_prefix='.',
 client.remove_command('help')
 
 status = cycle(['cookie nomming', 'sleeping', 'being a ball of fluff', 'wheel running', 'tunnel digging',
-                'wires nibbling', 'food stashing', 'treasure burying', 'grand adventure'])
+                'wires nibbling', 'food stashing', 'treasure burying', 'grand adventure', 'collecting taxes'])
 
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
@@ -53,7 +53,8 @@ async def on_member_remove(member):
 
 @client.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content != '.help':
+    if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content != '.help' and \
+            ctx.message.content != '.bal':
         await ctx.send("nibbles can't do anything because you didn't gib something! <:ShibaNervous:703366029425901620>")
 
 
@@ -93,9 +94,9 @@ async def help(ctx, command):
             'purge': '.purge 5',
             'bal': '.bal',
             'leaderboard': '.leaderboard',
-            'gamble_coin': '.gamble_coin heads 160',
-            'gamble_wheel': '.wheel',
-            'gamble_black_jack': '.gamble_black_jack 160',
+            'gamble_coin': '.gamble_coin heads 160; .bet_coin tails 320',
+            'gamble_wheel': '.gamble_wheel; .wheel',
+            'gamble_black_jack': '.gamble_black_jack 160; .blackjack 320',
             'transfer': '.transfer @kit 160'
         }
         if desc.get(command, 'no such command') == 'no such command':
@@ -123,4 +124,4 @@ async def on_message(message):
         await client.process_commands(message)
 
 
-client.run('')
+client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.90H7LW32mCJIzmtVyZTQehjhfSE')
