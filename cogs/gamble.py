@@ -2,8 +2,11 @@ import discord
 import time
 from datetime import datetime
 from discord.ext import commands, tasks
+from discord.ext.commands import has_permissions
 import random
 import sqlite3
+
+
 
 
 def _bj_total(hand):
@@ -58,18 +61,18 @@ class Gamble(commands.Cog):
         self.c = self.conn.cursor()
         self.bj = {}
         self.wheel = []
-        self.announce.start()
 
-    # 24 hr - task
+    # 12 hr - task
     @tasks.loop(hours=12)
     async def announce(self):
         channel = await self.client.fetch_channel(681149093858508834)
         await channel.send('Your free wheel of fortune is now available!')
         self.wheel = []
 
-    @announce.error
-    async def announce_error(self, error):
-        print(error)
+    @commands.command()
+    @has_permissions(manage_guild=True)
+    async def init_announce(self):
+        self.announce.start()
 
     # events
     @commands.Cog.listener()
