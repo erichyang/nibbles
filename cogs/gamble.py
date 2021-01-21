@@ -7,11 +7,9 @@ import random
 import sqlite3
 
 
-
-
 def _bj_total(hand):
     val = 0
-    num_ace = 0;
+    num_ace = 0
     for card in hand:
         if card[0] == 1:
             num_ace += 1
@@ -71,7 +69,7 @@ class Gamble(commands.Cog):
 
     @commands.command()
     @has_permissions(manage_guild=True)
-    async def init_announce(self):
+    async def init_announce(self, ctx):
         self.announce.start()
 
     # events
@@ -80,7 +78,7 @@ class Gamble(commands.Cog):
         print('Gamble online')
 
     # commands
-    @commands.command(aliases=['flip', 'bet_flip', 'bet_coin'])
+    @commands.command(aliases=['cf', 'bet_flip', 'bet_coin'])
     async def gamble_coin(self, ctx, face, bet):
         _id = ctx.author.id
         bet = int(bet)
@@ -97,7 +95,7 @@ class Gamble(commands.Cog):
             return
         if face not in ['heads', 'tails']:
             await ctx.send("That is not heads or tails! ")
-            return;
+            return
         result = random.choice(['heads', 'tails'])
         bet = str(bet)
         if face == result:
@@ -186,7 +184,6 @@ class Gamble(commands.Cog):
     async def gamble_black_jack(self, ctx, amount):
         if 'msg' in self.bj:
             await ctx.send('there is already a black jack game going on!')
-            self.bj.pop('msg', None)
             return
 
         if int(amount) < 0:
@@ -203,6 +200,13 @@ class Gamble(commands.Cog):
         self.bj['init'] = ctx.author
         self.bj['bet'] = int(amount)
         self.bj['msg'] = msg
+
+    @commands.Cog.listener()
+    async def on_message_delete(self, message):
+        if 'msg' in self.bj and message.author.id == 736013645045301301:
+            msg = self.bj['msg']
+            if msg.id == message.id:
+                self.bj.pop('msg', None)
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
@@ -253,11 +257,13 @@ class Gamble(commands.Cog):
 
     async def _bj_send_dm(self, user: str):
         if user == 'init':
-            embed = discord.Embed(colour=discord.Colour(0xd954dd),
+            embed = discord.Embed(title='Black Jack Battle',
+                                  colour=discord.Colour(0xFF0000),
                                   description="Use the two reactions to either hit or stay\nonce both players stayed "
                                               "or busted, \nthe game ends\n:punch: for hit and :raised_hand: for stay",
                                   timestamp=datetime.now())
-            embed.set_author(name="Black Jack Battle",
+            embed.set_thumbnail(url=self.bj['chal'].avatar_url)
+            embed.set_author(name=self.bj['chal'].display_name,
                              icon_url="https://cdn.discordapp.com/emojis/765130388032192552.png?v=1")
 
             output = _bj_display(self.bj['init_hand'], self.bj['chal_hand'])
@@ -268,11 +274,13 @@ class Gamble(commands.Cog):
             await self.bj['init_msg'].add_reaction('✋')
 
         if user == 'chal':
-            embed = discord.Embed(colour=discord.Colour(0x8109e9),
+            embed = discord.Embed(title='Black Jack Battle',
+                                  colour=discord.Colour(0x0000FF),
                                   description="Use the two reactions to either hit or stay\nonce both players stayed "
                                               "or busted, \nthe game ends\n:punch: for hit and :raised_hand: for stay",
                                   timestamp=datetime.now())
-            embed.set_author(name="Black Jack Battle",
+            embed.set_thumbnail(url=self.bj['init'].avatar_url)
+            embed.set_author(name=self.bj['init'].display_name,
                              icon_url="https://cdn.discordapp.com/emojis/765130388032192552.png?v=1")
             output = _bj_display(self.bj['chal_hand'], self.bj['init_hand'])
             embed.add_field(name="Your Hand", value=output[0], inline=True)

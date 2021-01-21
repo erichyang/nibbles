@@ -30,7 +30,7 @@ class Exp(commands.Cog):
         if record is None:
             if not message.author.bot:
                 self.c.execute("INSERT INTO users VALUES (" + str(_id) +
-                               ", 0, 320, '" + now.strftime('%H:%M:%S') + "')")
+                               ", 0, 160, '" + now.strftime('%H:%M:%S') + "')")
         else:
             last = datetime.strptime(record[3], '%H:%M:%S')
             tdelta = now - last
@@ -93,6 +93,23 @@ class Exp(commands.Cog):
         embed_var.add_field(name='Rank', value=rank, inline=True)
         embed_var.add_field(name='Name', value=name, inline=True)
         embed_var.add_field(name='Points', value=points, inline=True)
+        await ctx.channel.send(embed=embed_var)
+
+    @commands.command()
+    async def bal_lb(self, ctx):
+        self.c.execute("SELECT * FROM users ORDER BY bal DESC LIMIT 10")
+        embed_var = discord.Embed(title="People who are the richest! ", color=0x8109e9)
+        lb = self.c.fetchall()
+        rank = ''
+        name = ''
+        points = ''
+        for i in range(0, len(lb)):
+            rank += str(i + 1) + '\n'
+            name += self.client.get_user(lb[i][0]).display_name + '\n'
+            points += str(lb[i][2]) + ' :cookie:\n'
+        embed_var.add_field(name='Rank', value=rank, inline=True)
+        embed_var.add_field(name='Name', value=name, inline=True)
+        embed_var.add_field(name='Balance', value=points, inline=True)
         await ctx.channel.send(embed=embed_var)
 
     @commands.command()

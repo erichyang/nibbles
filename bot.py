@@ -55,7 +55,7 @@ async def on_member_remove(member):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content != '.help' and \
             ctx.message.content != '.bal':
-        await ctx.send("nibbles can't do anything because you didn't gib something! <:ShibaNervous:703366029425901620>")
+        await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
 
 
 @client.command()
@@ -68,8 +68,9 @@ async def help(ctx, command):
         'purge': 'pew pew destroy messages',
         'bal': 'count the nom noms in your stash, ooo so many <:wow:788914745008586763>',
         'leaderboard': 'check the top ten people with the highest points!',
+        'bal_lb': 'flex on your friends or something you gambling addicts',
         'gamble_coin': 'flip a coin with the face you predict and how much you want to bet for it',
-        'gamble_wheel': 'spin a wheel of fortune, paying 320 nom noms for a range of prizes from 77 to 10000',
+        'gamble_wheel': 'spin a wheel of fortune for free every 12 hours! You can win prizes from :cookie: 88 to 10000',
         'gamble_black_jack': 'bet against any player that accepts the challenge by playing black_jack',
         'transfer': 'give your money to someone else, but why would you do that if you could give them all to nibbles'
     }
@@ -94,6 +95,7 @@ async def help(ctx, command):
             'purge': '.purge 5',
             'bal': '.bal',
             'leaderboard': '.leaderboard',
+            'bal_lb': '.bal_lb',
             'gamble_coin': '.gamble_coin heads 160; .bet_coin tails 320',
             'gamble_wheel': '.gamble_wheel; .wheel',
             'gamble_black_jack': '.gamble_black_jack 160; .blackjack 320',
@@ -118,8 +120,6 @@ async def help_error(ctx, error):
 async def on_message(message):
     if client.user.mentioned_in(message):
         await message.channel.send("nom")
-    if 'say it back' in message.content.lower() and message.author.id == 437033597803692033:
-        await message.channel.send(random.choice("how about no, vincent", "no", "don't do it", ";-;"))
     else:
         await client.process_commands(message)
 
