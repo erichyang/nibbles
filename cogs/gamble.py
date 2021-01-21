@@ -72,6 +72,20 @@ class Gamble(commands.Cog):
     async def init_announce(self, ctx):
         self.announce.start()
 
+    @commands.command()
+    @has_permissions(manage_guild=True)
+    async def give(self, ctx, user, amount):
+        receiver_id = user
+        self.c.execute("SELECT * FROM users WHERE user_id = " + str(receiver_id) + '')
+        if self.c.fetchone() is None:
+            await ctx.send("Sowwy, this person does not have a nom noms stash")
+            return
+
+        self.c.execute("UPDATE users SET bal = bal+" + str(amount) + " WHERE user_id = " + str(receiver_id))
+        await ctx.send('given ' + str(amount))
+
+        self.conn.commit()
+
     # events
     @commands.Cog.listener()
     async def on_ready(self):

@@ -37,8 +37,6 @@ class Exp(commands.Cog):
             if message.content[:1] == '.' or tdelta.seconds < random.randrange(45, 60):
                 return
             val = random.randrange(6, 8)
-            self.c.execute("SELECT bal FROM users WHERE user_id = " + str(_id))
-            temp_bal = self.c.fetchone()[0]
 
             self.c.execute("UPDATE users SET pts = pts+" + str(val) + " WHERE user_id = " + str(_id))
             self.c.execute("UPDATE users SET bal = bal+" + str(val) + " WHERE user_id = " + str(_id))
