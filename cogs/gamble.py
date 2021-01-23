@@ -4,7 +4,8 @@ from datetime import datetime
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions
 import random
-import sqlite3
+
+from cogs import db
 
 
 def _bj_total(hand):
@@ -55,10 +56,9 @@ class Gamble(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.conn = sqlite3.connect('user.db')
-        self.c = self.conn.cursor()
         self.bj = {}
         self.wheel = []
+        self.db = db.DataBase(client)
 
     # 12 hr - task
     @tasks.loop(hours=12)
@@ -66,25 +66,23 @@ class Gamble(commands.Cog):
         channel = await self.client.fetch_channel(681149093858508834)
         await channel.send('Your free wheel of fortune is now available!')
         self.wheel = []
+        await self.db.vacuum()
 
     @commands.command()
     @has_permissions(manage_guild=True)
     async def init_announce(self, ctx):
+        await ctx.send('The announcement starts now at {0}'.format(datetime.now().strftime("%H:%M:%S")))
         self.announce.start()
 
     @commands.command()
     @has_permissions(manage_guild=True)
     async def give(self, ctx, user, amount):
-        receiver_id = user
-        self.c.execute("SELECT * FROM users WHERE user_id = " + str(receiver_id) + '')
-        if self.c.fetchone() is None:
+        if await self.db.find_user(db='users', user=user) is None:
             await ctx.send("Sowwy, this person does not have a nom noms stash")
             return
 
-        self.c.execute("UPDATE users SET bal = bal+" + str(amount) + " WHERE user_id = " + str(receiver_id))
+        await self.db.update(db='users', var='bal', amount=str(amount), user=str(user))
         await ctx.send('given ' + str(amount))
-
-        self.conn.commit()
 
     # events
     @commands.Cog.listener()
@@ -96,16 +94,15 @@ class Gamble(commands.Cog):
     async def gamble_coin(self, ctx, face, bet):
         _id = ctx.author.id
         bet = int(bet)
-        if bet > 1000:
-            await ctx.send("Please don't gamble more than 1000, nibbles can't count all these nom noms")
+        if bet > 1600:
+            await ctx.send("Please don't gamble more than 1600, nibbles can't count all these nom noms")
             return
         if bet <= 0:
             await ctx.send("why don't you just use the normal coin flip ;-; ")
             return
-        self.c.execute("SELECT bal FROM users WHERE user_id = " + str(_id))
-        bal = self.c.fetchone()[0]
-        if bal < bet:
-            await ctx.send("You don't have enough nom noms to be gambling")
+        bal = await self.db.find_user(db='users', user=str(_id), var='bal')
+        if bal[0] < bet:
+            await ctx.send("You don't have enough nom noms to be gambling, you current balance is " + str(bal))
             return
         if face not in ['heads', 'tails']:
             await ctx.send("That is not heads or tails! ")
@@ -115,22 +112,15 @@ class Gamble(commands.Cog):
         if face == result:
             await ctx.send('You won! The coin showed ' + result)
             await ctx.send('You gain ' + bet + ' nom noms')
-            self.c.execute("UPDATE users SET bal = bal+" + str(bet) + " WHERE user_id = " + str(_id))
+            await self.db.update(db='users', var='bal', amount='+' + str(bet), user=str(_id))
         else:
             await ctx.send('You lost! The coin showed ' + result)
             await ctx.send('You lost ' + bet + ' nom noms')
-            self.c.execute("UPDATE users SET bal = bal-" + str(bet) + " WHERE user_id = " + str(_id))
-
-        self.conn.commit()
-
-    @gamble_coin.error
-    async def gamble_coin_error(self, ctx, bet, face, error):
-        self.gamble_coin(ctx, face, bet)
+            await self.db.update(db='users', var='bal', amount='-' + str(bet), user=str(_id))
 
     @commands.command(aliases=['wheel'])
     async def gamble_wheel(self, ctx):
-        self.c.execute("SELECT bal FROM users WHERE user_id = " + str(ctx.author.id))
-        bal = self.c.fetchone()[0]
+        bal = await self.db.find_user(db='user', var='bal', user=str(ctx.author.id))
 
         if ctx.author.id in self.wheel:
             await ctx.send("You already used your free wheel of fortune!")
@@ -161,38 +151,33 @@ class Gamble(commands.Cog):
         embed.set_thumbnail(url=ctx.author.avatar_url)
         embed.set_author(name=str(ctx.author))
         embed.add_field(name="Prize", value=str(prize) + " nom noms", inline=False)
-        embed.add_field(name="Current Balance", value=str(bal + prize), inline=False)
+        embed.add_field(name="Current Balance", value=str(bal[0] + prize), inline=False)
 
-        self.c.execute("UPDATE users SET bal = bal+" + str(prize) + " WHERE user_id = " + str(ctx.author.id))
+        await self.db.update(db='users', var='bal', amount='+'+(str(prize)), user=str(ctx.author.id))
 
         await msg.edit(content='Wheel of Fortune Results', embed=embed)
 
         self.wheel.append(ctx.author.id)
 
-        self.conn.commit()
-
     @commands.command()
-    async def transfer(self, ctx, user, amount):
+    async def transfer(self, ctx, amount):
         if int(amount) <= 0:
             await ctx.send("hey you can't do that")
             return
-        receiver_id = user[3:-1]
+        receiver_id = ctx.message.mentions[0].id
         sender_id = ctx.author.id
-        self.c.execute("SELECT bal FROM users WHERE user_id = " + str(sender_id) + '')
-        sender_bal = self.c.fetchone()[0]
+        sender_bal = await self.db.find_user(db='users', user=str(sender_id), var='bal')
+        sender_bal = sender_bal[0]
         if sender_bal < int(amount):
             await ctx.send('You do not have enough nom noms to give!')
             return
-        self.c.execute("SELECT * FROM users WHERE user_id = " + str(receiver_id) + '')
-        if self.c.fetchone() is None:
+        if await self.db.find_user(db='users', user=str(receiver_id)) is None:
             await ctx.send("Sowwy, this person does not have a nom noms stash")
             return
 
-        self.c.execute("UPDATE users SET bal = bal-" + str(amount) + " WHERE user_id = " + str(sender_id))
-        self.c.execute("UPDATE users SET bal = bal+" + str(amount) + " WHERE user_id = " + str(receiver_id))
+        await self.db.update(db='users', var='bal', amount='-'+str(amount), user=str(sender_id))
+        await self.db.update(db='users', var='bal', amount='-' + str(amount), user=str(receiver_id))
         await ctx.send("Done!")
-
-        self.conn.commit()
 
     @commands.command(aliases=['gamble_blackjack', 'blackjack', 'bj'])
     async def gamble_black_jack(self, ctx, amount):
@@ -203,8 +188,8 @@ class Gamble(commands.Cog):
         if int(amount) < 0:
             await ctx.send('No you will not get money from losing')
             return
-        self.c.execute("SELECT bal FROM users WHERE user_id = " + str(ctx.author.id))
-        if self.c.fetchone()[0] < int(amount):
+        temp = await self.db.find_user(db='users', user=str(ctx.author.id), var='bal')
+        if temp[0] < int(amount):
             await ctx.send('Hey you don\'t have that much nom noms!')
             return
 
@@ -224,11 +209,13 @@ class Gamble(commands.Cog):
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
-        if not user.bot and user.id != self.bj['init'].id and reaction.message == self.bj['msg']:
+        if 'chal' not in self.bj and not user.bot and 'init' in self.bj \
+                and user.id != self.bj['init'].id and reaction.message == self.bj['msg']:
+            user_bal = await self.db.find_user(db='users', user=str(user.id), var='bal')
+            user_bal = user_bal[0]
 
-            self.c.execute("SELECT bal FROM users WHERE user_id = " + str(user.id))
-            if self.c.fetchone()[0] < self.bj['bet']:
-                await reaction.message.channel.send('Hey ' + user.display_name + ", you don't have that much nom noms!")
+            if user_bal < self.bj['bet']:
+                await reaction.message.channel.send("Hey " + user.display_name + ", you don't have that much nom noms!")
                 return
 
             await reaction.message.clear_reactions()
@@ -351,20 +338,14 @@ class Gamble(commands.Cog):
             self.bj['final'] = await chnl.send(content="The two players tied!", embed=embed)
         elif init <= 21 and (init == 21 or chal > 21 or init > chal):
             self.bj['final'] = await chnl.send(content=self.bj['init'].display_name + ' has won the bet!', embed=embed)
-            self.c.execute(
-                "UPDATE users SET bal = bal+" + str(self.bj['bet']) + " WHERE user_id = " + str(self.bj['init'].id))
-            self.c.execute(
-                "UPDATE users SET bal = bal-" + str(self.bj['bet']) + " WHERE user_id = " + str(self.bj['chal'].id))
+            await self.db.update(db='users', var='bal', amount='+' + str(self.bj['bet']), user=str(self.bj['init'].id))
+            await self.db.update(db='users', var='bal', amount='-' + str(self.bj['bet']), user=str(self.bj['chal'].id))
         else:
             self.bj['final'] = await chnl.send(content=self.bj['chal'].display_name + ' has won the bet!', embed=embed)
-            self.c.execute(
-                "UPDATE users SET bal = bal+" + str(self.bj['bet']) + " WHERE user_id = " + str(self.bj['chal'].id))
-            self.c.execute(
-                "UPDATE users SET bal = bal-" + str(self.bj['bet']) + " WHERE user_id = " + str(self.bj['init'].id))
+            await self.db.update(db='users', var='bal', amount='+' + str(self.bj['bet']), user=str(self.bj['chal'].id))
+            await self.db.update(db='users', var='bal', amount='-' + str(self.bj['bet']), user=str(self.bj['init'].id))
 
         self.bj.pop('msg', None)
-
-        self.conn.commit()
 
 
 def setup(client):

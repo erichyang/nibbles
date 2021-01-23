@@ -51,11 +51,11 @@ async def on_member_remove(member):
     await member.guild.get_channel(681149093858508834).send(f'Bai bai {member.name} <:qiqi:781667748031103036>')
 
 
-# @client.event
-# async def on_command_error(ctx, error):
-#     if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content != '.help' and \
-#             ctx.message.content != '.bal':
-#         await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
+@client.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content != '.help' and \
+            ctx.message.content != '.bal':
+        await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
 
 
 @client.command()
@@ -123,5 +123,5 @@ async def on_message(message):
     else:
         await client.process_commands(message)
 
-
-client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.90H7LW32mCJIzmtVyZTQehjhfSE')
+with open('bot_token', 'r') as f:
+    client.run(f.read())
