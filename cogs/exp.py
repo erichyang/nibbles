@@ -52,20 +52,20 @@ class Exp(commands.Cog):
     # commands
     @commands.command()
     async def bal(self, ctx):
-        member = ctx.message.mentions[0]
-        if member is None:
+        if len(ctx.message.mentions) == 0:
             temp = await self.db.find_user(db='users', user=str(ctx.author.id), var='bal')
             pronoun = 'Your'
         else:
+            member = ctx.message.mentions[0]
             temp = await self.db.find_user(db='users', user=str(member.id), var='bal')
             pronoun = member.display_name + "'s"
 
         if temp is None:
             await ctx.send("this person does not have a nom nom stash")
         else:
-            await ctx.send("{} current balance is: {} nom noms :cookie:".format(pronoun, str(temp[0])))
+            await ctx.send(f"{pronoun} current balance is: {str(temp[0])} nom noms :cookie:")
 
-    @commands.command()
+    @commands.command(aliases=['lb', 'xp_lb', 'pts_lb'])
     async def leaderboard(self, ctx):
         await ctx.channel.send(embed=await self.db.lb('pts'))
 

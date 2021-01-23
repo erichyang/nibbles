@@ -30,31 +30,31 @@ class DataBase(commands.Cog):
         for i in range(0, len(lb)):
             rank += str(i + 1) + '\n'
             name += self.client.get_user(lb[i][0]).display_name + '\n'
-            val += str(lb[i][1]) + unit + '\n'
+            val += str(lb[i][1 if category == 'pts' else 2]) + unit + '\n'
         embed_var.add_field(name='Rank', value=rank, inline=True)
         embed_var.add_field(name='Name', value=name, inline=True)
         embed_var.add_field(name='Points' if category == 'pts' else 'Balance', value=val, inline=True)
         return embed_var
 
     async def set_time(self, db: str, user: str):
-        self.c.execute("UPDATE ? SET time = '?' WHERE user_id = ?", (db, datetime.now().strftime('%H:%M:%S'), user))
+        self.c.execute(f"UPDATE {db} SET time = '{datetime.now().strftime('%H:%M:%S')}' WHERE user_id = {user}")
         self.conn.commit()
 
     async def find_user(self, db: str, user: str, var: str = '*'):
-        self.c.execute("SELECT ? FROM ? WHERE user_id = ?", (var, db, user))
+        self.c.execute(f"SELECT {var} FROM {db} WHERE user_id = {user}")
         return self.c.fetchone()
 
     async def insert(self, db: str, init_val: str):
-        self.c.execute("INSERT INTO ? VALUES ?", (db, init_val))
+        self.c.execute(f"INSERT INTO {db} VALUES {init_val}")
         self.conn.commit()
 
     async def update(self, db: str, var: str, amount: str, user: str):
         # amount here must have + or -
-        self.c.execute("UPDATE ? SET ? = ?? WHERE user_id = ?", (db, var, var, amount, user))
+        self.c.execute(f"UPDATE {db} SET {var} = {var}{amount} WHERE user_id = {user}")
         self.conn.commit()
 
     async def set(self, db: str, var: str, amount: str, user: str):
-        self.c.execute("UPDATE ? SET ? = ? WHERE user_id = ?", (db, var, amount, user))
+        self.c.execute(f"UPDATE {db} SET {var} = {amount} WHERE user_id = {user}")
         self.conn.commit()
 
     async def vacuum(self):

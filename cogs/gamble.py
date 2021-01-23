@@ -71,8 +71,14 @@ class Gamble(commands.Cog):
     @commands.command()
     @has_permissions(manage_guild=True)
     async def init_announce(self, ctx):
-        await ctx.send('The announcement starts now at {0}'.format(datetime.now().strftime("%H:%M:%S")))
+        await ctx.send(f'The announcement starts now at {datetime.now().strftime("%H:%M:%S")}')
         self.announce.start()
+
+    @commands.command()
+    @has_permissions(manage_guild=True)
+    async def stop_announce(self, ctx):
+        await ctx.send('The announcement stopped')
+        self.announce.stop()
 
     @commands.command()
     @has_permissions(manage_guild=True)
@@ -120,7 +126,7 @@ class Gamble(commands.Cog):
 
     @commands.command(aliases=['wheel'])
     async def gamble_wheel(self, ctx):
-        bal = await self.db.find_user(db='user', var='bal', user=str(ctx.author.id))
+        bal = await self.db.find_user(db='users', var='bal', user=str(ctx.author.id))
 
         if ctx.author.id in self.wheel:
             await ctx.send("You already used your free wheel of fortune!")
@@ -175,9 +181,15 @@ class Gamble(commands.Cog):
             await ctx.send("Sowwy, this person does not have a nom noms stash")
             return
 
-        await self.db.update(db='users', var='bal', amount='-'+str(amount), user=str(sender_id))
-        await self.db.update(db='users', var='bal', amount='-' + str(amount), user=str(receiver_id))
+        await self.db.update(db='users', var='bal', amount='-' + str(amount), user=str(sender_id))
+        await self.db.update(db='users', var='bal', amount='+' + str(amount), user=str(receiver_id))
         await ctx.send("Done!")
+
+    @transfer.error
+    async def transfer_error(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            amount = ctx.message.content.split(' ')[2]
+            await self.transfer(ctx, int(amount))
 
     @commands.command(aliases=['gamble_blackjack', 'blackjack', 'bj'])
     async def gamble_black_jack(self, ctx, amount):
@@ -200,6 +212,9 @@ class Gamble(commands.Cog):
         self.bj['bet'] = int(amount)
         self.bj['msg'] = msg
 
+        if len(ctx.message.mentions) > 0:
+            self.bj['challenged'] = ctx.message.mentions[0]
+
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         if 'msg' in self.bj and message.author.id == 736013645045301301:
@@ -209,11 +224,13 @@ class Gamble(commands.Cog):
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
-        if 'chal' not in self.bj and not user.bot and 'init' in self.bj \
-                and user.id != self.bj['init'].id and reaction.message == self.bj['msg']:
+        if 'chal' not in self.bj and not user.bot and 'init' in self.bj and user.id != self.bj['init'].id \
+                and reaction.message == self.bj['msg']:
+            if 'challenged' in self.bj and user != self.bj['challenged']:
+                return
+
             user_bal = await self.db.find_user(db='users', user=str(user.id), var='bal')
             user_bal = user_bal[0]
-
             if user_bal < self.bj['bet']:
                 await reaction.message.channel.send("Hey " + user.display_name + ", you don't have that much nom noms!")
                 return
@@ -331,8 +348,7 @@ class Gamble(commands.Cog):
         if 'final' in self.bj:
             return
 
-        await chnl.send(
-            '<@!' + str(self.bj[user].id) + '> <@!' + str(self.bj[other].id) + '> Both players have finished!')
+        await chnl.send(f'{self.bj[user].mention} {str(self.bj[other].mention)} Both players have finished!')
 
         if init == chal or (init > 21 and chal > 21) or (init == 21 and chal == 21):
             self.bj['final'] = await chnl.send(content="The two players tied!", embed=embed)

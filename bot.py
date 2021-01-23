@@ -53,9 +53,12 @@ async def on_member_remove(member):
 
 @client.event
 async def on_command_error(ctx, error):
+    if 'transfer' in ctx.message.content:
+        return
     if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content != '.help' and \
             ctx.message.content != '.bal':
         await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
+    print(error)
 
 
 @client.command()
@@ -82,6 +85,7 @@ async def help(ctx, command):
         embed_var.add_field(name='purge', value=desc.get('purge'), inline=False)
         embed_var.add_field(name='bal', value=desc.get('bal'), inline=False)
         embed_var.add_field(name='leaderboard', value=desc.get('leaderboard'), inline=False)
+        embed_var.add_field(name='bal_lb', value=desc.get('bal_lb'), inline=False)
         embed_var.add_field(name='gamble_coin', value=desc.get('gamble_coin'), inline=False)
         embed_var.add_field(name='gamble_wheel', value=desc.get('gamble_wheel'), inline=False)
         embed_var.add_field(name='gamble_black_jack', value=desc.get('gamble_black_jack'), inline=False)
@@ -94,15 +98,15 @@ async def help(ctx, command):
             'poll': '.poll Do you like nibbles?',
             'purge': '.purge 5',
             'bal': '.bal',
-            'leaderboard': '.leaderboard',
+            'leaderboard': '.leaderboard; .lb; .xp_lb; .pts_lb',
             'bal_lb': '.bal_lb',
             'gamble_coin': '.gamble_coin heads 160; .bet_coin tails 320',
             'gamble_wheel': '.gamble_wheel; .wheel',
-            'gamble_black_jack': '.gamble_black_jack 160; .blackjack 320',
+            'gamble_black_jack': '.gamble_black_jack 160; .blackjack 320 @nibbles',
             'transfer': '.transfer @kit 160'
         }
         if desc.get(command, 'no such command') == 'no such command':
-            await ctx.send('this command doesn\'t exist!')
+            await ctx.send("this command doesn't exist!")
         else:
             embed_var.add_field(name='Command name', value=command, inline=False)
             embed_var.add_field(name='Command description', value=desc.get(command, 'no such command'), inline=False)
@@ -122,6 +126,7 @@ async def on_message(message):
         await message.channel.send("nom")
     else:
         await client.process_commands(message)
+
 
 with open('bot_token', 'r') as f:
     client.run(f.read())
