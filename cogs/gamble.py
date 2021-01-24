@@ -99,7 +99,13 @@ class Gamble(commands.Cog):
     @cooldown(5, 10, BucketType.user)
     async def gamble_coin(self, ctx, face, bet):
         _id = ctx.author.id
-        bet = int(bet)
+
+        if bet == 'all':
+            bet = self.db.find_user(db='users', user=str(_id), var='bal')
+            bet = bet[0]
+        else:
+            bet = int(bet)
+
         if bet > 1600:
             await ctx.send("Please don't gamble more than 1600, nibbles can't count all these nom noms")
             return
