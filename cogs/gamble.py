@@ -1,8 +1,9 @@
 import discord
+
 import time
 from datetime import datetime
 from discord.ext import commands, tasks
-from discord.ext.commands import has_permissions
+from discord.ext.commands import has_permissions, cooldown, BucketType, CommandOnCooldown
 import random
 
 from cogs import db
@@ -66,12 +67,10 @@ class Gamble(commands.Cog):
         channel = await self.client.fetch_channel(681149093858508834)
         await channel.send('Your free wheel of fortune is now available!')
         self.wheel = []
-        await self.db.vacuum()
 
     @commands.command()
     @has_permissions(manage_guild=True)
-    async def init_announce(self, ctx):
-        await ctx.send(f'The announcement starts now at {datetime.now().strftime("%H:%M:%S")}')
+    async def init_announce(self):
         self.announce.start()
 
     @commands.command()
@@ -97,6 +96,7 @@ class Gamble(commands.Cog):
 
     # commands
     @commands.command(aliases=['cf', 'bet_flip', 'bet_coin'])
+    @cooldown(5, 10, BucketType.user)
     async def gamble_coin(self, ctx, face, bet):
         _id = ctx.author.id
         bet = int(bet)
@@ -123,6 +123,12 @@ class Gamble(commands.Cog):
             await ctx.send('You lost! The coin showed ' + result)
             await ctx.send('You lost ' + bet + ' nom noms')
             await self.db.update(db='users', var='bal', amount='-' + str(bet), user=str(_id))
+
+    @gamble_coin.error
+    async def gamble_coin_error(self, ctx, error):
+        if isinstance(error, CommandOnCooldown):
+            await ctx.send(f'please wait {error.retry_after:,.2f} seconds before using coin flip again')
+            await ctx.send('do you want to reconsider your bet?')
 
     @commands.command(aliases=['wheel'])
     async def gamble_wheel(self, ctx):
@@ -212,7 +218,7 @@ class Gamble(commands.Cog):
         self.bj['bet'] = int(amount)
         self.bj['msg'] = msg
 
-        if len(ctx.message.mentions) > 0:
+        if len(ctx.message.mentions) > 0 and ctx.message.mentions[0] != ctx.author:
             self.bj['challenged'] = ctx.message.mentions[0]
 
     @commands.Cog.listener()
