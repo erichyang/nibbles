@@ -130,3 +130,6 @@ dmypy.json
 *.xml
 *.xml
 .idea/
+*.iml
+.idea/misc.xml
+.idea/nibbles.iml
