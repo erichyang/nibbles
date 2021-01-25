@@ -59,7 +59,7 @@ class Gamble(commands.Cog):
         self.client = client
         self.bj = {}
         self.wheel = []
-        self.db = db.DataBase(client)
+        self.db = self.client.get_cog('DataBase')
 
     # 12 hr - task
     @tasks.loop(hours=12)

@@ -10,7 +10,7 @@ class Exp(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.vc = {}
-        self.db = db.DataBase(client)
+        self.db = self.client.get_cog('DataBase')
 
     # events
     @commands.Cog.listener()

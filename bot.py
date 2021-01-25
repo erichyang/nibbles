@@ -1,8 +1,11 @@
 import discord
 import os
 import random
+
+from apscheduler.schedulers.background import BackgroundScheduler
 from discord.ext import commands, tasks
 from itertools import cycle
+from datetime import datetime, timedelta, date
 
 client = commands.Bot(command_prefix='.',
                       intents=discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True,
@@ -11,6 +14,8 @@ client.remove_command('help')
 
 status = cycle(['cookie nomming', 'sleeping', 'being a ball of fluff', 'wheel running', 'tunnel digging',
                 'wires nibbling', 'food stashing', 'treasure burying', 'grand adventure', 'collecting taxes'])
+
+scheduler = BackgroundScheduler()
 
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
@@ -121,6 +126,17 @@ async def on_message(message):
     else:
         await client.process_commands(message)
 
+
+def start_scheduler():
+    # launch_time = date.today() + timedelta(days=1)
+    launch_time = datetime.now() + timedelta(seconds=20)
+    wheel_job = scheduler.add_job(client.get_cog('Gamble').announce.start, 'date', next_run_time=launch_time)
+    vacuum_job = scheduler.add_job(client.get_cog('Summon').banner.start, 'date', next_run_time=launch_time)
+    banner_job = scheduler.add_job(client.get_cog('DataBase').vacuum.start, 'date', next_run_time=launch_time)
+    scheduler.start()
+
+
+# start_scheduler()
 
 with open('bot_token', 'r') as f:
     client.run(f.read())

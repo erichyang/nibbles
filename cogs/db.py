@@ -1,7 +1,6 @@
 import sqlite3
 
 import discord
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions
 from datetime import datetime
@@ -13,9 +12,6 @@ class DataBase(commands.Cog):
         self.client = client
         self.conn = sqlite3.connect('user.db')
         self.c = self.conn.cursor()
-        self.scheduler = AsyncIOScheduler()
-        self.c.execute("DELETE from users WHERE user_id = 529083253571977218")
-        self.conn.commit()
 
     # add cog to main system
     @commands.Cog.listener()
@@ -75,15 +71,6 @@ class DataBase(commands.Cog):
     @commands.command()
     async def profile(self, ctx):
         user_info = self.find_user(db='users', user=str(ctx.author.id))
-
-    def start_scheduler(self, scheduler: AsyncIOScheduler):
-        wheel = self.client.get_cog('Gamble').init_announce
-        banner = self.client.get_cog('Summon').init_banner_rotation
-        self.scheduler.start()
-        launch_time = datetime.date.today() + datetime.timedelta(days=1)
-        wheel_job = scheduler.add_job(wheel, launch_time)
-        vacuum_job = scheduler.add_job(self.vacuum.start, launch_time)
-        banner_job = scheduler.add_job(banner, launch_time)
 
     @commands.command()
     @has_permissions(manage_guild=True)

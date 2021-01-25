@@ -11,7 +11,7 @@ class Summon(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.db = db.DataBase(client)
+        self.db = self.client.get_cog('DataBase')
 
     # events
     @commands.Cog.listener()
