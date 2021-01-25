@@ -203,6 +203,12 @@ class Gamble(commands.Cog):
             amount = ctx.message.content.split(' ')[2]
             await self.transfer(ctx, int(amount))
 
+    @commands.command()
+    @has_permissions(manage_guild=True)
+    async def reset_blackjack(self, ctx):
+        self.bj = {}
+        await ctx.send('black jack has been reset')
+
     @commands.command(aliases=['gamble_blackjack', 'blackjack', 'bj'])
     async def gamble_black_jack(self, ctx, amount):
         if 'msg' in self.bj:
