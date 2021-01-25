@@ -67,6 +67,7 @@ async def help(ctx, command):
     desc = {
         'choose': 'Nibbles helps you choose because you\'re too indecisive',
         'coin_flip': 'flips a coin!',
+        'get_pfp': 'gets profile picture of yours or others',
         'poll': 'Nibbles helps you discover that other people are indecisive too',
         'purge': 'pew pew destroy messages',
         'bal': 'count the nom noms in your stash, ooo so many <:wow:788914745008586763>',
@@ -81,6 +82,7 @@ async def help(ctx, command):
     if command is None:
         embed_var.add_field(name='choose', value=desc.get('choose'), inline=False)
         embed_var.add_field(name='coin_flip', value=desc.get('coin_flip'), inline=False)
+        embed_var.add_field(name='get_pfp', value=desc.get('get_pfp'), inline=False)
         embed_var.add_field(name='poll', value=desc.get('poll'), inline=False)
         embed_var.add_field(name='purge', value=desc.get('purge'), inline=False)
         embed_var.add_field(name='bal', value=desc.get('bal'), inline=False)
@@ -95,6 +97,7 @@ async def help(ctx, command):
         example = {
             'choose': '.choose go to work, play video games, something else',
             'coin_flip': '.coin_flip',
+            'get_pfp': '.get_pfp; .get_pfp @<user>',
             'poll': '.poll Do you like nibbles?',
             'purge': '.purge 5',
             'bal': '.bal',

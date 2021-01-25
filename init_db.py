@@ -11,11 +11,11 @@ c = conn.cursor()
 #     )""")
 
 
-c.execute("""CREATE TABLE summons (
-         user_id integer primary key,
-         pity integer,
-         characters text
-     )""")
+# c.execute("""CREATE TABLE summons (
+#          user_id integer primary key,
+#          pity integer,
+#          characters text
+#      )""")
 
 conn.commit()
 conn.close()
