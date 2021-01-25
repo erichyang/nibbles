@@ -133,3 +133,4 @@ dmypy.json
 *.iml
 .idea/misc.xml
 .idea/nibbles.iml
+user.db
