@@ -80,18 +80,9 @@ async def help(ctx, command):
     }
 
     if command is None:
-        embed_var.add_field(name='choose', value=desc.get('choose'), inline=False)
-        embed_var.add_field(name='coin_flip', value=desc.get('coin_flip'), inline=False)
-        embed_var.add_field(name='get_pfp', value=desc.get('get_pfp'), inline=False)
-        embed_var.add_field(name='poll', value=desc.get('poll'), inline=False)
-        embed_var.add_field(name='purge', value=desc.get('purge'), inline=False)
-        embed_var.add_field(name='bal', value=desc.get('bal'), inline=False)
-        embed_var.add_field(name='leaderboard', value=desc.get('leaderboard'), inline=False)
-        embed_var.add_field(name='bal_lb', value=desc.get('bal_lb'), inline=False)
-        embed_var.add_field(name='gamble_coin', value=desc.get('gamble_coin'), inline=False)
-        embed_var.add_field(name='gamble_wheel', value=desc.get('gamble_wheel'), inline=False)
-        embed_var.add_field(name='gamble_black_jack', value=desc.get('gamble_black_jack'), inline=False)
-        embed_var.set_footer(text="ask for more help on specific commands by using .help <command>")
+        for key in desc:
+            embed_var.add_field(name=key, value=desc[key], inline=False)
+        embed_var.set_footer(text="ask for more help and aliases on any command by using .help <command>")
         await ctx.channel.send(embed=embed_var)
     else:
         example = {

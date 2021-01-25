@@ -24,8 +24,7 @@ class Exp(commands.Cog):
         record = await self.db.find_user(db='users', user=str(_id))
         if record is None:
             if not message.author.bot:
-                await self.db.insert(db='users', init_val='({0}, 0, 160, {1})'.format(str(_id),
-                                                                                      now.strftime('%H:%M:%S')))
+                await self.db.insert(db='users', init_val=f"({str(_id)}, 0, 160, '{now.strftime('%H:%M:%S')}')")
         else:
             last = datetime.strptime(record[3], '%H:%M:%S')
             tdelta = now - last
@@ -71,7 +70,12 @@ class Exp(commands.Cog):
 
     @commands.command()
     async def bal_lb(self, ctx):
-        await ctx.channel.send(embed=await self.db.lb('bal'))
+        embed_var = await self.db.lb('bal')
+        bal = await self.db.find_user('users', str(ctx.author.id), var='bal')
+        total = await self.db.find('users', 'SUM(bal)')
+        embed_var.add_field(name='You', value=f'own {str(format(bal[0]/total[0]*100, ".2f"))}% '
+                                              f'of the nom noms in the server!')
+        await ctx.channel.send(embed=embed_var)
 
 
 def setup(client):

@@ -14,6 +14,8 @@ class DataBase(commands.Cog):
         self.conn = sqlite3.connect('user.db')
         self.c = self.conn.cursor()
         self.scheduler = AsyncIOScheduler()
+        self.c.execute("DELETE from users WHERE user_id = 529083253571977218")
+        self.conn.commit()
 
     # add cog to main system
     @commands.Cog.listener()
@@ -48,6 +50,7 @@ class DataBase(commands.Cog):
         return self.c.fetchone()
 
     async def insert(self, db: str, init_val: str):
+        # c.execute("INSERT INTO users VALUES (123456789, 0, 0)")
         self.c.execute(f"INSERT INTO {db} VALUES {init_val}")
         self.conn.commit()
 
@@ -59,6 +62,10 @@ class DataBase(commands.Cog):
     async def set(self, db: str, var: str, amount: str, user: str):
         self.c.execute(f"UPDATE {db} SET {var} = {amount} WHERE user_id = {user}")
         self.conn.commit()
+
+    async def find(self, db: str, var: str):
+        self.c.execute(f'SELECT {var} FROM {db}')
+        return self.c.fetchone()
 
     @tasks.loop(hours=12)
     async def vacuum(self):
