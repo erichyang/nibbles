@@ -63,6 +63,7 @@ class DataBase(commands.Cog):
         self.c.execute(f'SELECT {var} FROM {db}')
         return self.c.fetchone()
 
+    # repeat every 12 hours
     @tasks.loop(hours=12)
     async def vacuum(self):
         self.c.execute("VACUUM")

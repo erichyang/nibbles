@@ -70,17 +70,6 @@ class Gamble(commands.Cog):
 
     @commands.command()
     @has_permissions(manage_guild=True)
-    async def init_announce(self, ctx):
-        self.announce.restart()
-
-    @commands.command()
-    @has_permissions(manage_guild=True)
-    async def stop_announce(self, ctx):
-        await ctx.send('The announcement stopped')
-        self.announce.stop()
-
-    @commands.command()
-    @has_permissions(manage_guild=True)
     async def give(self, ctx, user, amount):
         if await self.db.find_user(db='users', user=user) is None:
             await ctx.send("Sowwy, this person does not have a nom noms stash")

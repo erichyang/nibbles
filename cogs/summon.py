@@ -2,7 +2,6 @@ from datetime import datetime
 
 import discord
 from discord.ext import commands, tasks
-from discord.ext.commands import has_permissions
 
 from cogs import db
 
@@ -18,17 +17,17 @@ class Summon(commands.Cog):
     async def on_ready(self):
         print('Summon online')
 
+    # repeat every 24 hours
     @tasks.loop(hours=24)
     async def banner(self):
         channel = await self.client.fetch_channel(681149093858508834)
-        embed = discord.Embed()
-        await channel.send(content='There is a new banner available!', embed=embed)
+        embed = discord.Embed(colour=discord.Colour(0xff7cff),
+                              description="5:star: Keqing\n4:star: Bennet, Xingqiu, Xinyan",
+                              timestamp=datetime.utcfromtimestamp(1611677447))
 
-    @commands.command()
-    @has_permissions(manage_guild=True)
-    async def stop_banner(self, ctx):
-        await ctx.send('The banner rotation stopped')
-        self.banner.stop()
+        embed.set_image(url="https://cdn.discordapp.com/embed/avatars/0.png")
+
+        await channel.send(content='There is a new banner available!', embed=embed)
 
     # commands
     @commands.command()
