@@ -24,14 +24,11 @@ class Summon(commands.Cog):
         embed = discord.Embed()
         await channel.send(content='There is a new banner available!', embed=embed)
 
-    def init_banner_rotation(self):
-        self.banner.start()
-
     @commands.command()
     @has_permissions(manage_guild=True)
     async def stop_banner(self, ctx):
         await ctx.send('The banner rotation stopped')
-        self.announce.stop()
+        self.banner.stop()
 
     # commands
     @commands.command()

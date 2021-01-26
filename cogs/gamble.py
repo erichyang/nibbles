@@ -70,8 +70,8 @@ class Gamble(commands.Cog):
 
     @commands.command()
     @has_permissions(manage_guild=True)
-    async def init_announce(self):
-        self.announce.start()
+    async def init_announce(self, ctx):
+        self.announce.restart()
 
     @commands.command()
     @has_permissions(manage_guild=True)

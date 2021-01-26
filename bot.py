@@ -1,11 +1,14 @@
+import asyncio
+
 import discord
 import os
 import random
 
-from apscheduler.schedulers.background import BackgroundScheduler
 from discord.ext import commands, tasks
 from itertools import cycle
-from datetime import datetime, timedelta, date
+from threading import Thread
+import time
+from datetime import datetime, date, timedelta
 
 client = commands.Bot(command_prefix='.',
                       intents=discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True,
@@ -14,8 +17,6 @@ client.remove_command('help')
 
 status = cycle(['cookie nomming', 'sleeping', 'being a ball of fluff', 'wheel running', 'tunnel digging',
                 'wires nibbling', 'food stashing', 'treasure burying', 'grand adventure', 'collecting taxes'])
-
-scheduler = BackgroundScheduler()
 
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
@@ -26,6 +27,20 @@ for filename in os.listdir('./cogs'):
 async def on_ready():
     change_status.start()
     print("Nibbles is awake!")
+
+    # tdelta = datetime.combine(date.today() + timedelta(days=1), datetime.min.time()) - datetime.now()
+    # launch_time = tdelta.total_seconds()
+
+    # _thread = Thread(target=asyncio.run, args=(launch_tasks(),))
+    # _thread.start()
+
+
+async def launch_tasks():
+    launch_time = 10
+    await asyncio.sleep(launch_time)
+    client.get_cog('Gamble').announce.start()
+    client.get_cog('DataBase').vacuum.start()
+    client.get_cog('Summon').banner.start()
 
 
 @tasks.loop(minutes=random.randrange(10, 45))
@@ -58,11 +73,11 @@ async def on_member_remove(member):
 
 @client.event
 async def on_command_error(ctx, error):
-    if 'transfer' in ctx.message.content:
+    if '.transfer' in ctx.message.content:
         return
-    if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content != '.help' and \
-            ctx.message.content != '.bal':
+    if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content not in ['.help', '.bal']:
         await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
+    print(datetime.now())
     print(error)
 
 
@@ -126,17 +141,6 @@ async def on_message(message):
     else:
         await client.process_commands(message)
 
-
-def start_scheduler():
-    # launch_time = date.today() + timedelta(days=1)
-    launch_time = datetime.now() + timedelta(seconds=20)
-    wheel_job = scheduler.add_job(client.get_cog('Gamble').announce.start, 'date', next_run_time=launch_time)
-    vacuum_job = scheduler.add_job(client.get_cog('Summon').banner.start, 'date', next_run_time=launch_time)
-    banner_job = scheduler.add_job(client.get_cog('DataBase').vacuum.start, 'date', next_run_time=launch_time)
-    scheduler.start()
-
-
-# start_scheduler()
 
 with open('bot_token', 'r') as f:
     client.run(f.read())
