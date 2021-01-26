@@ -36,8 +36,7 @@ async def on_ready():
 
 def launch_tasks():
     asyncio.set_event_loop(client.loop)
-    # tdelta = datetime.combine(date.today() + timedelta(days=1), datetime.min.time()) - datetime.now()
-    tdelta = timedelta(minutes=5)
+    tdelta = datetime.combine(date.today() + timedelta(days=1), datetime.min.time()) - datetime.now()
     launch_time = tdelta.total_seconds()
     time.sleep(launch_time)
     client.get_cog('Gamble').announce.start()
