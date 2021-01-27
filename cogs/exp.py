@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import random
 from datetime import datetime
-from cogs import db
+from cogs import udb
 
 
 class Exp(commands.Cog):
@@ -10,7 +10,7 @@ class Exp(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.vc = {}
-        self.db = db.DataBase(client)
+        self.db = udb.UserDatabase(client)
 
     # events
     @commands.Cog.listener()

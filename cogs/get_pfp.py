@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
 
-class GetPfp(commands.Cog):
+
+class GetPFP(commands.Cog):
 
     def __init__(self, client):
         self.client = client
@@ -23,10 +24,10 @@ class GetPfp(commands.Cog):
         user_name = user.display_name
 
         embed = discord.Embed(color=0x8109e9)
-        embed.set_author(name=user_name + '\'s Pfp:')
+        embed.set_author(name=user_name + '\'s Profile Picture:')
         embed.set_image(url=pfp)
         await ctx.send(embed=embed)
 
 
 def setup(client):
-    client.add_cog(GetPfp(client))
+    client.add_cog(GetPFP(client))

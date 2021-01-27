@@ -1,7 +1,7 @@
 import sqlite3
 
-conn = sqlite3.connect('user.db')
-c = conn.cursor()
+# conn = sqlite3.connect('user.db')
+# c = conn.cursor()
 
 # Create a Table
 # c.execute("""CREATE TABLE users (
@@ -11,11 +11,26 @@ c = conn.cursor()
 #     )""")
 
 
-# c.execute("""CREATE TABLE summons (
-#          user_id integer primary key,
-#          pity integer,
-#          characters text
-#      )""")
+# conn.commit()
+# conn.close()
+
+conn = sqlite3.connect('gacha.db')
+c = conn.cursor()
+
+# Create a Table
+c.execute("""CREATE TABLE users (
+        user_id integer primary key,
+        event_pity integer,
+        weapon_pity integer,
+        reg_pity integer
+    )""")
+
+c.execute("""CREATE TABLE inventory (
+        user_id integer primary key,
+        characters text,
+        weapons text,
+        xp_books integer
+    )""")
 
 conn.commit()
 conn.close()

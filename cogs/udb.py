@@ -6,11 +6,13 @@ from discord.ext.commands import has_permissions
 from datetime import datetime
 
 
-class DataBase(commands.Cog):
+class UserDatabase(commands.Cog):
 
     def __init__(self, client):
         self.client = client
         self.conn = sqlite3.connect('user.db')
+        # xp and economy
+        # inventory
         self.c = self.conn.cursor()
 
     # add cog to main system
@@ -81,4 +83,4 @@ class DataBase(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(DataBase(client))
+    client.add_cog(UserDatabase(client))

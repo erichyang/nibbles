@@ -6,7 +6,7 @@ from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, cooldown, BucketType, CommandOnCooldown
 import random
 
-from cogs import db
+from cogs import udb
 
 
 def _bj_total(hand):
@@ -59,7 +59,7 @@ class Gamble(commands.Cog):
         self.client = client
         self.bj = {}
         self.wheel = []
-        self.db = db.DataBase(client)
+        self.db = udb.UserDatabase(client)
 
     # 12 hr - task
     @tasks.loop(hours=12)
@@ -125,7 +125,7 @@ class Gamble(commands.Cog):
             await ctx.send(f'please wait {error.retry_after:,.2f} seconds before using coin flip again')
             await ctx.send('do you want to reconsider your bet?')
 
-    @commands.command(aliases=['wheel'])
+    @commands.command(aliases=['wheel', 'spin'])
     async def gamble_wheel(self, ctx):
         bal = await self.db.find_user(db='users', var='bal', user=str(ctx.author.id))
 
@@ -142,15 +142,21 @@ class Gamble(commands.Cog):
         msg = await ctx.send(content="Spinning the Wheel of Fortune", embed=embed)
 
         result = random.randint(1, 100)
-        prize = 88
-        if result == 1:
+        prize = 150
+        if result <= 1:
             prize = 10000
         elif 2 <= result <= 3:
             prize = 5000
-        elif 4 <= result <= 6:
-            prize = 1000
-        elif 7 <= result <= 10:
-            prize = 500
+        elif 90 < result <= 100:
+            prize = 400
+        elif 80 < result <= 90:
+            prize = 320
+        elif 70 < result <= 80:
+            prize = 240
+        elif 50 <= result <= 60:
+            prize = 160
+        elif 40 <= result <= 50:
+            prize = 80
 
         time.sleep(4)
 

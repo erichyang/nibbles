@@ -3,6 +3,7 @@ import asyncio
 import discord
 import os
 import random
+import pytz
 
 from discord.ext import commands, tasks
 from itertools import cycle
@@ -36,8 +37,12 @@ async def on_ready():
 
 def launch_tasks():
     asyncio.set_event_loop(client.loop)
-    tdelta = datetime.combine(date.today() + timedelta(days=1), datetime.min.time()) - datetime.now()
+    now = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone("America/Chicago"))
+    midnight = datetime.combine(date.today() + timedelta(days=1), datetime.min.time())
+    midnight = midnight.astimezone(pytz.timezone("America/Chicago"))
+    tdelta = midnight - now
     launch_time = tdelta.total_seconds()
+    print(launch_time)
     time.sleep(launch_time)
     client.get_cog('Gamble').announce.start()
     client.get_cog('DataBase').vacuum.start()
@@ -87,7 +92,7 @@ async def descriptions(ctx, command):
         'bal_lb': ['flex on your friends or something you gambling addicts', '.bal_lb'],
         'gamble_coin': ['flip a coin with the face you predict and how much you want to bet for it',
                         '.gamble_coin heads 160; .bet_coin tails 320'],
-        'gamble_wheel': ['spin a wheel of fortune for free every 12 hours! You can win prizes from :cookie:88 to 10000',
+        'gamble_wheel': ['spin a wheel of fortune for free every 12 hours! You can win prizes from :cookie:100-10000',
                          '.gamble_wheel; .wheel'],
         'gamble_black_jack': ['bet against any player that accepts the challenge by playing black_jack',
                               '.gamble_black_jack 160; .blackjack 320 @nibbles'],
