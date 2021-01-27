@@ -38,7 +38,7 @@ async def on_ready():
 def launch_tasks():
     asyncio.set_event_loop(client.loop)
     now = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone("America/Chicago"))
-    midnight = datetime.combine(date.today() + timedelta(days=1), datetime.min.time())
+    midnight = datetime.combine(date.today() + timedelta(days=1), datetime.min.time()) + timedelta(hours=6)
     midnight = midnight.astimezone(pytz.timezone("America/Chicago"))
     tdelta = midnight - now
     launch_time = tdelta.total_seconds()
