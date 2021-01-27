@@ -41,7 +41,7 @@ def launch_tasks():
     midnight = datetime.combine(date.today() + timedelta(days=1), datetime.min.time()) + timedelta(hours=6)
     midnight = midnight.astimezone(pytz.timezone("America/Chicago"))
     tdelta = midnight - now
-    launch_time = tdelta.total_seconds()
+    launch_time = tdelta.total_seconds() % (24 * 3600)
     print(launch_time)
     time.sleep(launch_time)
     client.get_cog('Gamble').announce.start()
