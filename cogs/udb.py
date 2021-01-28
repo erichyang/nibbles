@@ -72,10 +72,6 @@ class UserDatabase(commands.Cog):
         self.conn.commit()
 
     @commands.command()
-    async def profile(self, ctx):
-        user_info = self.find_user(db='users', user=str(ctx.author.id))
-
-    @commands.command()
     @has_permissions(manage_guild=True)
     async def close_table(self, ctx):
         self.conn.close()

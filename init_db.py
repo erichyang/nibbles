@@ -20,9 +20,13 @@ c = conn.cursor()
 # Create a Table
 c.execute("""CREATE TABLE users (
         user_id integer primary key,
-        event_pity integer,
-        weapon_pity integer,
-        reg_pity integer
+        event_guarantee integer,
+        char_pity5 integer,
+        weapon_pity5 integer,
+        reg_pity5 integer,
+        char_pity4 integer,
+        weapon_pity4 integer,
+        reg_pity4 integer
     )""")
 
 c.execute("""CREATE TABLE inventory (

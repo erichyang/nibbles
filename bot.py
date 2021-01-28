@@ -41,11 +41,12 @@ def launch_tasks():
     midnight = datetime.combine(date.today() + timedelta(days=1), datetime.min.time()) + timedelta(hours=6)
     midnight = midnight.astimezone(pytz.timezone("America/Chicago"))
     tdelta = midnight - now
-    launch_time = tdelta.total_seconds() % (24 * 3600)
-    print(launch_time)
-    time.sleep(launch_time)
-    client.get_cog('Gamble').announce.start()
-    client.get_cog('DataBase').vacuum.start()
+    launch_time = tdelta.total_seconds() % (24*3600)
+    time.sleep(30)
+    # client.get_cog('Gamble').announce.start()
+    client.get_cog('Summon').new_banner_rotation.start()
+    # client.get_cog('UserDatabase').vacuum.start()
+    # client.get_cog('GachaDatabase').vacuum.start()
 
 
 @tasks.loop(minutes=random.randrange(10, 45))
@@ -66,18 +67,18 @@ async def on_member_remove(member):
     await member.guild.get_channel(681149093858508834).send(f'Bai bai {member.name} <:qiqi:781667748031103036>')
 
 
-@client.event
-async def on_command_error(ctx, error):
-    if '.transfer' in ctx.message.content:
-        return
-    if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content not in ['.help', '.bal']:
-        await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
-    else:
-        print(datetime.now())
-        print(error)
+# @client.event
+# async def on_command_error(ctx, error):
+#     if '.transfer' in ctx.message.content:
+#         return
+#     if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content not in ['.help', '.bal']:
+#         await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
+#     else:
+#         print(datetime.now())
+#         print(error)
 
 
-@client.command(alliases=['help'])
+@client.command(aliases=['help'])
 async def descriptions(ctx, command):
     embed_var = discord.Embed(title="Nibbles is here to help", color=0x8109e9)
     desc = {
@@ -93,7 +94,7 @@ async def descriptions(ctx, command):
         'gamble_coin': ['flip a coin with the face you predict and how much you want to bet for it',
                         '.gamble_coin heads 160; .bet_coin tails 320'],
         'gamble_wheel': ['spin a wheel of fortune for free every 12 hours! You can win prizes from :cookie:100-10000',
-                         '.gamble_wheel; .wheel'],
+                         '.gamble_wheel; .wheel; .spin'],
         'gamble_black_jack': ['bet against any player that accepts the challenge by playing black_jack',
                               '.gamble_black_jack 160; .blackjack 320 @nibbles'],
         'transfer': ['give your money to someone else, but why would you do that if you could give them all to nibbles',

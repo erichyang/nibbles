@@ -133,6 +133,8 @@ class Gamble(commands.Cog):
             await ctx.send("You already used your free wheel of fortune!")
             return
 
+        self.wheel.append(ctx.author.id)
+
         embed = discord.Embed(title="**SPINNING**", colour=discord.Colour(0x5e05df))
         embed.set_image(url="https://cdn.discordapp.com/attachments/703247498508238938/800820068426317854/wheel.gif")
         embed.set_thumbnail(url=ctx.author.avatar_url)
@@ -169,8 +171,6 @@ class Gamble(commands.Cog):
         await self.db.update(db='users', var='bal', amount='+'+(str(prize)), user=str(ctx.author.id))
 
         await msg.edit(content='Wheel of Fortune Results', embed=embed)
-
-        self.wheel.append(ctx.author.id)
 
     @commands.command()
     async def transfer(self, ctx, amount):

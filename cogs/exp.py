@@ -77,6 +77,10 @@ class Exp(commands.Cog):
                                               f'of the nom noms in the server!')
         await ctx.channel.send(embed=embed_var)
 
+    @commands.command()
+    async def profile(self, ctx):
+        user_info = self.db.find_user(db='users', user=str(ctx.author.id))
+
 
 def setup(client):
     client.add_cog(Exp(client))

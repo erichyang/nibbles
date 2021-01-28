@@ -1,4 +1,6 @@
+import time
 from datetime import datetime
+import random
 
 import discord
 from discord.ext import commands, tasks
@@ -19,8 +21,9 @@ class Summon(commands.Cog):
         print('Summon online')
 
     # repeat every 24 hours
+    # @commands.command()
     @tasks.loop(hours=24)
-    async def banner(self):
+    async def new_banner_rotation(self):
         channel = await self.client.fetch_channel(681149093858508834)
         five, four = self.client.get_cog('GachaDatabase').new_banner()
         desc = '5:star: ' + five + f'\n4:star: {four[0]}, {four[1]}, {four[2]}'
@@ -28,25 +31,98 @@ class Summon(commands.Cog):
         embed = discord.Embed(colour=discord.Colour(0xff7cff),
                               description=desc,
                               timestamp=datetime.now())
-
-        embed.set_image(url="https://cdn.discordapp.com/embed/avatars/0.png")
+        img = discord.File('./img/profile_bg.jpg', 'banner.jpg')
+        temp_channel = await self.client.fetch_channel(752676890413629471)
+        msg = await temp_channel.send('', file=img)
+        img_url = msg.attachments[0].url
+        embed.set_image(url=img_url)
 
         await channel.send(content='There is a new banner available!', embed=embed)
 
     # commands
-    @commands.command()
-    async def intertwined_wish(self, ctx, amount):
-        user = await self.udb.find_user(db='users', user=str(ctx.author.id), var='bal')
-        if user[0] <= amount * 160:
+    @commands.command(aliases=['wish_char'])
+    async def event_char_wish(self, ctx, amount):
+        pity5 = self.gdb.find_user('users', str(ctx.author.id), var='char_pity5')
+        pity4 = self.gdb.find_user('users', str(ctx.author.id), var='char_pity4')
+
+        amount = int(amount)
+        if not await self._wish_check_bal(ctx.author.id, amount):
             await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
             return
 
-    @commands.command()
-    async def acquaint_wish(self, ctx, amount):
-        user = await self.udb.find_user(db='users', user=str(ctx.author.id), var='bal')
-        if user[0] <= amount * 160:
+        categories = await self.rarity_calc(ctx.author.id, 'char', amount, pity5, pity4)
+        await ctx.send(self._wish_results(categories))
+
+    @commands.command(aliases=['wish_weapon'])
+    async def event_weapon_wish(self, ctx, amount):
+        if not self._wish_check_bal(ctx.author.id, amount):
             await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
             return
+
+    @commands.command(aliases=['wish_reg'])
+    async def reg_wish(self, ctx, amount):
+        if not self._wish_check_bal(ctx.author.id, amount):
+            await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
+            return
+
+    def _wish_results(self, categories):
+        results = []
+        for _ in range(categories[0]):
+            if random.random() >= 0.5:
+                results.append(self.gdb.cur5)
+            else:
+                options = self.gdb.fives[:]
+                options.remove(self.gdb.cur5)
+                results.append(random.choice(options))
+        for _ in range(categories[1]):
+            if random.random() >= 0.5:
+                random.choice(self.gdb.cur4)
+            else:
+                options = self.gdb.fours[:]
+                options.remove(self.gdb.cur4)
+                results.append(random.choice(options))
+        for _ in range(categories[2]):
+            results.append('xp_book')
+        return results
+
+    async def _wish_check_bal(self, user_id: int, amount: int):
+        user = await self.udb.find_user(db='users', user=str(user_id), var='bal')
+        if int(user[0]) <= amount * 160:
+            return False
+        else:
+            return True
+
+    async def rarity_calc(self, user_id, banner, num: int, pity5, pity4):
+        five_stars = 0
+        four_stars = 0
+        xp_books = 0
+
+        for i in range(num):
+            val = random.random()
+
+            if banner == 'char' or 'reg':
+                five_chance = 0.0006 if pity5 <= 75 else 0.324
+            else:
+                five_chance = 0.006 if pity5 <= 65 else 0.324
+
+            if val <= five_chance or pity5 >= 90:
+                five_stars += 1
+                pity5 = 0
+                pity4 += 1
+                continue
+            val = random.random()
+            if val <= 0.051 or four_stars >= 10:
+                four_stars += 1
+                pity4 = 0
+                pity5 += 1
+            else:
+                xp_books += 1
+                pity4 += 1
+                pity5 += 1
+
+        await self.gdb.set('users', f'{banner}_pity5', str(pity5), str(user_id))
+        await self.gdb.set('users', f'{banner}_pity4', str(pity4), str(user_id))
+        return [five_stars, four_stars, xp_books]
 
 
 def setup(client):
