@@ -3,41 +3,46 @@ import sqlite3
 # conn = sqlite3.connect('user.db')
 # c = conn.cursor()
 
+# c.execute("ALTER TABLE users DROP COLUMN desc type")
+
 # Create a Table
 # c.execute("""CREATE TABLE users (
 #         user_id integer primary key,
 #         pts integer,
-#         bal integer
+#         bal integer,
+#         time text,
+#         description text
 #     )""")
+# c.execute("ALTER TABLE users ADD COLUMN description text")
 
 
 # conn.commit()
 # conn.close()
 
-conn = sqlite3.connect('gacha.db')
-c = conn.cursor()
+# conn = sqlite3.connect('gacha.db')
+# c = conn.cursor()
+#
+# # Create a Table
+# c.execute("""CREATE TABLE users (
+#         user_id integer primary key,
+#         event_guarantee integer,
+#         char_pity5 integer,
+#         weapon_pity5 integer,
+#         reg_pity5 integer,
+#         char_pity4 integer,
+#         weapon_pity4 integer,
+#         reg_pity4 integer
+#     )""")
+#
+# c.execute("""CREATE TABLE inventory (
+#         user_id integer primary key,
+#         characters text,
+#         weapons text,
+#         xp_books integer
+#     )""")
 
-# Create a Table
-c.execute("""CREATE TABLE users (
-        user_id integer primary key,
-        event_guarantee integer,
-        char_pity5 integer,
-        weapon_pity5 integer,
-        reg_pity5 integer,
-        char_pity4 integer,
-        weapon_pity4 integer,
-        reg_pity4 integer
-    )""")
-
-c.execute("""CREATE TABLE inventory (
-        user_id integer primary key,
-        characters text,
-        weapons text,
-        xp_books integer
-    )""")
-
-conn.commit()
-conn.close()
+# conn.commit()
+# conn.close()
 
 # import sqlite3
 

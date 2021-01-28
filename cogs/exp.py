@@ -21,10 +21,10 @@ class Exp(commands.Cog):
     async def on_message(self, message):
         now = datetime.now()
         _id = message.author.id
-        record = await self.db.find_user(db='users', user=str(_id))
+        record = self.db.find_user(db='users', user=str(_id))
         if record is None:
             if not message.author.bot:
-                await self.db.insert(db='users', init_val=f"({str(_id)}, 0, 160, '{now.strftime('%H:%M:%S')}')")
+                await self.db.insert(db='users', init_val=f"({str(_id)}, 0, 160, '{now.strftime('%H:%M:%S')}', '')")
         else:
             last = datetime.strptime(record[3], '%H:%M:%S')
             tdelta = now - last
@@ -52,11 +52,11 @@ class Exp(commands.Cog):
     @commands.command()
     async def bal(self, ctx):
         if len(ctx.message.mentions) == 0:
-            temp = await self.db.find_user(db='users', user=str(ctx.author.id), var='bal')
+            temp = self.db.find_user(db='users', user=str(ctx.author.id), var='bal')
             pronoun = 'Your'
         else:
             member = ctx.message.mentions[0]
-            temp = await self.db.find_user(db='users', user=str(member.id), var='bal')
+            temp = self.db.find_user(db='users', user=str(member.id), var='bal')
             pronoun = member.display_name + "'s"
 
         if temp is None:
@@ -71,15 +71,43 @@ class Exp(commands.Cog):
     @commands.command()
     async def bal_lb(self, ctx):
         embed_var = await self.db.lb('bal')
-        bal = await self.db.find_user('users', str(ctx.author.id), var='bal')
-        total = await self.db.find('users', 'SUM(bal)')
+        bal = self.db.find_user('users', str(ctx.author.id), var='bal')
+        total = self.db.find('users', 'SUM(bal)')
         embed_var.add_field(name='You', value=f'own {str(format(bal[0]/total[0]*100, ".2f"))}% '
                                               f'of the nom noms in the server!')
         await ctx.channel.send(embed=embed_var)
 
     @commands.command()
     async def profile(self, ctx):
-        user_info = self.db.find_user(db='users', user=str(ctx.author.id))
+        if len(ctx.message.mentions) > 0:
+            user_id = ctx.message.mentions[0].id
+        else:
+            user_id = ctx.author.id
+        user = self.client.get_user(user_id)
+        pfp = user.avatar_url
+
+        user_info = self.db.find_user(db='users', user=str(user_id))
+
+        if user_info[4] == '' or user_info[4] is None:
+            desc = 'This user has not set a description yet.'
+        else:
+            desc = user_info[4]
+
+        embed = discord.Embed(colour=discord.Colour(0xff9cd0), description=desc,
+                              timestamp=datetime.utcfromtimestamp(1611799584))
+
+        embed.set_thumbnail(url=pfp)
+        embed.set_author(name=f"{user.display_name}'s Profile")
+
+        embed.add_field(name="EXP:", value=user_info[1], inline=True)
+        embed.add_field(name="Nom Noms:", value=user_info[2], inline=True)
+
+        await ctx.send(embed=embed)
+
+    @commands.command(aliases=['setdesc', 'setdescription', 'set_description'])
+    async def set_desc(self, ctx, *, param):
+        await self.db.set('users', 'description', f"'{param}'", str(ctx.author.id))
+        await ctx.send('Description updated <:nekocheer:804178590094327878>')
 
 
 def setup(client):

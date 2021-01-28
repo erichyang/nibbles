@@ -71,7 +71,7 @@ class Gamble(commands.Cog):
     @commands.command()
     @has_permissions(manage_guild=True)
     async def give(self, ctx, user, amount):
-        if await self.db.find_user(db='users', user=user) is None:
+        if self.db.find_user(db='users', user=user) is None:
             await ctx.send("Sowwy, this person does not have a nom noms stash")
             return
 
@@ -101,7 +101,7 @@ class Gamble(commands.Cog):
         if bet <= 0:
             await ctx.send("why don't you just use the normal coin flip ;-; ")
             return
-        bal = await self.db.find_user(db='users', user=str(_id), var='bal')
+        bal = self.db.find_user(db='users', user=str(_id), var='bal')
         if bal[0] < bet:
             await ctx.send("You don't have enough nom noms to be gambling, you current balance is " + str(bal))
             return
@@ -127,7 +127,7 @@ class Gamble(commands.Cog):
 
     @commands.command(aliases=['wheel', 'spin'])
     async def gamble_wheel(self, ctx):
-        bal = await self.db.find_user(db='users', var='bal', user=str(ctx.author.id))
+        bal = self.db.find_user(db='users', var='bal', user=str(ctx.author.id))
 
         if ctx.author.id in self.wheel:
             await ctx.send("You already used your free wheel of fortune!")
@@ -179,12 +179,12 @@ class Gamble(commands.Cog):
             return
         receiver_id = ctx.message.mentions[0].id
         sender_id = ctx.author.id
-        sender_bal = await self.db.find_user(db='users', user=str(sender_id), var='bal')
+        sender_bal = self.db.find_user(db='users', user=str(sender_id), var='bal')
         sender_bal = sender_bal[0]
         if sender_bal < int(amount):
             await ctx.send('You do not have enough nom noms to give!')
             return
-        if await self.db.find_user(db='users', user=str(receiver_id)) is None:
+        if self.db.find_user(db='users', user=str(receiver_id)) is None:
             await ctx.send("Sowwy, this person does not have a nom noms stash")
             return
 
@@ -213,7 +213,7 @@ class Gamble(commands.Cog):
         if int(amount) < 0:
             await ctx.send('No you will not get money from losing')
             return
-        temp = await self.db.find_user(db='users', user=str(ctx.author.id), var='bal')
+        temp = self.db.find_user(db='users', user=str(ctx.author.id), var='bal')
         if temp[0] < int(amount):
             await ctx.send('Hey you don\'t have that much nom noms!')
             return
@@ -242,7 +242,7 @@ class Gamble(commands.Cog):
             if 'challenged' in self.bj and user != self.bj['challenged']:
                 return
 
-            user_bal = await self.db.find_user(db='users', user=str(user.id), var='bal')
+            user_bal = self.db.find_user(db='users', user=str(user.id), var='bal')
             user_bal = user_bal[0]
             if user_bal < self.bj['bet']:
                 await reaction.message.channel.send("Hey " + user.display_name + ", you don't have that much nom noms!")

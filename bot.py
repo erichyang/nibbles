@@ -44,7 +44,7 @@ def launch_tasks():
     launch_time = tdelta.total_seconds() % (24*3600)
     time.sleep(30)
     # client.get_cog('Gamble').announce.start()
-    client.get_cog('Summon').new_banner_rotation.start()
+    # client.get_cog('Summon').new_banner_rotation.start()
     # client.get_cog('UserDatabase').vacuum.start()
     # client.get_cog('GachaDatabase').vacuum.start()
 
@@ -87,7 +87,8 @@ async def descriptions(ctx, command):
         'coin_flip': ['flips a coin!', '.coin_flip'],
         'get_pfp': ['gets profile picture of yours or others', '.get_pfp; .get_pfp @<user>'],
         'poll': ['Nibbles helps you discover that other people are indecisive too', '.poll Do you like nibbles?'],
-        'purge': ['pew pew destroy messages', '.purge 5'],
+        'profile': ['check your profile that has your exp and nom noms', '.profile; .profile @nibbles'],
+        'set_desc': ['set your beautiful message to be seen on your profile :D', '.set_desc Hi I am nibbles!'],
         'bal': ['count the nom noms in your stash, ooo so many <:wow:788914745008586763>', '.bal'],
         'leaderboard': ['check the top ten people with the highest points!', '.leaderboard; .lb; .xp_lb; .pts_lb'],
         'bal_lb': ['flex on your friends or something you gambling addicts', '.bal_lb'],

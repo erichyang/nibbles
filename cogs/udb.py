@@ -43,7 +43,7 @@ class UserDatabase(commands.Cog):
         self.c.execute(f"UPDATE {db} SET time = '{datetime.now().strftime('%H:%M:%S')}' WHERE user_id = {user}")
         self.conn.commit()
 
-    async def find_user(self, db: str, user: str, var: str = '*'):
+    def find_user(self, db: str, user: str, var: str = '*'):
         self.c.execute(f"SELECT {var} FROM {db} WHERE user_id = {user}")
         return self.c.fetchone()
 
@@ -60,8 +60,10 @@ class UserDatabase(commands.Cog):
     async def set(self, db: str, var: str, amount: str, user: str):
         self.c.execute(f"UPDATE {db} SET {var} = {amount} WHERE user_id = {user}")
         self.conn.commit()
+        # self.c.execute('SELECT * FROM users')
+        # print(self.c.fetchall())
 
-    async def find(self, db: str, var: str):
+    def find(self, db: str, var: str):
         self.c.execute(f'SELECT {var} FROM {db}')
         return self.c.fetchone()
 
