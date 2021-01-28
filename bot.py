@@ -42,11 +42,11 @@ def launch_tasks():
     midnight = midnight.astimezone(pytz.timezone("America/Chicago"))
     tdelta = midnight - now
     launch_time = tdelta.total_seconds() % (24*3600)
-    time.sleep(30)
-    # client.get_cog('Gamble').announce.start()
-    # client.get_cog('Summon').new_banner_rotation.start()
-    # client.get_cog('UserDatabase').vacuum.start()
-    # client.get_cog('GachaDatabase').vacuum.start()
+    time.sleep(launch_time)
+    client.get_cog('Gamble').announce.start()
+    client.get_cog('Summon').new_banner_rotation.start()
+    client.get_cog('UserDatabase').vacuum.start()
+    client.get_cog('GachaDatabase').vacuum.start()
 
 
 @tasks.loop(minutes=random.randrange(10, 45))
@@ -67,15 +67,15 @@ async def on_member_remove(member):
     await member.guild.get_channel(681149093858508834).send(f'Bai bai {member.name} <:qiqi:781667748031103036>')
 
 
-# @client.event
-# async def on_command_error(ctx, error):
-#     if '.transfer' in ctx.message.content:
-#         return
-#     if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content not in ['.help', '.bal']:
-#         await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
-#     else:
-#         print(datetime.now())
-#         print(error)
+@client.event
+async def on_command_error(ctx, error):
+    if '.transfer' in ctx.message.content:
+        return
+    if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content not in ['.help', '.bal']:
+        await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
+    else:
+        print(datetime.now())
+        print(error)
 
 
 @client.command(aliases=['help'])

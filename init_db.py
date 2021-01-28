@@ -1,9 +1,7 @@
 import sqlite3
 
-# conn = sqlite3.connect('user.db')
-# c = conn.cursor()
-
-# c.execute("ALTER TABLE users DROP COLUMN desc type")
+conn = sqlite3.connect('user.db')
+c = conn.cursor()
 
 # Create a Table
 # c.execute("""CREATE TABLE users (
@@ -13,11 +11,11 @@ import sqlite3
 #         time text,
 #         description text
 #     )""")
-# c.execute("ALTER TABLE users ADD COLUMN description text")
+c.execute("ALTER TABLE users ADD COLUMN description text")
 
 
-# conn.commit()
-# conn.close()
+conn.commit()
+conn.close()
 
 # conn = sqlite3.connect('gacha.db')
 # c = conn.cursor()
