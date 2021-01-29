@@ -45,14 +45,14 @@ class Exp(commands.Cog):
             await self.db.set_time(db='users', user=str(_id))
 
         moons = message.guild.get_role(706989660244541540)
-        planets = message.guild.get_role(698255109406326876)
-        stars = message.guild.get_role(709910163879886917)
+        planets = message.guild.get_role(709910163879886917)
+        stars = message.guild.get_role(698255109406326876)
         if moons in message.author.roles:
             old_role = message.guild.get_role(706989660244541540)
         elif planets in message.author.roles:
-            old_role = message.guild.get_role(698255109406326876)
-        else:
             old_role = message.guild.get_role(709910163879886917)
+        else:
+            old_role = message.guild.get_role(698255109406326876)
         temp = self.db.top_six('pts')
         temp = [temp[0][0], temp[1][0], temp[2][0], temp[3][0], temp[4][0], temp[5][0]]
         if record is None:
