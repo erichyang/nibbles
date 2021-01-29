@@ -57,8 +57,11 @@ class UserDatabase(commands.Cog):
         self.c.execute(f"UPDATE {db} SET {var} = {var}{amount} WHERE user_id = {user}")
         self.conn.commit()
 
-    async def set(self, db: str, var: str, amount: str, user: str):
-        self.c.execute(f"UPDATE {db} SET {var} = {amount} WHERE user_id = {user}")
+    async def set(self, db: str, var: str, amount: str, user):
+        if user is None:
+            self.c.execute(f"UPDATE {db} SET {var} = {amount}")
+        else:
+            self.c.execute(f"UPDATE {db} SET {var} = {amount} WHERE user_id = {user}")
         self.conn.commit()
         # self.c.execute('SELECT * FROM users')
         # print(self.c.fetchall())
@@ -66,6 +69,10 @@ class UserDatabase(commands.Cog):
     def find(self, db: str, var: str):
         self.c.execute(f'SELECT {var} FROM {db}')
         return self.c.fetchone()
+
+    def top_six(self, category):
+        self.c.execute("SELECT user_id FROM users ORDER BY " + category + " DESC LIMIT 6")
+        return self.c.fetchall()
 
     # repeat every 12 hours
     @tasks.loop(hours=12)

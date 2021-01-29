@@ -17,7 +17,7 @@ class Status(commands.Cog):
     # commands
     @commands.Cog.listener()
     async def on_member_update(self, prev, cur):
-        if cur.nick.lower() != cur.nick:
+        if cur.nick is not None and cur.nick.lower() != cur.nick:
             await cur.edit(nick=cur.nick.lower())
         if cur.activity is not None and cur.activity.name in self.games:
             role = discord.utils.get(cur.guild.roles, name=cur.activity.name)
@@ -33,7 +33,6 @@ class Status(commands.Cog):
                         await prev.remove_roles(old)
                     except AttributeError:
                         pass
-
         else:
             try:
                 for game in self.games:

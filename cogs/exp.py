@@ -4,6 +4,9 @@ import discord
 from discord.ext import commands
 import random
 from datetime import datetime
+
+from discord.ext.commands import has_permissions
+
 from util import udb
 from util.pillow import Pillow
 
@@ -40,6 +43,40 @@ class Exp(commands.Cog):
                 await self.db.update(db='users', var='pts', amount='+' + str(val), user=str(_id))
             await self.db.update(db='users', var='bal', amount='+' + str(val), user=str(_id))
             await self.db.set_time(db='users', user=str(_id))
+
+        moons = message.guild.get_role(706989660244541540)
+        planets = message.guild.get_role(698255109406326876)
+        stars = message.guild.get_role(709910163879886917)
+        if moons in message.author.roles:
+            old_role = message.guild.get_role(706989660244541540)
+        elif planets in message.author.roles:
+            old_role = message.guild.get_role(698255109406326876)
+        else:
+            old_role = message.guild.get_role(709910163879886917)
+        temp = self.db.top_six('pts')
+        temp = [temp[0][0], temp[1][0], temp[2][0], temp[3][0], temp[4][0], temp[5][0]]
+        if record is None:
+            return
+        if record[1] <= 700 and old_role is not moons:
+            await message.author.add_roles(moons)
+            await message.author.remove_roles(old_role)
+        elif _id in temp and old_role is not stars:
+            await message.author.add_roles(stars)
+            await message.author.remove_roles(old_role)
+        elif record[1] >= 700 and old_role.id is not planets:
+            await message.author.add_roles(planets)
+            await message.author.remove_roles(old_role)
+
+    @commands.command()
+    @has_permissions(manage_guild=True)
+    async def init_roles(self, ctx):
+        for member in ctx.guild.members:
+            if not member.bot:
+                await member.remove_roles(ctx.guild.get_role(698255109406326876))
+                await member.remove_roles(ctx.guild.get_role(709910163879886917))
+                await member.add_roles(ctx.guild.get_role(706989660244541540))
+        await self.db.set('users', 'pts', '0', None)
+        await ctx.send('done')
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, prev, cur):
@@ -78,7 +115,7 @@ class Exp(commands.Cog):
         embed_var = await self.db.lb('bal')
         bal = self.db.find_user('users', str(ctx.author.id), var='bal')
         total = self.db.find('users', 'SUM(bal)')
-        embed_var.add_field(name='You', value=f'own {str(format(bal[0]/total[0]*100, ".2f"))}% '
+        embed_var.add_field(name='You', value=f'own {str(format(bal[0] / total[0] * 100, ".2f"))}% '
                                               f'of the nom noms in the server!')
         await ctx.channel.send(embed=embed_var)
 
