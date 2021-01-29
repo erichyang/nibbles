@@ -70,11 +70,11 @@ class Exp(commands.Cog):
     @commands.command()
     @has_permissions(manage_guild=True)
     async def init_roles(self, ctx):
-        for member in ctx.guild.members:
-            if not member.bot:
-                await member.remove_roles(ctx.guild.get_role(698255109406326876))
-                await member.remove_roles(ctx.guild.get_role(709910163879886917))
-                await member.add_roles(ctx.guild.get_role(706989660244541540))
+        # for member in ctx.guild.members:
+        #     if not member.bot:
+        #         await member.remove_roles(ctx.guild.get_role(698255109406326876))
+        #         await member.remove_roles(ctx.guild.get_role(709910163879886917))
+        #         await member.add_roles(ctx.guild.get_role(706989660244541540))
         await self.db.set('users', 'pts', '0', None)
         await ctx.send('done')
 
