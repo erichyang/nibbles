@@ -57,13 +57,15 @@ class Exp(commands.Cog):
         temp = [temp[0][0], temp[1][0], temp[2][0], temp[3][0], temp[4][0], temp[5][0]]
         if record is None:
             return
-        if record[1] <= 700 and old_role is not moons:
-            await message.author.add_roles(moons)
-            await message.author.remove_roles(old_role)
-        elif _id in temp and old_role is not stars:
-            await message.author.add_roles(stars)
-            await message.author.remove_roles(old_role)
-        elif record[1] >= 700 and old_role.id is not planets:
+        if record[1] <= 700:
+            if old_role is not moons:
+                await message.author.add_roles(moons)
+                await message.author.remove_roles(old_role)
+        elif _id in temp:
+            if old_role is not stars:
+                await message.author.add_roles(stars)
+                await message.author.remove_roles(old_role)
+        elif old_role is not planets:
             await message.author.add_roles(planets)
             await message.author.remove_roles(old_role)
 
