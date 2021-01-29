@@ -1,8 +1,11 @@
+import os
+
 import discord
 from discord.ext import commands
 import random
 from datetime import datetime
-from cogs import udb
+from util import udb
+from util.pillow import Pillow
 
 
 class Exp(commands.Cog):
@@ -11,6 +14,7 @@ class Exp(commands.Cog):
         self.client = client
         self.vc = {}
         self.db = udb.UserDatabase(client)
+        self.pillow = Pillow(self.client)
 
     # events
     @commands.Cog.listener()
@@ -32,7 +36,8 @@ class Exp(commands.Cog):
                 return
             val = random.randrange(6, 8)
 
-            await self.db.update(db='users', var='pts', amount='+' + str(val), user=str(_id))
+            if message.channel.id != 703247498508238938:
+                await self.db.update(db='users', var='pts', amount='+' + str(val), user=str(_id))
             await self.db.update(db='users', var='bal', amount='+' + str(val), user=str(_id))
             await self.db.set_time(db='users', user=str(_id))
 
@@ -80,34 +85,26 @@ class Exp(commands.Cog):
     @commands.command()
     async def profile(self, ctx):
         if len(ctx.message.mentions) > 0:
-            user_id = ctx.message.mentions[0].id
+            user = ctx.guild.fetch_member(ctx.message.mentions[0].id)
         else:
-            user_id = ctx.author.id
-        user = self.client.get_user(user_id)
-        pfp = user.avatar_url
+            user = ctx.author
 
-        user_info = self.db.find_user(db='users', user=str(user_id))
+        if f'{user.id}.jpg' not in os.listdir('./img/pfp'):
+            await user.avatar_url.save(f'./img/pfp/{user.id}.jpg')
 
-        if user_info[4] == '' or user_info[4] is None:
-            desc = 'This user has not set a description yet.'
-        else:
-            desc = user_info[4]
+        await ctx.send('Generating...', delete_after=3)
+        self.pillow.generate_profile(user)
 
-        embed = discord.Embed(colour=discord.Colour(0xff9cd0), description=desc,
-                              timestamp=datetime.utcfromtimestamp(1611799584))
-
-        embed.set_thumbnail(url=pfp)
-        embed.set_author(name=f"{user.display_name}'s Profile")
-
-        embed.add_field(name="EXP:", value=user_info[1], inline=True)
-        embed.add_field(name="Nom Noms:", value=user_info[2], inline=True)
-
-        await ctx.send(embed=embed)
+        await ctx.send(file=discord.File('./img/temp_profile.png'))
 
     @commands.command(aliases=['setdesc', 'setdescription', 'set_description'])
     async def set_desc(self, ctx, *, param):
+        if "'" in param:
+            param = param.replace("'", "\'")
+        if len(param) > 450:
+            await ctx.send('Please limit your description to be under 450 characters')
         await self.db.set('users', 'description', f"'{param}'", str(ctx.author.id))
-        await ctx.send('Description updated <:nekocheer:804178590094327878>')
+        await ctx.send("Description updated <:nekocheer:804178590094327878>")
 
 
 def setup(client):

@@ -6,7 +6,7 @@ from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, cooldown, BucketType, CommandOnCooldown
 import random
 
-from cogs import udb
+from util import udb
 
 
 def _bj_total(hand):
@@ -127,6 +127,10 @@ class Gamble(commands.Cog):
 
     @commands.command(aliases=['wheel', 'spin'])
     async def gamble_wheel(self, ctx):
+        if ctx.channel.id == 681149093858508834:
+            await ctx.send(f'the wheel of fortune belongs in {self.client.get_channel("752676890413629471").mention}!')
+            await ctx.send('<:angy:789977140200341515>')
+            return
         bal = self.db.find_user(db='users', var='bal', user=str(ctx.author.id))
 
         if ctx.author.id in self.wheel:
@@ -179,7 +183,14 @@ class Gamble(commands.Cog):
             return
         receiver_id = ctx.message.mentions[0].id
         sender_id = ctx.author.id
+
+        if amount == 'all':
+            amount = self.db.find_user(db='users', user=str(sender_id), var='bal')
+            amount = amount[0]
+        else:
+            amount = int(amount)
         sender_bal = self.db.find_user(db='users', user=str(sender_id), var='bal')
+
         sender_bal = sender_bal[0]
         if sender_bal < int(amount):
             await ctx.send('You do not have enough nom noms to give!')

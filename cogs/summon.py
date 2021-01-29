@@ -1,11 +1,10 @@
-import time
 from datetime import datetime
 import random
 
 import discord
 from discord.ext import commands, tasks
 
-from cogs import udb, gdb
+from util import udb, gdb
 
 
 class Summon(commands.Cog):
@@ -40,24 +39,15 @@ class Summon(commands.Cog):
         await channel.send(content='There is a new banner available!', embed=embed)
 
     # commands
-    @commands.command(aliases=['wish_char'])
+    @commands.command(aliases=['wish_event'])
     async def event_char_wish(self, ctx, amount):
-        pity5 = self.gdb.find_user('users', str(ctx.author.id), var='char_pity5')
-        pity4 = self.gdb.find_user('users', str(ctx.author.id), var='char_pity4')
-
         amount = int(amount)
         if not await self._wish_check_bal(ctx.author.id, amount):
             await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
             return
 
-        categories = await self.rarity_calc(ctx.author.id, 'char', amount, pity5, pity4)
+        categories = await self.rarity_calc(ctx.author.id, 'event', amount)
         await ctx.send(self._wish_results(categories))
-
-    @commands.command(aliases=['wish_weapon'])
-    async def event_weapon_wish(self, ctx, amount):
-        if not self._wish_check_bal(ctx.author.id, amount):
-            await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
-            return
 
     @commands.command(aliases=['wish_reg'])
     async def reg_wish(self, ctx, amount):
@@ -92,10 +82,13 @@ class Summon(commands.Cog):
         else:
             return True
 
-    async def rarity_calc(self, user_id, banner, num: int, pity5, pity4):
+    async def rarity_calc(self, user_id, banner, num: int):
         five_stars = 0
         four_stars = 0
         xp_books = 0
+
+        pity5 = self.gdb.find_user('users', str(user_id), var=banner + '_pity5')
+        pity4 = self.gdb.find_user('users', str(user_id), var=banner + '_pity4')
 
         for i in range(num):
             val = random.random()

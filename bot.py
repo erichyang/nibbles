@@ -23,6 +23,10 @@ for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
         client.load_extension(f'cogs.{filename[:-3]}')
 
+for filename in os.listdir('./util'):
+    if filename.endswith('.py'):
+        client.load_extension(f'util.{filename[:-3]}')
+
 loop = asyncio.get_event_loop()
 
 

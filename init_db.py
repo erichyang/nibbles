@@ -11,7 +11,6 @@ c = conn.cursor()
 #         time text,
 #         description text
 #     )""")
-c.execute("ALTER TABLE users ADD COLUMN description text")
 
 
 conn.commit()
@@ -24,11 +23,9 @@ conn.close()
 # c.execute("""CREATE TABLE users (
 #         user_id integer primary key,
 #         event_guarantee integer,
-#         char_pity5 integer,
-#         weapon_pity5 integer,
+#         event_pity5 integer,
 #         reg_pity5 integer,
-#         char_pity4 integer,
-#         weapon_pity4 integer,
+#         event_pity4 integer,
 #         reg_pity4 integer
 #     )""")
 #

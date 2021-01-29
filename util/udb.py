@@ -75,9 +75,9 @@ class UserDatabase(commands.Cog):
 
     @commands.command()
     @has_permissions(manage_guild=True)
-    async def close_table(self, ctx):
+    async def close_udb(self, ctx):
         self.conn.close()
-        await ctx.send('db connection closed')
+        await ctx.send('user db connection closed')
 
 
 def setup(client):

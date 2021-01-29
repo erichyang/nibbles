@@ -2,6 +2,7 @@ import sqlite3
 import random
 
 from discord.ext import commands, tasks
+from discord.ext.commands import has_permissions
 
 
 class GachaDatabase(commands.Cog):
@@ -11,8 +12,10 @@ class GachaDatabase(commands.Cog):
         self.conn = sqlite3.connect('gacha.db')
         # pity, banner, rates
         self.c = self.conn.cursor()
-        self.fives = ['Venti', 'Klee', 'Qiqi', 'Keqing']
-        self.fours = ['Bennett', 'Ningguang', 'Xingqiu', 'Chongyun']
+        self.fives = ['Albedo', 'Ayaka', 'Diluc', 'Ganyu', 'Jean', 'Keqing', 'Klee', 'Mona', 'Qiqi', 'Tartaglia',
+                      'Venti', 'Xiao', 'Zhongli']
+        self.fours = ['Amber', 'Barbara', 'Bennett', 'Chongyun', 'Diona', 'Fischl', 'Kaeya', 'Lisa', 'Ningguang',
+                      'Noelle', 'Razor', 'Sucrose', 'Xiangling', 'Xingqiu', 'Xinyan']
         with open('banner_info', 'r') as f:
             self.cur5 = f.readline()[:-1]
             self.cur4 = []
@@ -52,6 +55,12 @@ class GachaDatabase(commands.Cog):
     async def vacuum(self):
         self.c.execute("VACUUM")
         self.conn.commit()
+
+    @commands.command()
+    @has_permissions(manage_guild=True)
+    async def close_gdb(self, ctx):
+        self.conn.close()
+        await ctx.send('gacha db connection closed')
 
 
 def setup(client):
