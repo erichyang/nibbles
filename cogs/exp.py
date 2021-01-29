@@ -57,7 +57,7 @@ class Exp(commands.Cog):
         temp = [temp[0][0], temp[1][0], temp[2][0], temp[3][0], temp[4][0], temp[5][0]]
         if record is None:
             return
-        if record[1] <= 700:
+        if record[1] < 1000:
             if old_role is not moons:
                 await message.author.add_roles(moons)
                 await message.author.remove_roles(old_role)
