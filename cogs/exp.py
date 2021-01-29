@@ -95,15 +95,17 @@ class Exp(commands.Cog):
         await ctx.send('Generating...', delete_after=3)
         self.pillow.generate_profile(user)
 
-        await ctx.send(file=discord.File('./img/temp_profile.png'))
+        await ctx.send(file=discord.File('./img/profile.png'))
 
     @commands.command(aliases=['setdesc', 'setdescription', 'set_description'])
     async def set_desc(self, ctx, *, param):
-        if "'" in param:
-            param = param.replace("'", "\'")
+        if '"' in param:
+            await ctx.send('Sorry, you cannot use quotation marks in your description ;-;')
+            return
         if len(param) > 450:
             await ctx.send('Please limit your description to be under 450 characters')
-        await self.db.set('users', 'description', f"'{param}'", str(ctx.author.id))
+            return
+        await self.db.set('users', 'description', f'"{param}"', str(ctx.author.id))
         await ctx.send("Description updated <:nekocheer:804178590094327878>")
 
 

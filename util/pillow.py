@@ -31,7 +31,6 @@ class Pillow(commands.Cog):
         pfp_border = Image.open('./img/profile_border.png').resize((580, 580))
         bg.paste(pfp, (100, 100))
         bg.paste(pfp_border, (80, 80), mask=pfp_border)
-        img = ImageDraw.Draw(bg, "RGBA")
 
         tint_color = (255, 255, 255)  # White
         opacity = int(255 * .40)
@@ -67,7 +66,11 @@ class Pillow(commands.Cog):
         txt.text((1180, 900), f'Nom noms: {user_info[2]}', (0, 0, 0), font=self.body_font)
         bg = Image.alpha_composite(bg, overlay)
         bg = Image.alpha_composite(bg, text_layer)
-        bg.save('./img/temp_profile.png')
+        bg.save('./img/profile.png')
+
+
+    def generate_banner(self):
+        print('hi')
 
 
 def setup(client):
