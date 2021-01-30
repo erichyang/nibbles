@@ -70,12 +70,22 @@ class Gamble(commands.Cog):
 
     @commands.command()
     @has_permissions(manage_guild=True)
-    async def give(self, ctx, user, amount):
+    async def give_bal(self, ctx, user, amount):
         if self.db.find_user(db='users', user=user) is None:
             await ctx.send("Sowwy, this person does not have a nom noms stash")
             return
 
         await self.db.update(db='users', var='bal', amount=str(amount), user=str(user))
+        await ctx.send('given ' + str(amount))
+
+    @commands.command()
+    @has_permissions(manage_guild=True)
+    async def give_exp(self, ctx, user, amount):
+        if self.db.find_user(db='users', user=user) is None:
+            await ctx.send("Sowwy, this person does not have a nom noms stash")
+            return
+
+        await self.db.update(db='users', var='pts', amount=str(amount), user=str(user))
         await ctx.send('given ' + str(amount))
 
     # events
