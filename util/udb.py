@@ -21,7 +21,7 @@ class UserDatabase(commands.Cog):
         print('DataBase online')
 
     # database utility functions
-    async def lb(self, category: str):
+    async def lb(self, category: str, guild):
         self.c.execute("SELECT * FROM users ORDER BY " + category + " DESC LIMIT 10")
         title = 'most active!' if category == 'pts' else 'richest!'
         unit = category if category == 'pts' else ':cookie:'
@@ -32,7 +32,11 @@ class UserDatabase(commands.Cog):
         val = ''
         for i in range(0, len(lb)):
             rank += str(i + 1) + '\n'
-            name += self.client.get_user(lb[i][0]).display_name + '\n'
+            member = guild.get_member(lb[i][0])
+            if member.nick is None:
+                name += member.display_name + '\n'
+            else:
+                name += member.nick + '\n'
             val += str(lb[i][1 if category == 'pts' else 2]) + unit + '\n'
         embed_var.add_field(name='Rank', value=rank, inline=True)
         embed_var.add_field(name='Name', value=name, inline=True)

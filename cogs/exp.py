@@ -33,6 +33,8 @@ class Exp(commands.Cog):
             if not message.author.bot:
                 await self.db.insert(db='users', init_val=f"({str(_id)}, 0, 160, '{now.strftime('%H:%M:%S')}', '')")
         else:
+            if len(message.content) < 2:
+                return
             last = datetime.strptime(record[3], '%H:%M:%S')
             tdelta = now - last
             if message.content[:1] == '.' or tdelta.seconds < random.randrange(45, 60):
@@ -110,11 +112,11 @@ class Exp(commands.Cog):
 
     @commands.command(aliases=['lb', 'xp_lb', 'pts_lb'])
     async def leaderboard(self, ctx):
-        await ctx.channel.send(embed=await self.db.lb('pts'))
+        await ctx.channel.send(embed=await self.db.lb('pts', ctx.guild))
 
     @commands.command()
     async def bal_lb(self, ctx):
-        embed_var = await self.db.lb('bal')
+        embed_var = await self.db.lb('bal', ctx.guild)
         bal = self.db.find_user('users', str(ctx.author.id), var='bal')
         total = self.db.find('users', 'SUM(bal)')
         embed_var.add_field(name='You', value=f'own {str(format(bal[0] / total[0] * 100, ".2f"))}% '
