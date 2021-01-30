@@ -57,7 +57,7 @@ class Exp(commands.Cog):
             old_role = message.guild.get_role(706989660244541540)
         temp = self.db.top_six('pts')
         temp = [temp[0][0], temp[1][0], temp[2][0], temp[3][0], temp[4][0], temp[5][0]]
-        if record is None:
+        if record is None or isinstance(message.author.roles, discord.User):
             return
         if record[1] < 1000:
             if old_role is not moons:
