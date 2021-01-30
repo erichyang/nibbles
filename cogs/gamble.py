@@ -75,7 +75,7 @@ class Gamble(commands.Cog):
             await ctx.send("Sowwy, this person does not have a nom noms stash")
             return
 
-        await self.db.update(db='users', var='bal', amount=str(amount), user=str(user))
+        await self.db.update(db='users', var='bal', amount='+'+str(amount), user=str(user))
         await ctx.send('given ' + str(amount))
 
     @commands.command()
@@ -85,7 +85,7 @@ class Gamble(commands.Cog):
             await ctx.send("Sowwy, this person does not have a nom noms stash")
             return
 
-        await self.db.update(db='users', var='pts', amount=str(amount), user=str(user))
+        await self.db.update(db='users', var='pts', amount='+'+str(amount), user=str(user))
         await ctx.send('given ' + str(amount))
 
     # events
