@@ -4,6 +4,8 @@ import random
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions
 
+from util.pillow import Pillow
+
 
 class GachaDatabase(commands.Cog):
 
@@ -21,6 +23,8 @@ class GachaDatabase(commands.Cog):
             self.cur4 = []
             for _ in range(3):
                 self.cur4.append(f.readline()[:-1])
+        pillow = Pillow(client)
+        pillow.generate_banner(self.cur5, self.cur4)
 
     # add cog to main system
     @commands.Cog.listener()

@@ -4,7 +4,7 @@ import random
 import discord
 from discord.ext import commands, tasks
 
-from util import udb, gdb
+from util import udb, gdb, pillow
 
 
 class Summon(commands.Cog):
@@ -13,6 +13,7 @@ class Summon(commands.Cog):
         self.client = client
         self.udb = udb.UserDatabase(client)
         self.gdb = gdb.GachaDatabase(client)
+        self.pillow = pillow.Pillow(client)
 
     # events
     @commands.Cog.listener()
@@ -20,23 +21,27 @@ class Summon(commands.Cog):
         print('Summon online')
 
     # repeat every 24 hours
-    # @commands.command()
     @tasks.loop(hours=24)
     async def new_banner_rotation(self):
         channel = await self.client.fetch_channel(681149093858508834)
         five, four = self.client.get_cog('GachaDatabase').new_banner()
         desc = '5:star: ' + five + f'\n4:star: {four[0]}, {four[1]}, {four[2]}'
-
+        self.pillow.generate_banner(five, four)
         embed = discord.Embed(colour=discord.Colour(0xff7cff),
                               description=desc,
                               timestamp=datetime.now())
-        img = discord.File('./img/profile_bg.jpg', 'banner.jpg')
+
+        img = discord.File('./img/banner.png', 'banner.png')
         temp_channel = await self.client.fetch_channel(752676890413629471)
         msg = await temp_channel.send('', file=img)
         img_url = msg.attachments[0].url
         embed.set_image(url=img_url)
 
         await channel.send(content='There is a new banner available!', embed=embed)
+
+    @commands.command()
+    async def banner(self, ctx):
+        await ctx.send(content="Today's banner", file=discord.File('./img/banner.png', 'banner.png'))
 
     # commands
     @commands.command(aliases=['wish_event'])

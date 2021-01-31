@@ -1,6 +1,5 @@
 import os
 
-import discord
 from discord.ext import commands
 from PIL import Image, ImageFont, ImageDraw
 
@@ -12,6 +11,7 @@ class Pillow(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.title_font = ImageFont.truetype('./img/Tuesday Jingle.ttf', 160)
+        self.subtitle_font = ImageFont.truetype('./img/Tuesday Jingle.ttf', 120)
         self.body_font = ImageFont.truetype('./img/act.regular.ttf', 100)
         self.udb = UserDatabase(self.client)
 
@@ -69,13 +69,34 @@ class Pillow(commands.Cog):
         bg.save('./img/profile.png')
 
     def generate_banner(self, five, fours):
-        bg = Image.open('./img/banner_bg.jpg').convert('RGBA')
-        five_portrait = Image.open(f'./img/char_portrait/Character_{five}_Portrait.png')
-        four_portrait = []
-        four_portrait[0] = Image.open(f'./img/char_portrait/Character_{fours[0]}_Portrait.png')
-        four_portrait[1] = Image.open(f'./img/char_portrait/Character_{fours[1]}_Portrait.png')
-        four_portrait[2] = Image.open(f'./img/char_portrait/Character_{fours[2]}_Portrait.png')
+        bg = Image.open('./img/banner_bg.png').convert('RGBA')
+        five_portrait = Image.open(f'./img/char_portrait/Character_{five}_Portrait.png').resize((360, 600))
+        four_portrait = [Image.open(f'./img/char_portrait/Character_{fours[0]}_Portrait.png').resize((360, 600)),
+                         Image.open(f'./img/char_portrait/Character_{fours[1]}_Portrait.png').resize((360, 600)),
+                         Image.open(f'./img/char_portrait/Character_{fours[2]}_Portrait.png').resize((360, 600))]
+        tint_color = (255, 255, 255)  # White
+        opacity = int(255 * .40)
+        overlay = Image.new('RGBA', bg.size, tint_color + (0,))
+        draw = ImageDraw.Draw(overlay)
+        for i in range(4):
+            draw.rectangle(((192 + i * 384, 190), (192 + (i + 1) * 384 - 24, 190 + 700)), outline=(255, 255, 255))
+            draw.rectangle(((192 + i * 384, 190), (192 + (i + 1) * 384 - 24, 190 + 700)),
+                           fill=(tint_color + (opacity,)))
 
+        bg = Image.alpha_composite(bg, overlay)
+        bg.paste(five_portrait, (192, 250), mask=five_portrait)
+        for i in range(3):
+            bg.paste(four_portrait[i], (192 + (i + 1) * 384, 250), mask=four_portrait[i])
+        # text time
+        text_layer = Image.new('RGBA', bg.size)
+        txt = ImageDraw.Draw(text_layer)
+        txt.text((420, 50), "Today's Banner Rotation", (255, 209, 248), font=self.title_font)
+        txt.text((415, 45), "Today's Banner Rotation", (255, 255, 255), font=self.title_font)
+        txt.text((200, 190), five, (87, 125, 194), font=self.subtitle_font)
+        for i in range(3):
+            txt.text(((584 + i * 384), 190), fours[i], (87, 125, 194), font=self.subtitle_font)
+
+        bg = Image.alpha_composite(bg, text_layer)
         bg.save('./img/banner.png')
 
 
