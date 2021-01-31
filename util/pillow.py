@@ -12,7 +12,7 @@ class Pillow(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.title_font = ImageFont.truetype('./img/Tuesday Jingle.ttf', 160)
-        self.body_font = ImageFont.truetype('./img/alphabetized-cassette-tapes.regular.ttf', 100)
+        self.body_font = ImageFont.truetype('./img/act.regular.ttf', 100)
         self.udb = UserDatabase(self.client)
 
     # events
@@ -51,7 +51,7 @@ class Pillow(commands.Cog):
         count = 13
         for i in range(len(desc)):
             if count >= 45 and desc[i] == ' ':
-                desc = desc[:i] + '\n' + desc[i+1:]
+                desc = desc[:i] + '\n' + desc[i + 1:]
                 count = 0
             else:
                 count += 1
@@ -68,9 +68,15 @@ class Pillow(commands.Cog):
         bg = Image.alpha_composite(bg, text_layer)
         bg.save('./img/profile.png')
 
+    def generate_banner(self, five, fours):
+        bg = Image.open('./img/banner_bg.jpg').convert('RGBA')
+        five_portrait = Image.open(f'./img/char_portrait/Character_{five}_Portrait.png')
+        four_portrait = []
+        four_portrait[0] = Image.open(f'./img/char_portrait/Character_{fours[0]}_Portrait.png')
+        four_portrait[1] = Image.open(f'./img/char_portrait/Character_{fours[1]}_Portrait.png')
+        four_portrait[2] = Image.open(f'./img/char_portrait/Character_{fours[2]}_Portrait.png')
 
-    def generate_banner(self):
-        print('hi')
+        bg.save('./img/banner.png')
 
 
 def setup(client):
