@@ -103,7 +103,11 @@ async def descriptions(ctx, command):
         'gamble_black_jack': ['bet against any player that accepts the challenge by playing black_jack',
                               '.gamble_black_jack 160; .blackjack 320 @nibbles'],
         'transfer': ['give your money to someone else, but why would you do that if you could give them all to nibbles',
-                     '.transfer @kit 160']
+                     '.transfer @kit 160'],
+        'event_wish': ['wish for new characters and levels on the rotating event banner at a price of 160 nom noms each'
+                       ' wish', '.event_wish 10'],
+        'reg_wish': ['wish for new characters and levels on the permanent banner at a price of 160 nom noms each wish',
+                     '.reg_wish 1']
     }
 
     if command is None:

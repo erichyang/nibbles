@@ -102,12 +102,17 @@ class Pillow(commands.Cog):
     def generate_wishes(self, results):
         bg = Image.open('./img/wishes_bg.png').convert('RGBA')
         portraits = []
-        xp = 0
-        xp_book = Image.open(f'./img/xp_book.png')
+        xp = [0, 0, 0]
+
         char = 0
         for item in results:
-            if item == 'xp_book':
-                xp += 1
+            if 'book' in item:
+                if item == 'purple_book':
+                    xp[0] += 1
+                elif item == 'blue_book':
+                    xp[1] += 1
+                else:
+                    xp[2] += 1
             else:
                 portraits.append(Image.open(f'./img/char_portrait/Character_{item}_Portrait.png').resize((390, 650)))
                 char += 1
@@ -122,17 +127,23 @@ class Pillow(commands.Cog):
         bg = Image.alpha_composite(bg, overlay)
         for i in range(char):
             bg.paste(portraits[i], (81 + i * 360, 245), mask=portraits[i])
-        bg.paste(xp_book, (96 + char * 360, 450), mask=xp_book)
+        purple = Image.open('./img/purple_book.png')
+        blue = Image.open('./img/blue_book.png')
+        green = Image.open('./img/green_book.png')
+        bg.paste(purple, (100 + char * 360, 450), mask=purple)
+        bg.paste(blue, (300 + char * 360, 450), mask=blue)
+        bg.paste(green, (500 + char * 360, 450), mask=green)
         # text time
         text_layer = Image.new('RGBA', bg.size)
         txt = ImageDraw.Draw(text_layer)
         txt.text((600, 50), "Summon Results", (255, 209, 248), font=self.title_font)
         txt.text((595, 45), "Summon Results", (255, 255, 255), font=self.title_font)
         txt.text((96 + char * 360, 500), 'XP books: ', (255, 255, 255), font=self.subtitle_font)
-        txt.text((96 + char * 360, 600), str(xp), (255, 255, 255), font=self.body_font)
+        txt.text((150 + char * 360, 600), str(xp[0]), (255, 255, 255), font=self.body_font)
+        txt.text((400 + char * 360, 600), str(xp[1]), (255, 255, 255), font=self.body_font)
+        txt.text((650 + char * 360, 600), str(xp[2]), (255, 255, 255), font=self.body_font)
         bg = Image.alpha_composite(bg, text_layer)
         bg.save('./img/results.png')
-        bg.show()
 
 
 def setup(client):
