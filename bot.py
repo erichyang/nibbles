@@ -77,7 +77,7 @@ async def on_member_remove(member):
 async def on_command_error(ctx, error):
     if '.transfer' in ctx.message.content:
         return
-    if isinstance(error, commands.MissingRequiredArgument) and ctx.message.content not in ['.help', '.bal']:
+    if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
     else:
         print(datetime.now())
