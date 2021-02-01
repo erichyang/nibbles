@@ -18,8 +18,9 @@ class InventoryDatabase(commands.Cog):
         print('Inventory Database online')
 
     @commands.command(description='check your inventory full of goodies!\n.inventory')
-    async def inventory(self, ctx):
-        inv = self.search(ctx.author.id)[0]
+    async def inventory(self, ctx, _id=0):
+        _id = ctx.author.id if _id == 0 else _id
+        inv = self.search(_id)[0]
         embed = discord.Embed(title="Your inventory!", colour=discord.Colour(0x7ce010))
 
         embed.set_author(name=ctx.author.display_name if ctx.author.nick is None else ctx.author.nick)
@@ -59,7 +60,7 @@ class InventoryDatabase(commands.Cog):
     def add_book(self, user_id, color):
         user_dict = self.search(user_id)
         temp_books = user_dict[0]['books']
-        
+
         if color == 'green_book':
             temp_books[0] += 1
         elif color == 'blue_book':

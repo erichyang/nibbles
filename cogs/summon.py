@@ -188,9 +188,9 @@ class Summon(commands.Cog):
         for i in range(num):
             val = random.random()
 
-            five_chance = 0.0006 if pity5 < 75 else 0.324
+            five_chance = 0.0006 if pity5 < 74 else 0.324
 
-            if val <= five_chance or pity5 >= 90:
+            if val <= five_chance or pity5 >= 89:
                 if banner == 'event':
                     if event_guarantee or random.random() >= 0.5:
                         five_event += 1
@@ -204,7 +204,7 @@ class Summon(commands.Cog):
                 pity4 += 1
                 continue
             val = random.random()
-            if val <= 0.0255 or pity4 >= 10:
+            if val <= 0.0255 or pity4 >= 9:
                 four_stars += 1
                 pity4 = 0
                 pity5 += 1
@@ -224,11 +224,15 @@ class Summon(commands.Cog):
     @commands.command(description='Check the amount of pity you have on each banner\n.pity')
     async def pity(self, ctx):
         info = self.gdb.find_user('users', str(ctx.author.id))
+        if info is None:
+            await ctx.send("you haven't summoned yet!")
+            return
         embed = discord.Embed(title="Your pity for banner wishes!", colour=discord.Colour(0x7ce010))
 
         embed.set_author(name=ctx.author.display_name if ctx.author.nick is None else ctx.author.nick)
-
-        embed.add_field(name="Event Five :star: Guarantee", value='True' if info[1] == 0 else 'False', inline=False)
+        temp_eg = 'You are not guaranteed the event character for your next five star' if info[1] == 0 \
+            else 'You are guaranteed the next five star as event character!'
+        embed.add_field(name="Event Five :star: Guarantee", value=temp_eg, inline=False)
         embed.add_field(name="Event Five :star: Pity", value=str(info[2]), inline=True)
         embed.add_field(name="Event Four :star: Pity", value=str(info[4]), inline=True)
         embed.add_field(name="Regular Five :star: Pity", value=str(info[3]), inline=True)
