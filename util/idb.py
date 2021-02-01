@@ -25,13 +25,27 @@ class InventoryDatabase(commands.Cog):
     def add_char(self, user_id, char):
         user_dict = self.search(user_id)
         temp_chars = user_dict['chars']
-        temp_chars.append(char)
+
+        for characters in temp_chars:
+            if characters[0] == char:
+                characters[2] += 1
+                self.db.update({'chars': temp_chars}, Query().user == user_id)
+                return
+
+        temp_chars.append((char, 0, 0))
         self.db.update({'chars': temp_chars}, Query().user == user_id)
 
     def add_book(self, user_id, color):
         user_dict = self.search(user_id)
         temp_books = user_dict['books']
-        temp_books[color] += 1
+        
+        if color == 'green_book':
+            temp_books[0] += 1
+        elif color == 'blue_book':
+            temp_books[1] += 1
+        else:
+            temp_books[2] += 1
+
         self.db.update({'books': temp_books}, Query().user == user_id)
 
     def print_all(self):

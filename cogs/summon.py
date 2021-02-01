@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 import random
 
@@ -45,25 +46,60 @@ class Summon(commands.Cog):
         await ctx.send(content="Today's banner", file=discord.File('./img/banner.png', 'banner.png'))
 
     # commands
-    @commands.command(aliases=['wish_event'])
+    @commands.command(aliases=['wish_event', 'summon_event'])
     async def event_char_wish(self, ctx, amount):
         await self._wish_qual(ctx, int(amount))
 
         categories = await self._wish_rarity_calc(ctx.author.id, 'event', amount)
-        results = self._wish_results(categories)
+        if categories[0] > 0 and amount == 10:
+            await ctx.send(file=discord.File('./img/wish_gifs/purple_ten.gif'), delete_after=5)
+        elif categories[0] > 0 and amount == 1:
+            await ctx.send(file=discord.File('./img/wish_gifs/gold.gif'), delete_after=5)
+        elif categories[1] > 0 and amount == 10:
+            await ctx.send(file=discord.File('./img/wish_gifs/purple_ten.gif'), delete_after=5)
+        elif categories[1] > 0 and amount == 1:
+            await ctx.send(file=discord.File('./img/wish_gifs/purple.gif'), delete_after=5)
+        else:
+            await ctx.send(file=discord.File('./img/wish_gifs/blue.gif'), delete_after=5)
+
+        results = self._wish_results(categories, 'event')
         self.pillow.generate_wishes(results)
+        time.sleep(5)
         await ctx.send(file=discord.File('./img/results.png'))
 
-    @commands.command(aliases=['wish_reg'])
+        for item in results:
+            if 'book' in item:
+                self.idb.add_book(ctx.author.id, item)
+            else:
+                self.idb.add_char(ctx.author.id, item)
+
+    @commands.command(aliases=['wish_reg', 'summon_reg'])
     async def reg_wish(self, ctx, amount):
         await self._wish_qual(ctx, int(amount))
 
         categories = await self._wish_rarity_calc(ctx.author.id, 'reg', amount)
-        results = self._wish_results(categories)
+        if categories[0] > 0 and amount == 10:
+            await ctx.send(file=discord.File('./img/wish_gifs/purple_ten.gif'), delete_after=5)
+        elif categories[0] > 0 and amount == 1:
+            await ctx.send(file=discord.File('./img/wish_gifs/gold.gif'), delete_after=5)
+        elif categories[1] > 0 and amount == 10:
+            await ctx.send(file=discord.File('./img/wish_gifs/purple_ten.gif'), delete_after=5)
+        elif categories[1] > 0 and amount == 1:
+            await ctx.send(file=discord.File('./img/wish_gifs/purple.gif'), delete_after=5)
+        else:
+            await ctx.send(file=discord.File('./img/wish_gifs/blue.gif'), delete_after=5)
+
+        results = self._wish_results(categories, 'reg')
         self.pillow.generate_wishes(results)
         await ctx.send(file=discord.File('./img/results.png'))
 
-    def _wish_results(self, categories, banner): # IMPORTANT REGULAR BANNER NOT IMPLEMENTED
+        for item in results:
+            if 'book' in item:
+                self.idb.add_book(ctx.author.id, item)
+            else:
+                self.idb.add_char(ctx.author.id, item)
+
+    def _wish_results(self, categories, banner): # IMPORTANT REGULAR BANNER NOT IMPLEMENTED, event guarantee
         results = []
         for _ in range(categories[0]):
             if random.random() >= 0.5:
@@ -80,7 +116,7 @@ class Summon(commands.Cog):
                 options.remove(self.gdb.cur4)
                 results.append(random.choice(options))
         for _ in range(categories[2]):
-            results.append('xp_book')
+            results.append(random.choice(['green_book', 'blue_book', 'purple_book']))
         return results
 
     async def _wish_check_bal(self, user_id: int, amount: int):
@@ -101,10 +137,7 @@ class Summon(commands.Cog):
         for i in range(num):
             val = random.random()
 
-            if banner == 'char' or 'reg':
-                five_chance = 0.0006 if pity5 <= 75 else 0.324
-            else:
-                five_chance = 0.006 if pity5 <= 65 else 0.324
+            five_chance = 0.0006 if pity5 < 75 else 0.324
 
             if val <= five_chance or pity5 >= 90:
                 five_stars += 1
@@ -125,12 +158,16 @@ class Summon(commands.Cog):
         await self.gdb.set('users', f'{banner}_pity4', str(pity4), str(user_id))
         return [five_stars, four_stars, xp_books]
 
-    def _wish_qual(self, ctx, amount):
+    async def _wish_qual(self, ctx, amount):
+        if amount != 1 or amount != 10:
+            await ctx.send('please only do 1 or 10 pulls.')
+            return
         if not await self._wish_check_bal(ctx.author.id, amount):
             await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
             return
         if self.idb.search(ctx.author.id) is None:
             await self.idb.create_user(ctx.author.id)
+            await self.gdb.insert('users', f'({ctx.author.id}, 0, 0, 0, 0, 0)')
 
 
 def setup(client):

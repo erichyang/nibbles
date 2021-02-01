@@ -55,6 +55,10 @@ class GachaDatabase(commands.Cog):
         self.c.execute(f"UPDATE {db} SET {var} = {amount} WHERE user_id = {user}")
         self.conn.commit()
 
+    async def insert(self, db: str, content: str):
+        self.c.execute(f"INSERT INTO {db} VALUES {content}")
+        self.conn.commit()
+
     @tasks.loop(hours=12)
     async def vacuum(self):
         self.c.execute("VACUUM")
