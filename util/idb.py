@@ -27,10 +27,13 @@ class InventoryDatabase(commands.Cog):
         temp_chars = user_dict['chars']
 
         for characters in temp_chars:
-            if characters[0] == char:  # cap constellations at 6
-                characters[2] += 1
-                self.db.update({'chars': temp_chars}, Query().user == user_id)
-                return
+            if characters[0] == char:
+                if characters[2] < 6:
+                    characters[2] += 1
+                    self.db.update({'chars': temp_chars}, Query().user == user_id)
+                    return
+                else:
+                    return
 
         temp_chars.append((char, 0, 0))
         self.db.update({'chars': temp_chars}, Query().user == user_id)
