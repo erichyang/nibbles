@@ -46,6 +46,9 @@ class Exp(commands.Cog):
             await self.db.update(db='users', var='bal', amount='+' + str(val), user=str(_id))
             await self.db.set_time(db='users', user=str(_id))
 
+        if isinstance(message.author, discord.User):
+            return
+
         moons = message.guild.get_role(706989660244541540)
         planets = message.guild.get_role(709910163879886917)
         stars = message.guild.get_role(698255109406326876)
