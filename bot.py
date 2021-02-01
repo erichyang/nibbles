@@ -11,6 +11,8 @@ from threading import Thread
 import time
 from datetime import datetime, date, timedelta
 
+from discord.ext.commands import has_permissions
+
 client = commands.Bot(command_prefix='.',
                       intents=discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True,
                                               voice_states=True))
@@ -82,53 +84,23 @@ async def on_command_error(ctx, error):
         print(error)
 
 
-@client.command(aliases=['help'])
-async def descriptions(ctx, command):
+@client.command(aliases=['help'], hidden=True)
+async def descriptions(ctx):
     embed_var = discord.Embed(title="Nibbles is here to help", color=0x8109e9)
-    desc = {
-        'choose': ['Nibbles helps you choose because you\'re too indecisive',
-                   '.choose go to work, play video games, something else'],
-        'coin_flip': ['flips a coin!', '.coin_flip'],
-        'get_pfp': ['gets profile picture of yours or others', '.get_pfp; .get_pfp @<user>'],
-        'poll': ['Nibbles helps you discover that other people are indecisive too', '.poll Do you like nibbles?'],
-        'profile': ['check your profile that has your exp and nom noms', '.profile; .profile @nibbles'],
-        'set_desc': ['set your beautiful message to be seen on your profile :D', '.set_desc Hi I am nibbles!'],
-        'bal': ['count the nom noms in your stash, ooo so many <:wow:788914745008586763>', '.bal'],
-        'leaderboard': ['check the top ten people with the highest points!', '.leaderboard; .lb; .xp_lb; .pts_lb'],
-        'bal_lb': ['flex on your friends or something you gambling addicts', '.bal_lb'],
-        'gamble_coin': ['flip a coin with the face you predict and how much you want to bet for it',
-                        '.gamble_coin heads 160; .bet_coin tails 320'],
-        'gamble_wheel': ['spin a wheel of fortune for free every 12 hours! You can win prizes from :cookie:100-10000',
-                         '.gamble_wheel; .wheel; .spin'],
-        'gamble_black_jack': ['bet against any player that accepts the challenge by playing black_jack',
-                              '.gamble_black_jack 160; .blackjack 320 @nibbles'],
-        'transfer': ['give your money to someone else, but why would you do that if you could give them all to nibbles',
-                     '.transfer @kit 160'],
-        'event_wish': ['wish for new characters and levels on the rotating event banner at a price of 160 nom noms each'
-                       ' wish', '.event_wish 10'],
-        'reg_wish': ['wish for new characters and levels on the permanent banner at a price of 160 nom noms each wish',
-                     '.reg_wish 1']
-    }
-
-    if command is None:
-        for key in desc:
-            embed_var.add_field(name=key, value=desc[key][0], inline=False)
-        embed_var.set_footer(text="ask for more help and aliases on any command by using .help <command>")
-        await ctx.channel.send(embed=embed_var)
-    else:
-        if desc.get(command, 'no such command') == 'no such command':
-            await ctx.send("this command doesn't exist!")
-        else:
-            embed_var.add_field(name='Command name', value=command, inline=False)
-            embed_var.add_field(name='Command description', value=desc[command][1], inline=False)
-            embed_var.add_field(name='Command usage', value=desc[command][1], inline=False)
-            await ctx.channel.send(embed=embed_var)
+    for item in client.commands:
+        if not item.hidden:
+            embed_var.add_field(name=item.name, value=item.description, inline=False)
+    await ctx.send(embed=embed_var)
 
 
-@descriptions.error
-async def help_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await descriptions(ctx, None)
+@client.command(hidden=True)
+@has_permissions(manage_guild=True)
+async def mod_help(ctx):
+    output = ''
+    for command in client.commands:
+        if command.hidden:
+            output += command.name + '\n'
+    await ctx.send(output)
 
 
 @client.event

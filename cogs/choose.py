@@ -14,7 +14,8 @@ class Choose(commands.Cog):
         print('Choose online')
 
     # commands
-    @commands.command()
+    @commands.command(description='Nibbles helps you choose because you\'re too indecisive\n'
+                                  '.choose go to work, play video games, something else')
     async def choose(self, ctx, *, param):
         arr = param.split(', ')
         if len(arr) == 1:

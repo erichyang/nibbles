@@ -12,7 +12,7 @@ class Size(commands.Cog):
         print('Size online')
 
     # commands
-    @commands.command()
+    @commands.command(description='Find out how many members is in this server!\n.size')
     async def size(self, ctx):
         await ctx.send(f'The server currently has: {ctx.guild.member_count} members')
 

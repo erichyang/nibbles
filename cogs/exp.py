@@ -71,7 +71,7 @@ class Exp(commands.Cog):
             await message.author.add_roles(planets)
             await message.author.remove_roles(old_role)
 
-    @commands.command()
+    @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
     async def init_roles(self, ctx):
         # for member in ctx.guild.members:
@@ -95,7 +95,7 @@ class Exp(commands.Cog):
             await self.db.update(db='users', var='bal', amount='+' + str(val), user=str(member.id))
 
     # commands
-    @commands.command()
+    @commands.command(description='count the nom noms in your stash, ooo so many <:wow:788914745008586763>\n.bal')
     async def bal(self, ctx):
         if len(ctx.message.mentions) == 0:
             temp = self.db.find_user(db='users', user=str(ctx.author.id), var='bal')
@@ -110,20 +110,21 @@ class Exp(commands.Cog):
         else:
             await ctx.send(f"{pronoun} current balance is: {str(temp[0])} nom noms :cookie:")
 
-    @commands.command(aliases=['lb', 'xp_lb', 'pts_lb'])
+    @commands.command(aliases=['lb', 'xp_lb', 'pts_lb'], description='check the top ten people with the highest points!'
+                                                                     '\n.leaderboard; .lb; .xp_lb; .pts_lb')
     async def leaderboard(self, ctx):
         await ctx.channel.send(embed=await self.db.lb('pts', ctx.guild))
 
-    @commands.command()
-    async def bal_lb(self, ctx):
-        embed_var = await self.db.lb('bal', ctx.guild)
-        bal = self.db.find_user('users', str(ctx.author.id), var='bal')
-        total = self.db.find('users', 'SUM(bal)')
-        embed_var.add_field(name='You', value=f'own {str(format(bal[0] / total[0] * 100, ".2f"))}% '
-                                              f'of the nom noms in the server!')
-        await ctx.channel.send(embed=embed_var)
+    # @commands.command()
+    # async def bal_lb(self, ctx):
+    #     embed_var = await self.db.lb('bal', ctx.guild)
+    #     bal = self.db.find_user('users', str(ctx.author.id), var='bal')
+    #     total = self.db.find('users', 'SUM(bal)')
+    #     embed_var.add_field(name='You', value=f'own {str(format(bal[0] / total[0] * 100, ".2f"))}% '
+    #                                           f'of the nom noms in the server!')
+    #     await ctx.channel.send(embed=embed_var)
 
-    @commands.command()
+    @commands.command(description='check your profile that has your exp and nom noms!\n.profile; .profile @nibbles')
     async def profile(self, ctx):
         if len(ctx.message.mentions) > 0:
             user = ctx.guild.fetch_member(ctx.message.mentions[0].id)
@@ -138,7 +139,8 @@ class Exp(commands.Cog):
 
         await ctx.send(file=discord.File('./img/profile.png'))
 
-    @commands.command(aliases=['setdesc', 'setdescription', 'set_description'])
+    @commands.command(aliases=['setdesc', 'setdescription', 'set_description'],
+                      description='set your beautiful message to be seen on your profile :D\n.setdesc <message>')
     async def set_desc(self, ctx, *, param):
         if '"' in param:
             await ctx.send('Sorry, you cannot use quotation marks in your description ;-;')

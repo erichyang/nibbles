@@ -68,7 +68,7 @@ class Gamble(commands.Cog):
         await channel.send('Your free wheel of fortune is now available!')
         self.wheel = []
 
-    @commands.command()
+    @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
     async def give_bal(self, ctx, user, amount):
         if self.db.find_user(db='users', user=user) is None:
@@ -78,7 +78,7 @@ class Gamble(commands.Cog):
         await self.db.update(db='users', var='bal', amount='+'+str(amount), user=str(user))
         await ctx.send('given ' + str(amount))
 
-    @commands.command()
+    @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
     async def give_exp(self, ctx, user, amount):
         if self.db.find_user(db='users', user=user) is None:
@@ -94,9 +94,11 @@ class Gamble(commands.Cog):
         print('Gamble online')
 
     # commands
-    @commands.command(aliases=['cf', 'bet_flip', 'bet_coin'])
+    @commands.command(aliases=['cf', 'bet_flip', 'bet_coin'],
+                      description='flip a coin with the face you predict and how much you want to bet for it\n'
+                                  '.gamble_coin heads 160; .bet_coin tails 320')
     @cooldown(5, 10, BucketType.user)
-    async def gamble_coin(self, ctx, face, bet):
+    async def gamble_coin(self, ctx, face, bet=0):
         _id = ctx.author.id
 
         if bet == 'all':
@@ -109,7 +111,7 @@ class Gamble(commands.Cog):
             await ctx.send("Please don't gamble more than 1600, nibbles can't count all these nom noms")
             return
         if bet <= 0:
-            await ctx.send("why don't you just use the normal coin flip ;-; ")
+            await ctx.send('The coin showed ' + random.choice(['heads!', 'tails!']))
             return
         bal = self.db.find_user(db='users', user=str(_id), var='bal')
         if bal[0] < bet:
@@ -135,7 +137,9 @@ class Gamble(commands.Cog):
             await ctx.send(f'please wait {error.retry_after:,.2f} seconds before using coin flip again')
             await ctx.send('do you want to reconsider your bet?')
 
-    @commands.command(aliases=['wheel', 'spin'])
+    @commands.command(aliases=['wheel', 'spin'],
+                      description='spin a wheel of fortune for free every 12 hours! '
+                                  'You can win prizes from :cookie:80-10000\n.gamble_wheel; .wheel; .spin')
     async def gamble_wheel(self, ctx):
         if ctx.channel.id == 681149093858508834:
             await ctx.send(f'the wheel of fortune belongs in {self.client.get_channel("752676890413629471").mention}!')
@@ -186,7 +190,8 @@ class Gamble(commands.Cog):
 
         await msg.edit(content='Wheel of Fortune Results', embed=embed)
 
-    @commands.command()
+    @commands.command(description='give your money to someone else, but why would you do that if you could give them '
+                                  'all to nibbles\n.transfer @kit 160')
     async def transfer(self, ctx, amount):
         if int(amount) <= 0:
             await ctx.send("hey you can't do that")
@@ -219,13 +224,15 @@ class Gamble(commands.Cog):
             amount = ctx.message.content.split(' ')[2]
             await self.transfer(ctx, int(amount))
 
-    @commands.command()
+    @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
     async def reset_blackjack(self, ctx):
         self.bj = {}
         await ctx.send('black jack has been reset')
 
-    @commands.command(aliases=['gamble_blackjack', 'blackjack', 'bj'])
+    @commands.command(aliases=['gamble_blackjack', 'blackjack', 'bj'],
+                      description='bet against any player that accepts the challenge by playing black_jack\n'
+                                  '.gamble_black_jack 160; .blackjack 320 @nibbles')
     async def gamble_black_jack(self, ctx, amount):
         if 'msg' in self.bj:
             await ctx.send('there is already a black jack game going on!')

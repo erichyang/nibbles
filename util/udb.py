@@ -84,7 +84,7 @@ class UserDatabase(commands.Cog):
         self.c.execute("VACUUM")
         self.conn.commit()
 
-    @commands.command()
+    @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
     async def close_udb(self, ctx):
         self.conn.close()

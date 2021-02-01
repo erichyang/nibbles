@@ -12,7 +12,8 @@ class Poll(commands.Cog):
         print('Poll online')
 
     # commands
-    @commands.command()
+    @commands.command(description='Nibbles helps you discover that other people are indecisive too\n.'
+                                  'poll Do you like nibbles?')
     async def poll(self, ctx, *, question):
         message = await ctx.send(f'**{ctx.author.name}** asks {question}')
         await message.add_reaction('\N{THUMBS UP SIGN}')

@@ -41,58 +41,89 @@ class Summon(commands.Cog):
 
         await channel.send(content='There is a new banner available!', embed=embed)
 
-    @commands.command()
+    @commands.command(description='Find out the banner for today!\n.banner')
     async def banner(self, ctx):
         await ctx.send(content="Today's banner", file=discord.File('./img/banner.png', 'banner.png'))
 
     # commands
-    @commands.command(aliases=['wish_event', 'summon_event'])
+    @commands.command(aliases=['wish_event', 'summon_event'],
+                      description='wish for new characters and levels on the rotating event banner at a price of 160 '
+                                  'nom noms each\nwish_event 1; .event_wish 10; .summon_event 10')
     async def event_wish(self, ctx, amount):
-        await self._wish_qual(ctx, int(amount))
-
+        amount = int(amount)
+        if len(self.idb.search(ctx.author.id)) == 0:
+            self.idb.create_user(ctx.author.id)
+        if self.gdb.find_user('users', str(ctx.author.id)) is None:
+            await self.gdb.insert('users', f'({ctx.author.id}, 0, 0, 0, 0, 0)')
+        if not (amount == 1 or 10):
+            await ctx.send('please only do 1 or 10 pulls.')
+            return
+        if not self._wish_check_bal(ctx.author.id, amount):
+            await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
+            return
+        embed = discord.Embed()
         categories = await self._wish_rarity_calc(ctx.author.id, 'event', amount)
         if categories[0] > 0 or categories[1] > 0 and amount == 10:
-            await ctx.send(file=discord.File('./img/wish_gifs/purple_ten.gif'), delete_after=5)
+            embed.set_image(url="https://media.giphy.com/media/4Q38sALn5Gl48s7Jv3/giphy.gif")
         elif categories[0] > 0 or categories[1] > 0 and amount == 1:
-            await ctx.send(file=discord.File('./img/wish_gifs/gold.gif'), delete_after=5)
+            embed.set_image(url="https://media.giphy.com/media/X1oxDDQYMNx3RBYXkc/giphy.gif")
         elif categories[2] > 0 and amount == 10:
-            await ctx.send(file=discord.File('./img/wish_gifs/purple_ten.gif'), delete_after=5)
+            embed.set_image(url="https://media.giphy.com/media/U04NUo8yZy20GohN4U/giphy.gif")
         elif categories[2] > 0 and amount == 1:
-            await ctx.send(file=discord.File('./img/wish_gifs/purple.gif'), delete_after=5)
+            embed.set_image(url="https://media.giphy.com/media/2mSCyZFXmHS2RQT4LF/giphy.gif")
         else:
-            await ctx.send(file=discord.File('./img/wish_gifs/blue.gif'), delete_after=5)
+            embed.set_image(url="https://media.giphy.com/media/Cj6L4uLFEfsV2iJjq3/giphy.gif")
 
+        await ctx.send(embed=embed, delete_after=5)
         results = self._wish_event_results(categories)
         self.pillow.generate_wishes(results)
         time.sleep(5)
         await ctx.send(file=discord.File('./img/results.png'))
 
+        await self.udb.update('users', 'bal', '-'+str(160*amount), str(ctx.author.id))
         for item in results:
             if 'book' in item:
                 self.idb.add_book(ctx.author.id, item)
             else:
                 self.idb.add_char(ctx.author.id, item)
 
-    @commands.command(aliases=['wish_reg', 'summon_reg'])
+    @commands.command(aliases=['wish_reg', 'summon_reg'],
+                      description='wish for new characters and levels on the rotating event banner at a price of 160 '
+                                  'nom noms each\nwish_reg 1; .summon_reg 10')
     async def reg_wish(self, ctx, amount):
-        await self._wish_qual(ctx, int(amount))
+        amount = int(amount)
+        if len(self.idb.search(ctx.author.id)) == 0:
+            self.idb.create_user(ctx.author.id)
+        if self.gdb.find_user('users', str(ctx.author.id)) is None:
+            await self.gdb.insert('users', f'({ctx.author.id}, 0, 0, 0, 0, 0)')
+        if not (amount == 1 or 10):
+            await ctx.send('please only do 1 or 10 pulls.')
+            return
+        if not self._wish_check_bal(ctx.author.id, amount):
+            await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
+            return
 
         categories = await self._wish_rarity_calc(ctx.author.id, 'reg', amount)
-        if categories[0] > 0 and amount == 10:
-            await ctx.send(file=discord.File('./img/wish_gifs/purple_ten.gif'), delete_after=5)
-        elif categories[0] > 0 and amount == 1:
-            await ctx.send(file=discord.File('./img/wish_gifs/gold.gif'), delete_after=5)
-        elif categories[1] > 0 and amount == 10:
-            await ctx.send(file=discord.File('./img/wish_gifs/purple_ten.gif'), delete_after=5)
-        elif categories[1] > 0 and amount == 1:
-            await ctx.send(file=discord.File('./img/wish_gifs/purple.gif'), delete_after=5)
-        else:
-            await ctx.send(file=discord.File('./img/wish_gifs/blue.gif'), delete_after=5)
+        embed = discord.Embed()
 
+        if categories[0] > 0 and amount == 10:
+            embed.set_image(url="https://media.giphy.com/media/4Q38sALn5Gl48s7Jv3/giphy.gif")
+        elif categories[0] > 0 and amount == 1:
+            embed.set_image(url="https://media.giphy.com/media/X1oxDDQYMNx3RBYXkc/giphy.gif")
+        elif categories[1] > 0 and amount == 10:
+            embed.set_image(url="https://media.giphy.com/media/U04NUo8yZy20GohN4U/giphy.gif")
+        elif categories[1] > 0 and amount == 1:
+            embed.set_image(url="https://media.giphy.com/media/2mSCyZFXmHS2RQT4LF/giphy.gif")
+        else:
+            embed.set_image(url="https://media.giphy.com/media/Cj6L4uLFEfsV2iJjq3/giphy.gif")
+
+        await ctx.send(embed=embed, delete_after=5)
         results = self._wish_reg_results(categories)
         self.pillow.generate_wishes(results)
         time.sleep(5)
         await ctx.send(file=discord.File('./img/results.png'))
+
+        await self.udb.update('users', 'bal', '-' + str(160 * amount), str(ctx.author.id))
 
         for item in results:
             if 'book' in item:
@@ -110,10 +141,11 @@ class Summon(commands.Cog):
             results.append(random.choice(options))
         for _ in range(categories[2]):
             if random.random() >= 0.5:
-                random.choice(self.gdb.cur4)
+                results.append(random.choice(self.gdb.cur4))
             else:
                 options = self.gdb.fours[:]
-                options.remove(self.gdb.cur4)
+                for option in self.gdb.cur4:
+                    options.remove(option)
                 results.append(random.choice(options))
         for _ in range(categories[3]):
             results.append(random.choice(['green_book', 'blue_book', 'purple_book']))
@@ -131,7 +163,7 @@ class Summon(commands.Cog):
             results.append(random.choice(['green_book', 'blue_book', 'purple_book']))
         return results
 
-    async def _wish_check_bal(self, user_id: int, amount: int):
+    def _wish_check_bal(self, user_id: int, amount: int):
         user = self.udb.find_user(db='users', user=str(user_id), var='bal')
         if int(user[0]) <= amount * 160:
             return False
@@ -143,9 +175,15 @@ class Summon(commands.Cog):
         five_nonevent = 0
         four_stars = 0
         xp_books = 0
-        event_guarantee = self.gdb.find_user('users', str(user_id), 'event_guarantee')[0]
+        event_guarantee = self.gdb.find_user('users', str(user_id), 'event_guarantee')
+        if event_guarantee is None:
+            event_guarantee = 0
+
         pity5 = self.gdb.find_user('users', str(user_id), var=banner + '_pity5')
+        pity5 = 0 if pity5 is None else pity5
+
         pity4 = self.gdb.find_user('users', str(user_id), var=banner + '_pity4')
+        pity4 = 0 if pity4 is None else pity4
 
         for i in range(num):
             val = random.random()
@@ -166,7 +204,7 @@ class Summon(commands.Cog):
                 pity4 += 1
                 continue
             val = random.random()
-            if val <= 0.0255 or four_stars >= 10:
+            if val <= 0.0255 or pity4 >= 10:
                 four_stars += 1
                 pity4 = 0
                 pity5 += 1
@@ -183,16 +221,20 @@ class Summon(commands.Cog):
         else:
             return [five_event, four_stars, xp_books]
 
-    async def _wish_qual(self, ctx, amount):
-        if amount != 1 or amount != 10:
-            await ctx.send('please only do 1 or 10 pulls.')
-            return
-        if not await self._wish_check_bal(ctx.author.id, amount):
-            await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
-            return
-        if self.idb.search(ctx.author.id) is None:
-            await self.idb.create_user(ctx.author.id)
-            await self.gdb.insert('users', f'({ctx.author.id}, 0, 0, 0, 0, 0)')
+    @commands.command(description='Check the amount of pity you have on each banner\n.pity')
+    async def pity(self, ctx):
+        info = self.gdb.find_user('users', str(ctx.author.id))
+        embed = discord.Embed(title="Your pity for banner wishes!", colour=discord.Colour(0x7ce010))
+
+        embed.set_author(name=ctx.author.display_name if ctx.author.nick is None else ctx.author.nick)
+
+        embed.add_field(name="Event Five :star: Guarantee", value='True' if info[1] == 0 else 'False', inline=False)
+        embed.add_field(name="Event Five :star: Pity", value=str(info[2]), inline=True)
+        embed.add_field(name="Event Four :star: Pity", value=str(info[4]), inline=True)
+        embed.add_field(name="Regular Five :star: Pity", value=str(info[3]), inline=True)
+        embed.add_field(name="Regular Four :star: Pity", value=str(info[1]), inline=True)
+
+        await ctx.send(embed=embed)
 
 
 def setup(client):

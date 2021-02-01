@@ -16,7 +16,7 @@ class GachaDatabase(commands.Cog):
         self.c = self.conn.cursor()
         self.fives = ['Albedo', 'Ayaka', 'Diluc', 'Ganyu', 'Jean', 'Keqing', 'Klee', 'Mona', 'Qiqi', 'Tartaglia',
                       'Venti', 'Xiao', 'Zhongli']
-        self.fours = ['Amber', 'Barbara', 'Bennett', 'Chongyun', 'Diona', 'Fischl', 'Kaeya', 'Lisa', 'Ningguang',
+        self.fours = ['Amber', 'Barbara', 'Bennett', 'Beidou', 'Chongyun', 'Diona', 'Fischl', 'Kaeya', 'Lisa', 'Ningguang',
                       'Noelle', 'Razor', 'Sucrose', 'Xiangling', 'Xingqiu', 'Xinyan']
         with open('banner_info', 'r') as f:
             self.cur5 = f.readline()[:-1]
@@ -47,7 +47,11 @@ class GachaDatabase(commands.Cog):
     def find_user(self, db: str, user: str, var: str = '*'):
         self.c.execute(f"SELECT {var} FROM {db} WHERE user_id = {user}")
         if var != '*':
-            return self.c.fetchone()[0]
+            temp = self.c.fetchone()
+            if temp is not None:
+                return temp[0]
+            else:
+                return None
         else:
             return self.c.fetchone()
 
@@ -64,7 +68,7 @@ class GachaDatabase(commands.Cog):
         self.c.execute("VACUUM")
         self.conn.commit()
 
-    @commands.command()
+    @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
     async def close_gdb(self, ctx):
         self.conn.close()

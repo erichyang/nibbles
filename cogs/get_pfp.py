@@ -13,7 +13,8 @@ class GetPFP(commands.Cog):
         print('GetPfp online')
 
     # commands
-    @commands.command(aliases=['getpfp'])
+    @commands.command(aliases=['getpfp'], description='gets profile picture of yours or others\n'
+                                                      '.get_pfp; .get_pfp @<user>')
     async def get_pfp(self, ctx):
         if len(ctx.message.mentions) > 0:
             user_id = ctx.message.mentions[0].id

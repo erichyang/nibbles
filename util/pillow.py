@@ -10,9 +10,9 @@ class Pillow(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.title_font = ImageFont.truetype('./img/Tuesday Jingle.ttf', 160)
-        self.subtitle_font = ImageFont.truetype('./img/Tuesday Jingle.ttf', 120)
-        self.body_font = ImageFont.truetype('./img/act.regular.ttf', 100)
+        self.title_font = ImageFont.truetype('./img/fonts/Tuesday Jingle.ttf', 160)
+        self.subtitle_font = ImageFont.truetype('./img/fonts/Tuesday Jingle.ttf', 120)
+        self.body_font = ImageFont.truetype('./img/fonts/act.regular.ttf', 100)
         self.udb = UserDatabase(self.client)
 
     # events
@@ -22,11 +22,11 @@ class Pillow(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before, after):
-        if before.avatar_url != after.avatar_url and os.path.exists(f'./img/{before.id}.jpg'):
-            os.remove(f'./img/{before.id}.jpg')
+        if before.avatar_url != after.avatar_url and os.path.exists(f'./img/pfp/{before.id}.jpg'):
+            os.remove(f'./img/pfp/{before.id}.jpg')
 
     def generate_profile(self, user):
-        bg = Image.open('./img/profile_bg.jpg').convert('RGBA')
+        bg = Image.open('./img/backgrounds/profile_bg.jpg').convert('RGBA')
         pfp = Image.open(f'./img/pfp/{user.id}.jpg').resize((536, 536))
         pfp_border = Image.open('./img/profile_border.png').resize((580, 580))
         bg.paste(pfp, (100, 100))
@@ -69,7 +69,7 @@ class Pillow(commands.Cog):
         bg.save('./img/profile.png')
 
     def generate_banner(self, five, fours):
-        bg = Image.open('./img/banner_bg.png').convert('RGBA')
+        bg = Image.open('./img/backgrounds/banner_bg.png').convert('RGBA')
         five_portrait = Image.open(f'./img/char_portrait/Character_{five}_Portrait.png').resize((360, 600))
         four_portrait = [Image.open(f'./img/char_portrait/Character_{fours[0]}_Portrait.png').resize((360, 600)),
                          Image.open(f'./img/char_portrait/Character_{fours[1]}_Portrait.png').resize((360, 600)),
@@ -100,7 +100,7 @@ class Pillow(commands.Cog):
         bg.save('./img/banner.png')
 
     def generate_wishes(self, results):
-        bg = Image.open('./img/wishes_bg.png').convert('RGBA')
+        bg = Image.open('./img/backgrounds/wishes_bg.png').convert('RGBA')
         portraits = []
         xp = [0, 0, 0]
 
@@ -127,9 +127,9 @@ class Pillow(commands.Cog):
         bg = Image.alpha_composite(bg, overlay)
         for i in range(char):
             bg.paste(portraits[i], (81 + i * 360, 245), mask=portraits[i])
-        purple = Image.open('./img/purple_book.png')
-        blue = Image.open('./img/blue_book.png')
-        green = Image.open('./img/green_book.png')
+        purple = Image.open('./img/books/purple_book.png')
+        blue = Image.open('./img/books/blue_book.png')
+        green = Image.open('./img/books/green_book.png')
         bg.paste(purple, (100 + char * 360, 450), mask=purple)
         bg.paste(blue, (300 + char * 360, 450), mask=blue)
         bg.paste(green, (500 + char * 360, 450), mask=green)
