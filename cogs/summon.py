@@ -4,7 +4,7 @@ import random
 import discord
 from discord.ext import commands, tasks
 
-from util import udb, gdb, pillow
+from util import udb, gdb, idb, pillow
 
 
 class Summon(commands.Cog):
@@ -13,6 +13,7 @@ class Summon(commands.Cog):
         self.client = client
         self.udb = udb.UserDatabase(client)
         self.gdb = gdb.GachaDatabase(client)
+        self.idb = idb.InventoryDatabase(client)
         self.pillow = pillow.Pillow(client)
 
     # events
@@ -46,21 +47,23 @@ class Summon(commands.Cog):
     # commands
     @commands.command(aliases=['wish_event'])
     async def event_char_wish(self, ctx, amount):
-        amount = int(amount)
-        if not await self._wish_check_bal(ctx.author.id, amount):
-            await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
-            return
+        await self._wish_qual(ctx, int(amount))
 
-        categories = await self.rarity_calc(ctx.author.id, 'event', amount)
-        await ctx.send(self._wish_results(categories))
+        categories = await self._wish_rarity_calc(ctx.author.id, 'event', amount)
+        results = self._wish_results(categories)
+        self.pillow.generate_wishes(results)
+        await ctx.send(file=discord.File('./img/results.png'))
 
     @commands.command(aliases=['wish_reg'])
     async def reg_wish(self, ctx, amount):
-        if not self._wish_check_bal(ctx.author.id, amount):
-            await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
-            return
+        await self._wish_qual(ctx, int(amount))
 
-    def _wish_results(self, categories):
+        categories = await self._wish_rarity_calc(ctx.author.id, 'reg', amount)
+        results = self._wish_results(categories)
+        self.pillow.generate_wishes(results)
+        await ctx.send(file=discord.File('./img/results.png'))
+
+    def _wish_results(self, categories, banner): # IMPORTANT REGULAR BANNER NOT IMPLEMENTED
         results = []
         for _ in range(categories[0]):
             if random.random() >= 0.5:
@@ -87,7 +90,7 @@ class Summon(commands.Cog):
         else:
             return True
 
-    async def rarity_calc(self, user_id, banner, num: int):
+    async def _wish_rarity_calc(self, user_id, banner, num: int):
         five_stars = 0
         four_stars = 0
         xp_books = 0
@@ -121,6 +124,13 @@ class Summon(commands.Cog):
         await self.gdb.set('users', f'{banner}_pity5', str(pity5), str(user_id))
         await self.gdb.set('users', f'{banner}_pity4', str(pity4), str(user_id))
         return [five_stars, four_stars, xp_books]
+
+    def _wish_qual(self, ctx, amount):
+        if not await self._wish_check_bal(ctx.author.id, amount):
+            await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
+            return
+        if self.idb.search(ctx.author.id) is None:
+            await self.idb.create_user(ctx.author.id)
 
 
 def setup(client):

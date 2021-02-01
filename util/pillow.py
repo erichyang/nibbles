@@ -99,6 +99,41 @@ class Pillow(commands.Cog):
         bg = Image.alpha_composite(bg, text_layer)
         bg.save('./img/banner.png')
 
+    def generate_wishes(self, results):
+        bg = Image.open('./img/wishes_bg.png').convert('RGBA')
+        portraits = []
+        xp = 0
+        xp_book = Image.open(f'./img/xp_book.png')
+        char = 0
+        for item in results:
+            if item == 'xp_book':
+                xp += 1
+            else:
+                portraits.append(Image.open(f'./img/char_portrait/Character_{item}_Portrait.png').resize((390, 650)))
+                char += 1
+        tint_color = (255, 255, 255)  # White
+        opacity = int(255 * .40)
+        overlay = Image.new('RGBA', bg.size, tint_color + (0,))
+        draw = ImageDraw.Draw(overlay)
+        for i in range(char):
+            draw.rectangle(((96 + i * 360, 265), (96 + (i + 1) * 360 - 12, 265 + 600)), outline=(255, 255, 255))
+            draw.rectangle(((96 + i * 360, 265), (96 + (i + 1) * 360 - 12, 265 + 600)), fill=tint_color+(opacity,))
+
+        bg = Image.alpha_composite(bg, overlay)
+        for i in range(char):
+            bg.paste(portraits[i], (81 + i * 360, 245), mask=portraits[i])
+        bg.paste(xp_book, (96 + char * 360, 450), mask=xp_book)
+        # text time
+        text_layer = Image.new('RGBA', bg.size)
+        txt = ImageDraw.Draw(text_layer)
+        txt.text((600, 50), "Summon Results", (255, 209, 248), font=self.title_font)
+        txt.text((595, 45), "Summon Results", (255, 255, 255), font=self.title_font)
+        txt.text((96 + char * 360, 500), 'XP books: ', (255, 255, 255), font=self.subtitle_font)
+        txt.text((96 + char * 360, 600), str(xp), (255, 255, 255), font=self.body_font)
+        bg = Image.alpha_composite(bg, text_layer)
+        bg.save('./img/results.png')
+        bg.show()
+
 
 def setup(client):
     client.add_cog(Pillow(client))
