@@ -14,7 +14,6 @@ class Summon(commands.Cog):
         self.client = client
         self.udb = udb.UserDatabase(client)
         self.gdb = gdb.GachaDatabase(client)
-        self.idb = idb.InventoryDatabase(client)
         self.pillow = pillow.Pillow(client)
 
     # events
@@ -51,8 +50,8 @@ class Summon(commands.Cog):
                                   'nom noms each\nwish_event 1; .event_wish 10; .summon_event 10')
     async def event_wish(self, ctx, amount):
         amount = int(amount)
-        if len(self.idb.search(ctx.author.id)) == 0:
-            self.idb.create_user(ctx.author.id)
+        if len(idb.search(ctx.author.id)) == 0:
+            idb.create_user(ctx.author.id)
         if self.gdb.find_user('users', str(ctx.author.id)) is None:
             await self.gdb.insert('users', f'({ctx.author.id}, 0, 0, 0, 0, 0)')
         if not (amount == 1 or 10):
@@ -83,17 +82,17 @@ class Summon(commands.Cog):
         await self.udb.update('users', 'bal', '-'+str(160*amount), str(ctx.author.id))
         for item in results:
             if 'book' in item:
-                self.idb.add_book(ctx.author.id, item)
+                idb.add_book(ctx.author.id, item)
             else:
-                self.idb.add_char(ctx.author.id, item)
+                idb.add_char(ctx.author.id, item)
 
     @commands.command(aliases=['wish_reg', 'summon_reg'],
                       description='wish for new characters and levels on the rotating event banner at a price of 160 '
                                   'nom noms each\nwish_reg 1; .summon_reg 10')
     async def reg_wish(self, ctx, amount):
         amount = int(amount)
-        if len(self.idb.search(ctx.author.id)) == 0:
-            self.idb.create_user(ctx.author.id)
+        if len(idb.search(ctx.author.id)) == 0:
+            idb.create_user(ctx.author.id)
         if self.gdb.find_user('users', str(ctx.author.id)) is None:
             await self.gdb.insert('users', f'({ctx.author.id}, 0, 0, 0, 0, 0)')
         if not (amount == 1 or 10):
@@ -127,9 +126,9 @@ class Summon(commands.Cog):
 
         for item in results:
             if 'book' in item:
-                self.idb.add_book(ctx.author.id, item)
+                idb.add_book(ctx.author.id, item)
             else:
-                self.idb.add_char(ctx.author.id, item)
+                idb.add_char(ctx.author.id, item)
 
     def _wish_event_results(self, categories):
         results = []
