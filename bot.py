@@ -108,11 +108,12 @@ async def mod_help(ctx):
 @client.event
 async def on_message(message):
     if client.user.mentioned_in(message):
-        eight_ball = [' It is certain.', ' It is decidedly so.', 'Without a doubt.', 'Yes – definitely.',
-                      ' You may rely on it.', 'As I see it, yes.', 'Most likely.', 'Outlook good.', 'Yes.',
-                      ' Signs point to yes.', 'Reply hazy, try again.', 'Ask again later.', 'Better not tell you now.',
-                      'Cannot predict now.', 'Concentrate and ask again.', "Don't count on it.", ' My reply is no.',
-                      'My sources say no.', 'Outlook not so good.', 'Very doubtful.']
+        eight_ball = ['Nibbles agree.', 'Yesssu!', 'Yes yes.', 'Nibbles approve.',
+                      'You can count on it.', 'Nibbles thinks that is correct.', 'Most likely.', 'Good good.',
+                      'Ooooo wats dat?', 'My nom noms said yes.', 'Huh? What did you say?.',
+                      'I\'m sleepy... ask later.', 'Its a secret hehe.', 'Mommy says stranger danger!.',
+                      'Daddy said he doesn\'t know.', 'Nibbles thinks that is wrong.', 'My nom noms said no.',
+                      'Nibbles disagree.', 'Noooooo!', 'That is incorrect.']
         await message.channel.send(random.choice(eight_ball))
     else:
         await client.process_commands(message)
