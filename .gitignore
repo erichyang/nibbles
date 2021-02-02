@@ -135,3 +135,6 @@ dmypy.json
 .idea/nibbles.iml
 user.db
 user.db-journal
+img/results.png
+inventory.json
+gacha.db
