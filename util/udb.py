@@ -90,6 +90,10 @@ class UserDatabase(commands.Cog):
         self.conn.close()
         await ctx.send('user db connection closed')
 
+    def top_eighteen(self):
+        self.c.execute("SELECT user_id FROM users ORDER BY pts DESC LIMIT 18")
+        return self.c.fetchall()
+
 
 def setup(client):
     client.add_cog(UserDatabase(client))

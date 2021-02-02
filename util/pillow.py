@@ -25,7 +25,7 @@ class Pillow(commands.Cog):
         if before.avatar_url != after.avatar_url and os.path.exists(f'./img/pfp/{before.id}.jpg'):
             os.remove(f'./img/pfp/{before.id}.jpg')
 
-    def generate_profile(self, user):
+    def generate_profile(self, user, birthday='N/A'):
         bg = Image.open('./img/backgrounds/profile_bg.jpg').convert('RGBA')
         pfp = Image.open(f'./img/pfp/{user.id}.jpg').resize((536, 536))
         pfp_border = Image.open('./img/profile_border.png').resize((580, 580))
@@ -59,11 +59,16 @@ class Pillow(commands.Cog):
         description = f'Description: {desc}'
         text_layer = Image.new('RGBA', bg.size)
         txt = ImageDraw.Draw(text_layer)
-        txt.text((700, 100), user.nick.upper() + "'s PROFILE", (18, 136, 196), font=self.title_font)
-        txt.text((695, 95), user.nick.upper() + "'s PROFILE", (199, 236, 255), font=self.title_font)
+        if user.nick is None:
+            name = user.display_name.upper()
+        else:
+            name = user.nick.upper()
+        txt.text((700, 100), name + "'s PROFILE", (18, 136, 196), font=self.title_font)
+        txt.text((695, 95), name + "'s PROFILE", (199, 236, 255), font=self.title_font)
         txt.text((680, 250), description, (0, 0, 0), font=self.body_font)
         txt.text((680, 900), f'Exp: {user_info[1]}', (0, 0, 0), font=self.body_font)
-        txt.text((1180, 900), f'Nom noms: {user_info[2]}', (0, 0, 0), font=self.body_font)
+        txt.text((980, 900), f'Nom noms: {user_info[2]}', (0, 0, 0), font=self.body_font)
+        txt.text((1480, 900), f'Birthday: {birthday}', (0, 0, 0), font=self.body_font)
         bg = Image.alpha_composite(bg, overlay)
         bg = Image.alpha_composite(bg, text_layer)
         bg.save('./img/profile.png')

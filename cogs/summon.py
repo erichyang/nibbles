@@ -54,21 +54,21 @@ class Summon(commands.Cog):
             idb.create_user(ctx.author.id)
         if self.gdb.find_user('users', str(ctx.author.id)) is None:
             await self.gdb.insert('users', f'({ctx.author.id}, 0, 0, 0, 0, 0)')
-        if not (amount == 1 or 10):
-            await ctx.send('please only do 1 or 10 pulls.')
+        if not (0 <= amount <= 10):
+            await ctx.send('please only do 1-10 pulls.')
             return
         if not self._wish_check_bal(ctx.author.id, amount):
             await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
             return
         embed = discord.Embed()
         categories = await self._wish_rarity_calc(ctx.author.id, 'event', amount)
-        if categories[0] > 0 or categories[1] > 0 and amount == 10:
+        if categories[0] > 0 or categories[1] > 0 and amount >= 5:
             embed.set_image(url="https://media.giphy.com/media/4Q38sALn5Gl48s7Jv3/giphy.gif")
-        elif categories[0] > 0 or categories[1] > 0 and amount == 1:
+        elif categories[0] > 0 or categories[1] > 0 and amount < 5:
             embed.set_image(url="https://media.giphy.com/media/X1oxDDQYMNx3RBYXkc/giphy.gif")
-        elif categories[2] > 0 and amount == 10:
+        elif categories[2] > 0 and amount >= 5:
             embed.set_image(url="https://media.giphy.com/media/U04NUo8yZy20GohN4U/giphy.gif")
-        elif categories[2] > 0 and amount == 1:
+        elif categories[2] > 0 and amount < 5:
             embed.set_image(url="https://media.giphy.com/media/2mSCyZFXmHS2RQT4LF/giphy.gif")
         else:
             embed.set_image(url="https://media.giphy.com/media/Cj6L4uLFEfsV2iJjq3/giphy.gif")
@@ -76,7 +76,7 @@ class Summon(commands.Cog):
         await ctx.send(embed=embed, delete_after=5)
         results = self._wish_event_results(categories)
         self.pillow.generate_wishes(results)
-        time.sleep(5)
+        time.sleep(3)
         await ctx.send(file=discord.File('./img/results.png'))
 
         await self.udb.update('users', 'bal', '-'+str(160*amount), str(ctx.author.id))
@@ -105,13 +105,13 @@ class Summon(commands.Cog):
         categories = await self._wish_rarity_calc(ctx.author.id, 'reg', amount)
         embed = discord.Embed()
 
-        if categories[0] > 0 and amount == 10:
+        if categories[0] > 0 and amount >= 5:
             embed.set_image(url="https://media.giphy.com/media/4Q38sALn5Gl48s7Jv3/giphy.gif")
-        elif categories[0] > 0 and amount == 1:
+        elif categories[0] > 0 and amount < 5:
             embed.set_image(url="https://media.giphy.com/media/X1oxDDQYMNx3RBYXkc/giphy.gif")
-        elif categories[1] > 0 and amount == 10:
+        elif categories[1] > 0 and amount >= 5:
             embed.set_image(url="https://media.giphy.com/media/U04NUo8yZy20GohN4U/giphy.gif")
-        elif categories[1] > 0 and amount == 1:
+        elif categories[1] > 0 and amount < 5:
             embed.set_image(url="https://media.giphy.com/media/2mSCyZFXmHS2RQT4LF/giphy.gif")
         else:
             embed.set_image(url="https://media.giphy.com/media/Cj6L4uLFEfsV2iJjq3/giphy.gif")
@@ -119,7 +119,7 @@ class Summon(commands.Cog):
         await ctx.send(embed=embed, delete_after=5)
         results = self._wish_reg_results(categories)
         self.pillow.generate_wishes(results)
-        time.sleep(5)
+        time.sleep(3)
         await ctx.send(file=discord.File('./img/results.png'))
 
         await self.udb.update('users', 'bal', '-' + str(160 * amount), str(ctx.author.id))

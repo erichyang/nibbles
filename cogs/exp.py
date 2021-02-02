@@ -6,9 +6,12 @@ import random
 from datetime import datetime
 
 from discord.ext.commands import has_permissions
+from tinydb import TinyDB, Query
 
 from util import udb
 from util.pillow import Pillow
+
+import re
 
 
 class Exp(commands.Cog):
@@ -59,29 +62,30 @@ class Exp(commands.Cog):
         else:
             old_role = message.guild.get_role(706989660244541540)
         temp = self.db.top_six('pts')
-        temp = [temp[0][0], temp[1][0], temp[2][0], temp[3][0], temp[4][0], temp[5][0]]
+        top_six = []
+        for person in temp:
+            top_six.append(person[0])
+        temp = self.db.top_eighteen()
+        top_et = []
+        for person in temp:
+            top_et.append(person[0])
         if record is None or isinstance(message.author.roles, discord.User):
             return
-        if record[1] < 1000:
-            if old_role is not moons:
-                await message.author.add_roles(moons)
-                await message.author.remove_roles(old_role)
-        elif _id in temp:
+        if record[1] >= 1000 and _id in top_six:
             if old_role is not stars:
                 await message.author.add_roles(stars)
                 await message.author.remove_roles(old_role)
-        elif old_role is not planets:
-            await message.author.add_roles(planets)
+        elif record[1] >= 500 and _id in top_et:
+            if old_role is not planets:
+                await message.author.add_roles(planets)
+                await message.author.remove_roles(old_role)
+        elif old_role is not moons:
+            await message.author.add_roles(moons)
             await message.author.remove_roles(old_role)
 
     @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
     async def init_roles(self, ctx):
-        # for member in ctx.guild.members:
-        #     if not member.bot:
-        #         await member.remove_roles(ctx.guild.get_role(698255109406326876))
-        #         await member.remove_roles(ctx.guild.get_role(709910163879886917))
-        #         await member.add_roles(ctx.guild.get_role(706989660244541540))
         await self.db.set('users', 'pts', '0', None)
         await ctx.send('done')
 
@@ -130,7 +134,7 @@ class Exp(commands.Cog):
     @commands.command(description='check your profile that has your exp and nom noms!\n.profile; .profile @nibbles')
     async def profile(self, ctx):
         if len(ctx.message.mentions) > 0:
-            user = ctx.guild.fetch_member(ctx.message.mentions[0].id)
+            user = await ctx.guild.fetch_member(ctx.message.mentions[0].id)
         else:
             user = ctx.author
 
@@ -138,7 +142,12 @@ class Exp(commands.Cog):
             await user.avatar_url.save(f'./img/pfp/{user.id}.jpg')
 
         await ctx.send('Generating...', delete_after=3)
-        self.pillow.generate_profile(user)
+        with TinyDB('birthday.json') as bd:
+            birthday = bd.search(Query().user == user.id)
+            if len(birthday) == 0:
+                self.pillow.generate_profile(user)
+            else:
+                self.pillow.generate_profile(user, birthday[0].get('birthday'))
 
         await ctx.send(file=discord.File('./img/profile.png'))
 
@@ -153,6 +162,21 @@ class Exp(commands.Cog):
             return
         await self.db.set('users', 'description', f'"{param}"', str(ctx.author.id))
         await ctx.send("Description updated <:nekocheer:804178590094327878>")
+
+    @commands.command(aliases=['setbd'],
+                      description='set your birthday to be announced on the day and for your profile!\n'
+                                  '.set_birthday mm/dd; .setbd 02/14')
+    async def set_birthday(self, ctx, birthday):
+        pattern = re.compile("[0-9]{2}/[0-9]{2}$")
+        if not pattern.match(birthday):
+            await ctx.send('that is not the correct date time format')
+            return
+        with TinyDB('./birthday.json') as bd:
+            if bd.search(Query().user == ctx.author.id):
+                await ctx.send('you already set your birthday! If you have made an error, contact an admin')
+                return
+            bd.insert({'user': ctx.author.id, 'birthday': birthday})
+        await ctx.send('your birthday is now set as ' + birthday)
 
 
 def setup(client):
