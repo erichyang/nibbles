@@ -67,7 +67,8 @@ class Gamble(commands.Cog):
     @tasks.loop(hours=12)
     async def announce(self):
         channel = await self.client.fetch_channel(681149093858508834)
-        await channel.send('Your free wheel of fortune is now available!')
+        await channel.send('Your free wheel of fortune is now available!' +
+                           channel.guild.get_role(698255109406326876).mention)
         today = datetime.now().strftime("%m/%d")
         with TinyDB('./birthday.json') as _db:
             for people in _db.search(Query().birthday == today):
@@ -151,7 +152,7 @@ class Gamble(commands.Cog):
                                   'You can win prizes from :cookie:80-10000\n.gamble_wheel; .wheel; .spin')
     async def gamble_wheel(self, ctx):
         if ctx.channel.id == 681149093858508834:
-            await ctx.send(f'the wheel of fortune belongs in {self.client.get_channel("752676890413629471").mention}!')
+            await ctx.send(f'the wheel of fortune belongs in {self.client.get_channel(752676890413629471).mention}!')
             await ctx.send('<:angy:789977140200341515>')
             return
         bal = self.db.find_user(db='users', var='bal', user=str(ctx.author.id))
@@ -412,7 +413,6 @@ class Gamble(commands.Cog):
             await self.db.update(db='users', var='bal', amount='-' + str(self.bj['bet']), user=str(self.bj['init'].id))
 
         self.bj.pop('msg', None)
-
 
 def setup(client):
     client.add_cog(Gamble(client))

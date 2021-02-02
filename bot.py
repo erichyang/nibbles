@@ -49,7 +49,7 @@ def launch_tasks():
     midnight = datetime.combine(date.today() + timedelta(days=1), datetime.min.time()) + timedelta(hours=6)
     midnight = midnight.astimezone(pytz.timezone("America/Chicago"))
     tdelta = midnight - now
-    launch_time = tdelta.total_seconds() % (24*3600)
+    launch_time = tdelta.total_seconds() % (24 * 3600)
     time.sleep(launch_time)
     client.get_cog('Gamble').announce.start()
     client.get_cog('Summon').new_banner_rotation.start()
@@ -118,6 +118,21 @@ async def on_message(message):
     else:
         await client.process_commands(message)
 
+
+@client.event
+async def on_raw_reaction_add(payload):
+    if payload.emoji.name == '🍪' and payload.message_id == 804860150195945493:
+        guild = await client.fetch_guild(payload.guild_id)
+        member = await guild.fetch_member(payload.user_id)
+        await member.add_roles(discord.utils.get(guild.roles, name='Cookie Squad'))
+
+
+@client.event
+async def on_raw_reaction_remove(payload):
+    if payload.emoji.name == '🍪' and payload.message_id == 804860150195945493:
+        guild = await client.fetch_guild(payload.guild_id)
+        member = await guild.fetch_member(payload.user_id)
+        await member.remove_roles(discord.utils.get(guild.roles, name='Cookie Squad'))
 
 with open('bot_token', 'r') as f:
     client.run(f.read())

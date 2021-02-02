@@ -66,6 +66,9 @@ class InventoryDatabase(commands.Cog):
     @commands.command(description='check your inventory full of goodies!\n.inventory')
     async def inventory(self, ctx, _id=0):
         _id = ctx.author.id if _id == 0 else _id
+        if len(search(_id)) == 0:
+            await ctx.send("you haven't summoned yet!")
+            return
         inv = search(_id)[0]
         embed = discord.Embed(title="Your inventory!", colour=discord.Colour(0x7ce010))
 

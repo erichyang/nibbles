@@ -184,6 +184,8 @@ class Summon(commands.Cog):
         pity4 = self.gdb.find_user('users', str(user_id), var=banner + '_pity4')
         pity4 = 0 if pity4 is None else pity4
 
+        event_guarantee = False if event_guarantee == 0 else True
+
         for i in range(num):
             val = random.random()
 
