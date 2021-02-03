@@ -4,6 +4,7 @@ import random
 
 import discord
 from discord.ext import commands, tasks
+from tinydb import TinyDB, Query
 
 from util import udb, gdb, idb, pillow
 
@@ -38,7 +39,14 @@ class Summon(commands.Cog):
         img_url = msg.attachments[0].url
         embed.set_image(url=img_url)
 
-        await channel.send(content='There is a new banner available!', embed=embed)
+        await channel.send(embed=embed)
+
+        today = datetime.now().strftime("%m/%d")
+        with TinyDB('./birthday.json') as _db:
+            for people in _db.search(Query().birthday == today):
+                await channel.send(f"It is {channel.guild.get_member(people['user']).mention}'s birthday today!")
+                await channel.send(f"You received 14400 nom noms!")
+                await self.udb.update('users', 'bal', '+14400', str(people['user']))
 
     @commands.command(description='Find out the banner for today!\n.banner')
     async def banner(self, ctx):

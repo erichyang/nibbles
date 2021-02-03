@@ -6,8 +6,6 @@ from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, cooldown, BucketType, CommandOnCooldown
 import random
 
-from tinydb import TinyDB, Query
-
 from util import udb
 
 
@@ -69,13 +67,6 @@ class Gamble(commands.Cog):
         channel = await self.client.fetch_channel(681149093858508834)
         await channel.send('Your free wheel of fortune is now available!' +
                            channel.guild.get_role(806239172041113691).mention)
-        today = datetime.now().strftime("%m/%d")
-        with TinyDB('./birthday.json') as _db:
-            for people in _db.search(Query().birthday == today):
-                await channel.send(f"It is {channel.guild.get_member(people['user']).mention}'s birthday today!")
-                await channel.send(f"You received 14400 nom noms!")
-                await self.db.update('users', 'bal', '+14400', str(people['user']))
-
         self.wheel = []
 
     @commands.command(hidden=True)
