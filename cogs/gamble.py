@@ -68,7 +68,7 @@ class Gamble(commands.Cog):
     async def announce(self):
         channel = await self.client.fetch_channel(681149093858508834)
         await channel.send('Your free wheel of fortune is now available!' +
-                           channel.guild.get_role(698255109406326876).mention)
+                           channel.guild.get_role(806239172041113691).mention)
         today = datetime.now().strftime("%m/%d")
         with TinyDB('./birthday.json') as _db:
             for people in _db.search(Query().birthday == today):
