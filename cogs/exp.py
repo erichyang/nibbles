@@ -49,39 +49,16 @@ class Exp(commands.Cog):
             await self.db.update(db='users', var='bal', amount='+' + str(val), user=str(_id))
             await self.db.set_time(db='users', user=str(_id))
 
-        if isinstance(message.author, discord.User):
-            return
-
-        moons = message.guild.get_role(706989660244541540)
-        planets = message.guild.get_role(709910163879886917)
-        stars = message.guild.get_role(698255109406326876)
-        if stars in message.author.roles:
-            old_role = message.guild.get_role(698255109406326876)
-        elif planets in message.author.roles:
-            old_role = message.guild.get_role(709910163879886917)
-        else:
-            old_role = message.guild.get_role(706989660244541540)
-        temp = self.db.top_six('pts')
-        top_six = []
-        for person in temp:
-            top_six.append(person[0])
-        temp = self.db.top_eighteen()
-        top_et = []
-        for person in temp:
-            top_et.append(person[0])
-        if record is None or isinstance(message.author.roles, discord.User):
-            return
-        if record[1] >= 1000 and _id in top_six:
-            if old_role is not stars:
-                await message.author.add_roles(stars)
-                await message.author.remove_roles(old_role)
-        elif record[1] >= 500 and _id in top_et:
-            if old_role is not planets:
-                await message.author.add_roles(planets)
-                await message.author.remove_roles(old_role)
-        elif old_role is not moons:
-            await message.author.add_roles(moons)
-            await message.author.remove_roles(old_role)
+        if record is not None and not isinstance(message.author, discord.User):
+            temp = self.db.top_six('pts')
+            top_six = []
+            for person in temp:
+                top_six.append(person[0])
+            temp = self.db.top_eighteen()
+            top_et = []
+            for person in temp:
+                top_et.append(person[0])
+            await self.manage_exp_roles(message.guild, record[1], top_six, top_et)
 
     @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
@@ -167,7 +144,7 @@ class Exp(commands.Cog):
                       description='set your birthday to be announced on the day and for your profile!\n'
                                   '.set_birthday mm/dd; .setbd 02/14')
     async def set_birthday(self, ctx, birthday):
-        pattern = re.compile("[0-9]{2}/[0-9]{2}$")
+        pattern = re.compile("^[0-9]{2}/[0-9]{2}$")
         if not pattern.match(birthday):
             await ctx.send('that is not the correct date time format')
             return
@@ -177,6 +154,31 @@ class Exp(commands.Cog):
                 return
             bd.insert({'user': ctx.author.id, 'birthday': birthday})
         await ctx.send('your birthday is now set as ' + birthday)
+
+    @staticmethod
+    async def manage_exp_roles(message, xp, t6, t18):
+        moons = message.get_role(706989660244541540)
+        planets = message.get_role(709910163879886917)
+        stars = message.get_role(698255109406326876)
+
+        if xp >= 1000 and message.author.id in t6:
+            await message.author.add_roles(stars)
+            if planets in message.author.roles:
+                await message.author.remove_roles(planets)
+            if moons in message.author.roles:
+                await message.author.remove_roles(moons)
+        elif xp >= 500 and message.author.id in t18:
+            await message.author.add_roles(planets)
+            if stars in message.author.roles:
+                await message.author.remove_roles(stars)
+            if moons in message.author.roles:
+                await message.author.remove_roles(moons)
+        else:
+            await message.author.add_roles(moons)
+            if stars in message.author.roles:
+                await message.author.remove_roles(stars)
+            if planets in message.author.roles:
+                await message.author.remove_roles(planets)
 
 
 def setup(client):
