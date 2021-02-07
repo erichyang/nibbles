@@ -205,9 +205,11 @@ class Gamble(commands.Cog):
             amount = int(amount)
 
         if isinstance(amount, str):
-            if idb.transfer_card(sender_id, amount):
+            if idb.transfer_card(sender_id, amount) == 'done':
                 idb.add_char(receiver_id, amount)
-            await ctx.send("sent " + amount + " to " + ctx.message.mentions[0].display_name)
+                await ctx.send("sent " + amount + " to " + ctx.message.mentions[0].display_name)
+            else:
+                await ctx.send("You do not have this card transferable")
             return
         else:
             amount = int(amount)

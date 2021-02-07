@@ -19,8 +19,8 @@ class Characters(commands.Cog):
     async def on_ready(self):
         print('Characters online')
 
-    def find_character(self, temp: str, var: str = '*'):
-        self.c.execute(f"SELECT {var} FROM characters WHERE name = '{temp}'")
+    def find_character(self, char_name: str, var: str = '*'):
+        self.c.execute(f"SELECT {var} FROM characters WHERE name = '{char_name}'")
         if var != '*':
             return self.c.fetchone()[0]
         else:
@@ -36,6 +36,10 @@ class Characters(commands.Cog):
     def find(self, var: str):
         self.c.execute(f'SELECT {var} FROM characters')
         return self.c.fetchall()
+
+    def level_calc(self, xp: int):
+        self.c.execute(f'SELECT total FROM xp')
+        print(self.c.fetchall())
 
 
 def setup(client):

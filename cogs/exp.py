@@ -106,18 +106,13 @@ class Exp(commands.Cog):
         else:
             user = ctx.author
 
-        if f'{user.id}.jpg' not in os.listdir('./img/pfp'):
-            await user.avatar_url.save(f'./img/pfp/{user.id}.jpg')
-
         await ctx.send('Generating...', delete_after=3)
         with TinyDB('./data/birthday.json') as bd:
             birthday = bd.search(Query().user == user.id)
             if len(birthday) == 0:
-                self.pillow.generate_profile(user)
+                await self.pillow.generate_profile(ctx, user)
             else:
-                self.pillow.generate_profile(user, birthday[0].get('birthday'))
-
-        await ctx.send(file=discord.File('./img/profile.png'))
+                await self.pillow.generate_profile(ctx, user, birthday[0].get('birthday'))
 
     @commands.command(aliases=['setdesc', 'setdescription', 'set_description'],
                       description='set your beautiful message to be seen on your profile :D\n.setdesc <message>')

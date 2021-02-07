@@ -56,8 +56,7 @@ class Summon(commands.Cog):
     @commands.command(aliases=['wish_event', 'summon_event'],
                       description='wish for new characters and levels on the rotating event banner at a price of 160 '
                                   'nom noms each\nwish_event 1; .event_wish 10; .summon_event 10')
-    async def event_wish(self, ctx, amount):
-        amount = int(amount)
+    async def event_wish(self, ctx, amount=1):
         if len(idb.search(ctx.author.id)) == 0:
             idb.create_user(ctx.author.id)
         if self.gdb.find_user('users', str(ctx.author.id)) is None:
@@ -83,11 +82,10 @@ class Summon(commands.Cog):
 
         await ctx.send(embed=embed, delete_after=5)
         results = self._wish_event_results(categories)
-        self.pillow.generate_wishes(results)
+        await self.pillow.generate_wishes(ctx, results)
         time.sleep(3)
-        await ctx.send(file=discord.File('./img/results.png'))
 
-        await self.udb.update('users', 'bal', '-'+str(160*amount), str(ctx.author.id))
+        await self.udb.update('users', 'bal', '-' + str(160 * amount), str(ctx.author.id))
         for item in results:
             if 'book' in item:
                 idb.add_book(ctx.author.id, item)
@@ -97,13 +95,12 @@ class Summon(commands.Cog):
     @commands.command(aliases=['wish_reg', 'summon_reg'],
                       description='wish for new characters and levels on the rotating event banner at a price of 160 '
                                   'nom noms each\nwish_reg 1; .summon_reg 10')
-    async def reg_wish(self, ctx, amount):
-        amount = int(amount)
+    async def reg_wish(self, ctx, amount=1):
         if len(idb.search(ctx.author.id)) == 0:
             idb.create_user(ctx.author.id)
         if self.gdb.find_user('users', str(ctx.author.id)) is None:
             await self.gdb.insert('users', f'({ctx.author.id}, 0, 0, 0, 0, 0)')
-        if not (amount == 1 or 10):
+        if not (0 <= amount <= 10):
             await ctx.send('please only do 1 or 10 pulls.')
             return
         if not self._wish_check_bal(ctx.author.id, amount):
@@ -126,9 +123,8 @@ class Summon(commands.Cog):
 
         await ctx.send(embed=embed, delete_after=5)
         results = self._wish_reg_results(categories)
-        self.pillow.generate_wishes(results)
+        await self.pillow.generate_wishes(ctx, results)
         time.sleep(3)
-        await ctx.send(file=discord.File('./img/results.png'))
 
         await self.udb.update('users', 'bal', '-' + str(160 * amount), str(ctx.author.id))
 

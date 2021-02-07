@@ -1,5 +1,7 @@
+import io
 import os
-
+import requests
+import discord
 from discord.ext import commands
 from PIL import Image, ImageFont, ImageDraw
 
@@ -25,9 +27,11 @@ class Pillow(commands.Cog):
         if before.avatar_url != after.avatar_url and os.path.exists(f'./img/pfp/{before.id}.jpg'):
             os.remove(f'./img/pfp/{before.id}.jpg')
 
-    def generate_profile(self, user, birthday='N/A'):
+    async def generate_profile(self, ctx, user, birthday='N/A'):
         bg = Image.open('./img/backgrounds/profile_bg.jpg').convert('RGBA')
-        pfp = Image.open(f'./img/pfp/{user.id}.jpg').resize((536, 536))
+        response = requests.get(user.avatar_url)
+        pfp = Image.open(io.BytesIO(response.content)).resize((536, 536))
+        # pfp = Image.open(f'./img/pfp/{user.id}.jpg').resize((536, 536))
         pfp_border = Image.open('./img/profile_border.png').resize((580, 580))
         bg.paste(pfp, (100, 100))
         bg.paste(pfp_border, (80, 80), mask=pfp_border)
@@ -71,7 +75,11 @@ class Pillow(commands.Cog):
         txt.text((1480, 900), f'Birthday: {birthday}', (0, 0, 0), font=self.body_font)
         bg = Image.alpha_composite(bg, overlay)
         bg = Image.alpha_composite(bg, text_layer)
-        bg.save('./img/profile.png')
+
+        with io.BytesIO() as image_binary:
+            bg.save(image_binary, 'PNG')
+            image_binary.seek(0)
+            await ctx.send(file=discord.File(fp=image_binary, filename='profile.png'))
 
     def generate_banner(self, five, fours):
         bg = Image.open('./img/backgrounds/banner_bg.png').convert('RGBA')
@@ -104,7 +112,7 @@ class Pillow(commands.Cog):
         bg = Image.alpha_composite(bg, text_layer)
         bg.save('./img/banner.png')
 
-    def generate_wishes(self, results):
+    async def generate_wishes(self, ctx, results):
         bg = Image.open('./img/backgrounds/wishes_bg.png').convert('RGBA')
         portraits = []
         xp = [0, 0, 0]
@@ -148,7 +156,10 @@ class Pillow(commands.Cog):
         txt.text((400 + char * 360, 600), str(xp[1]), (255, 255, 255), font=self.body_font)
         txt.text((650 + char * 360, 600), str(xp[2]), (255, 255, 255), font=self.body_font)
         bg = Image.alpha_composite(bg, text_layer)
-        bg.save('./img/results.png')
+        with io.BytesIO() as image_binary:
+            bg.save(image_binary, 'PNG')
+            image_binary.seek(0)
+            await ctx.send(file=discord.File(fp=image_binary, filename='results.png'))
 
 
 def setup(client):

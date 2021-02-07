@@ -107,7 +107,7 @@ async def mod_help(ctx):
 
 @client.event
 async def on_message(message):
-    if client.user.mentioned_in(message):
+    if message.reference is None and client.user.mentioned_in(message):
         eight_ball = ['Nibbles agree.', 'Yesssu!', 'Yes yes.', 'Nibbles approve.',
                       'You can count on it.', 'Nibbles thinks that is correct.', 'Most likely.', 'Good good.',
                       'Ooooo wats dat?', 'My nom noms said yes.', 'Huh? What did you say?.',
