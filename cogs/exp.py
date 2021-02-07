@@ -143,9 +143,9 @@ class Exp(commands.Cog):
 
     @staticmethod
     async def manage_exp_roles(message, xp, t6, t18):
-        moons = message.get_role(706989660244541540)
-        planets = message.get_role(709910163879886917)
-        stars = message.get_role(698255109406326876)
+        moons = message.guild.get_role(706989660244541540)
+        planets = message.guild.get_role(709910163879886917)
+        stars = message.guild.get_role(698255109406326876)
 
         if xp >= 1000 and message.author.id in t6:
             await message.author.add_roles(stars)
