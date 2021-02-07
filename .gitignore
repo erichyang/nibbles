@@ -128,13 +128,12 @@ dmypy.json
 # Pyre type checker
 .pyre/
 *.xml
-*.xml
 .idea/
 *.iml
 .idea/misc.xml
 .idea/nibbles.iml
-user.db
-user.db-journal
+data/user.db
+data/user.db-journal
 img/results.png
-inventory.json
-gacha.db
+data/inventory.json
+data/gacha.db

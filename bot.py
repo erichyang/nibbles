@@ -134,5 +134,5 @@ async def on_raw_reaction_remove(payload):
         member = await guild.fetch_member(payload.user_id)
         await member.remove_roles(discord.utils.get(guild.roles, name='Cookie Squad'))
 
-with open('bot_token', 'r') as f:
+with open('data/bot_token', 'r') as f:
     client.run(f.read())

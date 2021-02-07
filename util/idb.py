@@ -8,17 +8,17 @@ from util.characters import Characters
 
 
 def create_user(user_id):
-    with TinyDB('./inventory.json') as db:
+    with TinyDB('./data/inventory.json') as db:
         db.insert({'user': user_id, 'chars': [], 'books': [0, 0, 0]})
 
 
 def search(user_id):
-    with TinyDB('./inventory.json') as db:
+    with TinyDB('./data/inventory.json') as db:
         return db.search(Query().user == user_id)
 
 
 def transfer_card(user_id, character):
-    with TinyDB('./inventory.json') as db:
+    with TinyDB('./data/inventory.json') as db:
         user = db.search(Query().user == user_id)[0]
         characters = user.get('trading_cards')
         if character in characters:
@@ -36,7 +36,7 @@ def add_card(user_id, char):
         cards.append(char)
     else:
         cards = [char]
-    with TinyDB('./inventory.json') as db:
+    with TinyDB('./data/inventory.json') as db:
         db.update({'trading_cards': cards}, Query().user == user_id)
 
 
@@ -48,7 +48,7 @@ def add_char(user_id, char):
         if characters[0] == char:
             if characters[2] < 6:
                 characters[2] += 1
-                with TinyDB('./inventory.json') as db:
+                with TinyDB('./data/inventory.json') as db:
                     db.update({'chars': temp_chars}, Query().user == user_id)
                 return
             else:
@@ -56,7 +56,7 @@ def add_char(user_id, char):
                 return
 
     temp_chars.append((char, 0, 0))
-    with TinyDB('./inventory.json') as db:
+    with TinyDB('./data/inventory.json') as db:
         db.update({'chars': temp_chars}, Query().user == user_id)
 
 
@@ -70,12 +70,12 @@ def add_book(user_id, color):
         temp_books[1] += 1
     else:
         temp_books[2] += 1
-    with TinyDB('./inventory.json') as db:
+    with TinyDB('./data/inventory.json') as db:
         db.update({'books': temp_books}, Query().user == user_id)
 
 
 def print_all():
-    with TinyDB('./inventory.json') as db:
+    with TinyDB('./data/inventory.json') as db:
         print(db.all())
 
 

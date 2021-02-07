@@ -11,7 +11,7 @@ class GachaDatabase(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.conn = sqlite3.connect('gacha.db')
+        self.conn = sqlite3.connect('./data/gacha.db')
         # pity, banner, rates
         self.c = self.conn.cursor()
         self.fives = ['Albedo', 'Ayaka', 'Diluc', 'Ganyu', 'Jean', 'Keqing', 'Klee', 'Mona', 'Qiqi', 'Tartaglia',
@@ -19,7 +19,7 @@ class GachaDatabase(commands.Cog):
         self.fours = ['Amber', 'Barbara', 'Bennett', 'Beidou', 'Chongyun', 'Diona', 'Fischl', 'Kaeya', 'Lisa',
                       'Ningguang',
                       'Noelle', 'Razor', 'Sucrose', 'Xiangling', 'Xingqiu', 'Xinyan']
-        with open('banner_info', 'r') as f:
+        with open('./data/banner_info', 'r') as f:
             self.cur5 = f.readline()[:-1]
             self.cur4 = []
             for _ in range(3):
@@ -38,7 +38,7 @@ class GachaDatabase(commands.Cog):
         random.shuffle(self.fours)
         four_star = self.fours[0:3]
         output = five_star + '\n'
-        with open('banner_info', 'w') as f:
+        with open('./data/banner_info', 'w') as f:
             for char in four_star:
                 output += f"{char}\n"
             f.write(output)

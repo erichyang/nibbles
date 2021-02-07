@@ -11,7 +11,7 @@ class UserDatabase(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.conn = sqlite3.connect('user.db')
+        self.conn = sqlite3.connect('./data/user.data')
         # xp and economy
         # inventory
         self.c = self.conn.cursor()

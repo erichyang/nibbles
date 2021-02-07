@@ -10,7 +10,7 @@ class Characters(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.conn = sqlite3.connect('characters.db')
+        self.conn = sqlite3.connect('./data/characters.db')
         # character information library
         self.c = self.conn.cursor()
 

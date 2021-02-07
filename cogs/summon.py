@@ -42,7 +42,7 @@ class Summon(commands.Cog):
         await channel.send(embed=embed)
 
         today = datetime.now().strftime("%m/%d")
-        with TinyDB('./birthday.json') as _db:
+        with TinyDB('./data/birthday.json') as _db:
             for people in _db.search(Query().birthday == today):
                 await channel.send(f"It is {channel.guild.get_member(people['user']).mention}'s birthday today!")
                 await channel.send(f"You received 14400 nom noms!")

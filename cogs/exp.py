@@ -99,15 +99,6 @@ class Exp(commands.Cog):
     async def leaderboard(self, ctx):
         await ctx.channel.send(embed=await self.db.lb('pts', ctx.guild))
 
-    # @commands.command()
-    # async def bal_lb(self, ctx):
-    #     embed_var = await self.db.lb('bal', ctx.guild)
-    #     bal = self.db.find_user('users', str(ctx.author.id), var='bal')
-    #     total = self.db.find('users', 'SUM(bal)')
-    #     embed_var.add_field(name='You', value=f'own {str(format(bal[0] / total[0] * 100, ".2f"))}% '
-    #                                           f'of the nom noms in the server!')
-    #     await ctx.channel.send(embed=embed_var)
-
     @commands.command(description='check your profile that has your exp and nom noms!\n.profile; .profile @nibbles')
     async def profile(self, ctx):
         if len(ctx.message.mentions) > 0:
@@ -119,7 +110,7 @@ class Exp(commands.Cog):
             await user.avatar_url.save(f'./img/pfp/{user.id}.jpg')
 
         await ctx.send('Generating...', delete_after=3)
-        with TinyDB('birthday.json') as bd:
+        with TinyDB('./data/birthday.json') as bd:
             birthday = bd.search(Query().user == user.id)
             if len(birthday) == 0:
                 self.pillow.generate_profile(user)
@@ -148,7 +139,7 @@ class Exp(commands.Cog):
         if not pattern.match(birthday):
             await ctx.send('that is not the correct date time format')
             return
-        with TinyDB('./birthday.json') as bd:
+        with TinyDB('./data/birthday.json') as bd:
             if bd.search(Query().user == ctx.author.id):
                 await ctx.send('you already set your birthday! If you have made an error, contact an admin')
                 return
