@@ -135,7 +135,7 @@ class InventoryDatabase(commands.Cog):
                     if (not message.content.isdigit()) or 0 >= int(message.content) > len(characters):
                         await message.channel.send('invalid number')
                         return
-                    char = characters[int(message.content)+1]
+                    char = characters[int(message.content)-1]
                     char_info = self.char_lib.find_character(char_name=char[0])
                     embed.add_field(name='Name', value=char[0])
                     embed.add_field(name='Rarity', value=str(char_info[1]) + ':star:')
