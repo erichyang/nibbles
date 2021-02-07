@@ -16,7 +16,8 @@ class GachaDatabase(commands.Cog):
         self.c = self.conn.cursor()
         self.fives = ['Albedo', 'Ayaka', 'Diluc', 'Ganyu', 'Jean', 'Keqing', 'Klee', 'Mona', 'Qiqi', 'Tartaglia',
                       'Venti', 'Xiao', 'Zhongli']
-        self.fours = ['Amber', 'Barbara', 'Bennett', 'Beidou', 'Chongyun', 'Diona', 'Fischl', 'Kaeya', 'Lisa', 'Ningguang',
+        self.fours = ['Amber', 'Barbara', 'Bennett', 'Beidou', 'Chongyun', 'Diona', 'Fischl', 'Kaeya', 'Lisa',
+                      'Ningguang',
                       'Noelle', 'Razor', 'Sucrose', 'Xiangling', 'Xingqiu', 'Xinyan']
         with open('banner_info', 'r') as f:
             self.cur5 = f.readline()[:-1]
@@ -67,6 +68,12 @@ class GachaDatabase(commands.Cog):
     async def vacuum(self):
         self.c.execute("VACUUM")
         self.conn.commit()
+
+    def fetch_char_info(self, name, var='*'):
+        self.c.execute(f'SELECT {var} FROM characters WHERE name = {name}')
+        if var != '*':
+            return self.c.fetchone()[0]
+        return self.c.fetchone()
 
     @commands.command(hidden=True)
     @has_permissions(manage_guild=True)

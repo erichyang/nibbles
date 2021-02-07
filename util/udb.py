@@ -1,3 +1,4 @@
+import random
 import sqlite3
 
 import discord
@@ -25,7 +26,7 @@ class UserDatabase(commands.Cog):
         self.c.execute("SELECT * FROM users ORDER BY " + category + " DESC LIMIT 10")
         title = 'most active!' if category == 'pts' else 'richest!'
         unit = category if category == 'pts' else ':cookie:'
-        embed_var = discord.Embed(title="People who are the " + title, color=0x8109e9)
+        embed_var = discord.Embed(title="People who are the " + title, color=random.randint(0, 0xFFFFFF))
         lb = self.c.fetchall()
         rank = ''
         name = ''

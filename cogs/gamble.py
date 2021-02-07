@@ -6,7 +6,7 @@ from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, cooldown, BucketType, CommandOnCooldown
 import random
 
-from util import udb
+from util import udb, idb
 
 
 def _bj_total(hand):
@@ -60,6 +60,7 @@ class Gamble(commands.Cog):
         self.bj = {}
         self.wheel = []
         self.db = udb.UserDatabase(client)
+        self.idb = idb.InventoryDatabase(client)
 
     # 12 hr - task
     @tasks.loop(hours=12)
@@ -154,7 +155,7 @@ class Gamble(commands.Cog):
 
         self.wheel.append(ctx.author.id)
 
-        embed = discord.Embed(title="**SPINNING**", colour=discord.Colour(0x5e05df))
+        embed = discord.Embed(title="**SPINNING**", colour=discord.Colour(random.randint(0, 0xFFFFFF)))
         embed.set_image(url="https://cdn.discordapp.com/attachments/703247498508238938/800820068426317854/wheel.gif")
         embed.set_thumbnail(url=ctx.author.avatar_url)
         embed.set_author(name=str(ctx.author))
@@ -181,7 +182,7 @@ class Gamble(commands.Cog):
 
         time.sleep(4)
 
-        embed = discord.Embed(title="**REWARDS**", colour=discord.Colour(0x5e05df))
+        embed = discord.Embed(title="**REWARDS**", colour=discord.Colour(random.randint(0, 0xFFFFFF)))
         embed.set_thumbnail(url=ctx.author.avatar_url)
         embed.set_author(name=str(ctx.author))
         embed.add_field(name="Prize", value=str(prize) + " nom noms", inline=False)
@@ -194,17 +195,27 @@ class Gamble(commands.Cog):
     @commands.command(description='give your money to someone else, but why would you do that if you could give them '
                                   'all to nibbles\n.transfer @kit 160')
     async def transfer(self, ctx, amount):
+        receiver_id = ctx.message.mentions[0].id
+        sender_id = ctx.author.id
+        if isinstance(amount, str) and amount[:1] == '<':
+            item = ctx.message.content.split(' ')[2]
+            await self.transfer(ctx, item)
+            return
+        if amount.isdigit():
+            amount = int(amount)
+
+        if isinstance(amount, str):
+            if idb.transfer_card(sender_id, amount):
+                idb.add_char(receiver_id, amount)
+            await ctx.send("sent " + amount + " to " + ctx.message.mentions[0].display_name)
+            return
+        else:
+            amount = int(amount)
+
         if int(amount) <= 0:
             await ctx.send("hey you can't do that")
             return
-        receiver_id = ctx.message.mentions[0].id
-        sender_id = ctx.author.id
 
-        if amount == 'all':
-            amount = self.db.find_user(db='users', user=str(sender_id), var='bal')
-            amount = amount[0]
-        else:
-            amount = int(amount)
         sender_bal = self.db.find_user(db='users', user=str(sender_id), var='bal')
 
         sender_bal = sender_bal[0]
@@ -219,11 +230,6 @@ class Gamble(commands.Cog):
         await self.db.update(db='users', var='bal', amount='+' + str(amount), user=str(receiver_id))
         await ctx.send("Done!")
 
-    @transfer.error
-    async def transfer_error(self, ctx, error):
-        if isinstance(error, commands.CommandInvokeError):
-            amount = ctx.message.content.split(' ')[2]
-            await self.transfer(ctx, int(amount))
 
     @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
@@ -373,7 +379,7 @@ class Gamble(commands.Cog):
             await self.bj[other].send("Your opponent is ready!")
             return
         chnl = self.bj[user].guild.get_channel(752676890413629471)
-        embed = discord.Embed(colour=discord.Colour(0x8109e9),
+        embed = discord.Embed(colour=discord.Colour(random.randint(0, 0xFFFFFF)),
                               description="The results of the game",
                               timestamp=datetime.now())
         embed.set_author(name="Black Jack Battle",

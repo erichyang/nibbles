@@ -88,7 +88,7 @@ async def on_command_error(ctx, error):
 
 @client.command(name='help', hidden=True)
 async def descriptions(ctx):
-    embed_var = discord.Embed(title="Nibbles is here to help", color=0x8109e9)
+    embed_var = discord.Embed(title="Nibbles is here to help", color=random.randint(0, 0xFFFFFF))
     for item in client.commands:
         if not item.hidden:
             embed_var.add_field(name=item.name, value=item.description, inline=False)

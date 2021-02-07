@@ -1,4 +1,5 @@
 import discord
+import random
 from discord.ext import commands
 
 
@@ -24,7 +25,7 @@ class GetPFP(commands.Cog):
         pfp = user.avatar_url
         user_name = user.display_name
 
-        embed = discord.Embed(color=0x8109e9)
+        embed = discord.Embed(color=random.randint(0, 0xFFFFFF))
         embed.set_author(name=user_name + '\'s Profile Picture:')
         embed.set_image(url=pfp)
         await ctx.send(embed=embed)

@@ -29,7 +29,7 @@ class Summon(commands.Cog):
         five, four = self.client.get_cog('GachaDatabase').new_banner()
         desc = '5:star: ' + five + f'\n4:star: {four[0]}, {four[1]}, {four[2]}'
         self.pillow.generate_banner(five, four)
-        embed = discord.Embed(colour=discord.Colour(0xff7cff),
+        embed = discord.Embed(colour=discord.Colour(random.randint(0, 0xFFFFFF)),
                               description=desc,
                               timestamp=datetime.now())
 
@@ -236,7 +236,7 @@ class Summon(commands.Cog):
         if info is None:
             await ctx.send("you haven't summoned yet!")
             return
-        embed = discord.Embed(title="Your pity for banner wishes!", colour=discord.Colour(0x7ce010))
+        embed = discord.Embed(title="Your pity for banner wishes!", colour=discord.Colour(random.randint(0, 0xFFFFFF)))
 
         embed.set_author(name=ctx.author.display_name if ctx.author.nick is None else ctx.author.nick)
         temp_eg = 'You are not guaranteed the event character for your next five star' if info[1] == 0 \
