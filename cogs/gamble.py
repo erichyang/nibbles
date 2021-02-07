@@ -77,7 +77,7 @@ class Gamble(commands.Cog):
             await ctx.send("Sowwy, this person does not have a nom noms stash")
             return
 
-        await self.db.update(db='users', var='bal', amount='+'+str(amount), user=str(user))
+        await self.db.update(db='users', var='bal', amount='+' + str(amount), user=str(user))
         await ctx.send('given ' + str(amount))
 
     @commands.command(hidden=True)
@@ -87,7 +87,7 @@ class Gamble(commands.Cog):
             await ctx.send("Sowwy, this person does not have a nom noms stash")
             return
 
-        await self.db.update(db='users', var='pts', amount='+'+str(amount), user=str(user))
+        await self.db.update(db='users', var='pts', amount='+' + str(amount), user=str(user))
         await ctx.send('given ' + str(amount))
 
     # events
@@ -100,7 +100,7 @@ class Gamble(commands.Cog):
                       description='flip a coin with the face you predict and how much you want to bet for it\n'
                                   '.gamble_coin heads 160; .bet_coin tails 320')
     @cooldown(5, 10, BucketType.user)
-    async def gamble_coin(self, ctx, face='heads', bet=0):
+    async def gamble_coin(self, ctx, face='heads', bet='0'):
         _id = ctx.author.id
 
         if bet == 'all':
@@ -188,7 +188,7 @@ class Gamble(commands.Cog):
         embed.add_field(name="Prize", value=str(prize) + " nom noms", inline=False)
         embed.add_field(name="Current Balance", value=str(bal[0] + prize), inline=False)
 
-        await self.db.update(db='users', var='bal', amount='+'+(str(prize)), user=str(ctx.author.id))
+        await self.db.update(db='users', var='bal', amount='+' + (str(prize)), user=str(ctx.author.id))
 
         await msg.edit(content='Wheel of Fortune Results', embed=embed)
 
@@ -229,7 +229,6 @@ class Gamble(commands.Cog):
         await self.db.update(db='users', var='bal', amount='-' + str(amount), user=str(sender_id))
         await self.db.update(db='users', var='bal', amount='+' + str(amount), user=str(receiver_id))
         await ctx.send("Done!")
-
 
     @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
@@ -410,6 +409,7 @@ class Gamble(commands.Cog):
             await self.db.update(db='users', var='bal', amount='-' + str(self.bj['bet']), user=str(self.bj['init'].id))
 
         self.bj.pop('msg', None)
+
 
 def setup(client):
     client.add_cog(Gamble(client))
