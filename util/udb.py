@@ -23,7 +23,7 @@ class UserDatabase(commands.Cog):
 
     # database utility functions
     async def lb(self, category: str, guild):
-        self.c.execute("SELECT * FROM users ORDER BY " + category + " DESC LIMIT 10")
+        self.c.execute("SELECT * FROM users ORDER BY " + category + " DESC LIMIT 18")
         title = 'most active!' if category == 'pts' else 'richest!'
         unit = category if category == 'pts' else ':cookie:'
         embed_var = discord.Embed(title="People who are the " + title, color=random.randint(0, 0xFFFFFF))
