@@ -13,6 +13,7 @@ class Characters(commands.Cog):
         self.conn = sqlite3.connect('./data/characters.db')
         # character information library
         self.c = self.conn.cursor()
+        self.level_calc(0)
 
     # add cog to main system
     @commands.Cog.listener()
@@ -38,8 +39,28 @@ class Characters(commands.Cog):
         return self.c.fetchall()
 
     def level_calc(self, xp: int):
-        self.c.execute(f'SELECT total FROM xp')
-        print(self.c.fetchall())
+        self.c.execute('SELECT level, total FROM xp')
+        level = 1
+        for total_req in self.c.fetchall():
+            if isinstance(total_req[1], int) and xp > total_req[1]:
+                level = total_req[0]
+        self.c.execute(f'SELECT total, next_lvl FROM xp WHERE level = {level}')
+        temp = self.c.fetchone()
+        if temp[0] == '':
+            cur_xp = xp
+        else:
+            cur_xp = xp - temp[0]
+        next_lvl = temp[1]
+        if next_lvl == '':
+            next_lvl = 'MAX'
+        # current level, current level xp, next level xp
+        output = (level, cur_xp, next_lvl)
+        # print(output)
+        return output
+
+    def fetch_levels(self):
+        self.c.execute(f'SELECT level, total FROM xp')
+        return self.c.fetchall()
 
 
 def setup(client):

@@ -108,11 +108,15 @@ class Exp(commands.Cog):
 
         await ctx.send('Generating...', delete_after=3)
         with TinyDB('./data/birthday.json') as bd:
-            birthday = bd.search(Query().user == user.id)
-            if len(birthday) == 0:
-                await self.pillow.generate_profile(ctx, user)
+            birthday_doc = bd.search(Query().user == user.id)
+            birthday = 'N/A' if len(birthday_doc) == 0 else birthday_doc[0].get('birthday')
+        with TinyDB('./data/inventory.json') as bd:
+            character_doc = bd.search(Query().user == user.id)
+            if character_doc[0].get('primary') is None:
+                prim_char = None
             else:
-                await self.pillow.generate_profile(ctx, user, birthday[0].get('birthday'))
+                prim_char = character_doc[0].get('chars')[character_doc[0].get('primary') - 1]
+        await self.pillow.generate_profile(ctx, user, birthday=birthday, prim_char=prim_char)
 
     @commands.command(aliases=['setdesc', 'setdescription', 'set_description'],
                       description='set your beautiful message to be seen on your profile :D\n.setdesc <message>')

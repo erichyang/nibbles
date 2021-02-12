@@ -99,7 +99,7 @@ class Gamble(commands.Cog):
     @commands.command(aliases=['cf', 'bet_flip', 'bet_coin'],
                       description='flip a coin with the face you predict and how much you want to bet for it\n'
                                   '.gamble_coin heads 160; .bet_coin tails 320')
-    @cooldown(5, 10, BucketType.user)
+    @cooldown(20, 30, BucketType.user)
     async def gamble_coin(self, ctx, face='heads', bet='0'):
         _id = ctx.author.id
 

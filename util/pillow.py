@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands
 from PIL import Image, ImageFont, ImageDraw
 
+from util import characters
 from util.udb import UserDatabase
 
 
@@ -16,6 +17,7 @@ class Pillow(commands.Cog):
         self.subtitle_font = ImageFont.truetype('./img/fonts/Tuesday Jingle.ttf', 120)
         self.body_font = ImageFont.truetype('./img/fonts/act.regular.ttf', 100)
         self.udb = UserDatabase(self.client)
+        self.char_lib = characters.Characters(client)
 
     # events
     @commands.Cog.listener()
@@ -27,11 +29,10 @@ class Pillow(commands.Cog):
         if before.avatar_url != after.avatar_url and os.path.exists(f'./img/pfp/{before.id}.jpg'):
             os.remove(f'./img/pfp/{before.id}.jpg')
 
-    async def generate_profile(self, ctx, user, birthday='N/A'):
+    async def generate_profile(self, ctx, user, birthday='N/A', prim_char=None):
         bg = Image.open('./img/backgrounds/profile_bg.jpg').convert('RGBA')
         response = requests.get(user.avatar_url)
         pfp = Image.open(io.BytesIO(response.content)).resize((536, 536))
-        # pfp = Image.open(f'./img/pfp/{user.id}.jpg').resize((536, 536))
         pfp_border = Image.open('./img/profile_border.png').resize((580, 580))
         bg.paste(pfp, (100, 100))
         bg.paste(pfp_border, (80, 80), mask=pfp_border)
@@ -73,6 +74,17 @@ class Pillow(commands.Cog):
         txt.text((680, 900), f'Exp: {user_info[1]}', (0, 0, 0), font=self.body_font)
         txt.text((980, 900), f'Nom noms: {user_info[2]}', (0, 0, 0), font=self.body_font)
         txt.text((1480, 900), f'Birthday: {birthday}', (0, 0, 0), font=self.body_font)
+
+        if prim_char is not None:
+            portrait = Image.open(f'./img/char_portrait/Character_{prim_char[0]}_Portrait.png')
+            bg.paste(portrait, (400, 600), mask=portrait)
+            level = self.char_lib.level_calc(prim_char[1])[0]
+            char_info = self.char_lib.find_character(char_name=prim_char[0])
+            char_desc = f'Name: {prim_char[0]}\nConstellation: {prim_char[2]}\nLevel: {level}\n' \
+                        f'Attack: {int(char_info[3] + char_info[5] * level)}\n' \
+                        f'Health: {int(char_info[4] + char_info[6] * level)}\n'
+            txt.text((50, 650), char_desc, (0, 0, 0), font=self.body_font)
+
         bg = Image.alpha_composite(bg, overlay)
         bg = Image.alpha_composite(bg, text_layer)
 

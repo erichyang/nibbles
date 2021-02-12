@@ -26,7 +26,7 @@ class Summon(commands.Cog):
     @tasks.loop(hours=24)
     async def new_banner_rotation(self):
         channel = await self.client.fetch_channel(681149093858508834)
-        five, four = self.client.get_cog('GachaDatabase').new_banner()
+        five, four = self.gdb.new_banner()
         desc = '5:star: ' + five + f'\n4:star: {four[0]}, {four[1]}, {four[2]}'
         self.pillow.generate_banner(five, four)
         embed = discord.Embed(colour=discord.Colour(random.randint(0, 0xFFFFFF)),
@@ -34,12 +34,9 @@ class Summon(commands.Cog):
                               timestamp=datetime.now())
 
         img = discord.File('./img/banner.png', 'banner.png')
-        temp_channel = await self.client.fetch_channel(752676890413629471)
-        msg = await temp_channel.send('', file=img)
-        img_url = msg.attachments[0].url
-        embed.set_image(url=img_url)
+        embed.set_image(url="attachment://banner.png")
 
-        await channel.send(embed=embed)
+        await channel.send(file=img, embed=embed)
 
         today = datetime.now().strftime("%m/%d")
         with TinyDB('./data/birthday.json') as _db:
@@ -91,6 +88,8 @@ class Summon(commands.Cog):
                 idb.add_book(ctx.author.id, item)
             else:
                 idb.add_char(ctx.author.id, item)
+        # print(categories)
+        # print(results)
 
     @commands.command(aliases=['wish_reg', 'summon_reg'],
                       description='wish for new characters and levels on the rotating event banner at a price of 160 '
@@ -241,7 +240,7 @@ class Summon(commands.Cog):
         embed.add_field(name="Event Five :star: Pity", value=str(info[2]), inline=True)
         embed.add_field(name="Event Four :star: Pity", value=str(info[4]), inline=True)
         embed.add_field(name="Regular Five :star: Pity", value=str(info[3]), inline=True)
-        embed.add_field(name="Regular Four :star: Pity", value=str(info[1]), inline=True)
+        embed.add_field(name="Regular Four :star: Pity", value=str(info[5]), inline=True)
 
         await ctx.send(embed=embed)
 

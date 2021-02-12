@@ -30,8 +30,6 @@ for filename in os.listdir('./util'):
         client.load_extension(f'util.{filename[:-3]}')
 
 loop = asyncio.get_event_loop()
-if os.path.exists('log.txt'):
-    os.remove('log.txt')
 
 
 @client.event
@@ -82,8 +80,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
     else:
-        with open('log.txt', 'a') as _f:
-            _f.write(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
+        print(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
 
 
 @client.command(name='help', hidden=True)
