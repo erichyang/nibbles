@@ -66,8 +66,7 @@ class Gamble(commands.Cog):
     @tasks.loop(hours=12)
     async def announce(self):
         channel = await self.client.fetch_channel(681149093858508834)
-        await channel.send('Your free wheel of fortune is now available!' +
-                           channel.guild.get_role(806239172041113691).mention)
+        await channel.send('Your free wheel of fortune is now available!')
         self.wheel = []
 
     @commands.command(hidden=True)
