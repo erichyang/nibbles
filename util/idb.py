@@ -249,7 +249,7 @@ class InventoryDatabase(commands.Cog):
         blue = '<:blue_book:808011854558920744>'
         green = '<:green_book:808011842328199188>'
         embed = discord.Embed(title='Levels')
-        with TinyDB('./data/inventory.json/') as db:
+        with TinyDB('./data/inventory.json') as db:
             doc = db.search(Query().user == user.id)[0]
         # print(doc)
         character = doc.get('chars')[char_id-1]
