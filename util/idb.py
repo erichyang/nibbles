@@ -128,6 +128,7 @@ class InventoryDatabase(commands.Cog):
     @commands.command(description='navigate to a detailed view of your character without using inventory!\n'
                                   '.character Ganyu')
     async def character(self, ctx, character_name):
+        character_name = character_name[0].upper() + character_name[1:]
         arr = search(ctx.author.id)[0].get('chars')
         for index, character in enumerate(arr):
             if character[0] == character_name:
@@ -200,7 +201,6 @@ class InventoryDatabase(commands.Cog):
     async def on_reaction_add(self, reaction, user):
         if str(user.id) in reaction.message.content and reaction.message.author.bot and (not user.bot) \
                 and reaction.emoji == '⬆️':
-            await reaction.message.clear_reactions()
             char_id = int(reaction.message.content.split(' ')[-1][:-2])
             await self.level_viewer(user, char_id)
             return
@@ -210,6 +210,7 @@ class InventoryDatabase(commands.Cog):
             char_id = int(reaction.message.content.split(' ')[-1][:-2])
             with TinyDB('./data/inventory.json') as db:
                 db.update({'primary': char_id}, Query().user == user.id)
+                await reaction.message.channel.send('You have set your primary character!')
             return
 
         purple = '<:purple_book:808011829238169630>'

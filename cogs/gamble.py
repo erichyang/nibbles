@@ -255,7 +255,7 @@ class Gamble(commands.Cog):
 
         self.bj = {}
         msg = await ctx.send("click the reaction to accept the black jack challenge", delete_after=300)
-        await msg.add_reaction('<:hi:734597383727611996>')
+        await msg.add_reaction('<:hi:813575402512580670>')
         self.bj['init'] = ctx.author
         self.bj['bet'] = int(amount)
         self.bj['msg'] = msg

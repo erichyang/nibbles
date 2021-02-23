@@ -70,7 +70,7 @@ async def on_member_join(member):
 
 @client.event
 async def on_member_remove(member):
-    await member.guild.get_channel(681149093858508834).send(f'Bai bai {member.name} <:qiqi:781667748031103036>')
+    await member.guild.get_channel(681149093858508834).send(f'Bai bai {member.name} <:qiqi:813767632904781915>')
 
 
 @client.event

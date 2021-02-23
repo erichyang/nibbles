@@ -34,7 +34,7 @@ class Pillow(commands.Cog):
         response = requests.get(user.avatar_url)
         pfp = Image.open(io.BytesIO(response.content)).resize((536, 536))
         pfp_border = Image.open('./img/profile_border.png').resize((580, 580))
-        bg.paste(pfp, (100, 100))
+        bg.paste(pfp, (100, 100), mask=pfp)
         bg.paste(pfp_border, (80, 80), mask=pfp_border)
 
         tint_color = (255, 255, 255)  # White

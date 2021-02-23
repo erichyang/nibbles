@@ -7,7 +7,7 @@ class Status(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.games = ['League of Legends', 'Genshin Impact', 'Minecraft', 'Heroes of Hammerwatch', 'Temtem']
+        self.games = ['League of Legends', 'Genshin Impact', 'Minecraft']
 
     # events
     @commands.Cog.listener()
