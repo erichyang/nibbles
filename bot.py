@@ -80,7 +80,8 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
     else:
-        print(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
+        if not isinstance(error, commands.CommandNotFound):
+            print(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
 
 
 @client.command(name='help', hidden=True)
