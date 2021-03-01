@@ -15,7 +15,7 @@ class GachaDatabase(commands.Cog):
         # pity, banner, rates
         self.c = self.conn.cursor()
         self.fives = ['Albedo', 'Ayaka', 'Diluc', 'Ganyu', 'Jean', 'Keqing', 'Klee', 'Mona', 'Qiqi', 'Tartaglia',
-                      'Venti', 'Xiao', 'Zhongli']
+                      'Venti', 'Xiao', 'Zhongli', 'Hu Tao']
         self.fours = ['Amber', 'Barbara', 'Bennett', 'Beidou', 'Chongyun', 'Diona', 'Fischl', 'Kaeya', 'Lisa',
                       'Ningguang',
                       'Noelle', 'Razor', 'Sucrose', 'Xiangling', 'Xingqiu', 'Xinyan']

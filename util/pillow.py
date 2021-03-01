@@ -117,14 +117,14 @@ class Pillow(commands.Cog):
     def generate_banner(self, five, fours):
         bg = Image.open('./img/backgrounds/banner_bg.png').convert('RGBA')
         five_portrait = Image.open(
-            f'./img/char_portrait/Character_{five}_Portrait.png').resize(
+            f'./img/char_portrait/Character_{five.replace(" ", "+")}_Portrait.png').resize(
                 (360, 600))
         four_portrait = [
-            Image.open(f'./img/char_portrait/Character_{fours[0]}_Portrait.png'
+            Image.open(f'./img/char_portrait/Character_{fours[0].replace(" ", "+")}_Portrait.png'
                        ).resize((360, 600)),
-            Image.open(f'./img/char_portrait/Character_{fours[1]}_Portrait.png'
+            Image.open(f'./img/char_portrait/Character_{fours[1].replace(" ", "+")}_Portrait.png'
                        ).resize((360, 600)),
-            Image.open(f'./img/char_portrait/Character_{fours[2]}_Portrait.png'
+            Image.open(f'./img/char_portrait/Character_{fours[2].replace(" ", "+")}_Portrait.png'
                        ).resize((360, 600))
         ]
         tint_color = (255, 255, 255)  # White
@@ -179,7 +179,7 @@ class Pillow(commands.Cog):
             else:
                 portraits.append(
                     Image.open(
-                        f'./img/char_portrait/Character_{item}_Portrait.png').
+                        f'./img/char_portrait/Character_{item.replace(" ", "+")}_Portrait.png').
                     resize((390, 650)))
                 char += 1
         tint_color = (255, 255, 255)  # White
