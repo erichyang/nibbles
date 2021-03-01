@@ -1,13 +1,10 @@
 import sqlite3
 
-import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 from discord.ext.commands import has_permissions
-from datetime import datetime
 
 
 class Characters(commands.Cog):
-
     def __init__(self, client):
         self.client = client
         self.conn = sqlite3.connect('./data/characters.db')
@@ -21,7 +18,8 @@ class Characters(commands.Cog):
         print('Characters online')
 
     def find_character(self, char_name: str, var: str = '*'):
-        self.c.execute(f"SELECT {var} FROM characters WHERE name = '{char_name}'")
+        self.c.execute(
+            f"SELECT {var} FROM characters WHERE name = '{char_name}'")
         if var != '*':
             return self.c.fetchone()[0]
         else:

@@ -167,7 +167,7 @@ class Summon(commands.Cog):
 
     def _wish_check_bal(self, user_id: int, amount: int):
         user = self.udb.find_user(db='users', user=str(user_id), var='bal')
-        if int(user[0]) <= amount * 160:
+        if int(user[0]) < amount * 160:
             return False
         else:
             return True
