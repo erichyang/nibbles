@@ -129,6 +129,8 @@ class InventoryDatabase(commands.Cog):
                                   '.character Ganyu')
     async def character(self, ctx, character_name):
         character_name = character_name[0].upper() + character_name[1:]
+        if character_name == 'Hu':
+            character_name = 'Hu Tao'
         arr = search(ctx.author.id)[0].get('chars')
         for index, character in enumerate(arr):
             if character[0] == character_name:
@@ -154,7 +156,7 @@ class InventoryDatabase(commands.Cog):
             embed.add_field(name='Attack', value=str(int(char_info[3] + char_info[5] * level)))
             embed.add_field(name='Health', value=str(int(char_info[4] + char_info[6] * level)))
             embed.add_field(name='Level', value=str(level))
-            file = discord.File(f'./img/char_portrait/Character_{char[0]}_Portrait.png', filename="char.png")
+            file = discord.File(f'./img/char_portrait/Character_{char[0].replace(" ", "+")}_Portrait.png', filename="char.png")
             embed.set_image(url="attachment://char.png")
         content = f'||{message.author.id} {index}||'
         msg = await message.channel.send(content=content, file=file, embed=embed)
