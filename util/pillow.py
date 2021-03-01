@@ -10,11 +10,12 @@ from util.udb import UserDatabase
 
 
 class Pillow(commands.Cog):
-
     def __init__(self, client):
         self.client = client
-        self.title_font = ImageFont.truetype('./img/fonts/Tuesday Jingle.ttf', 160)
-        self.subtitle_font = ImageFont.truetype('./img/fonts/Tuesday Jingle.ttf', 120)
+        self.title_font = ImageFont.truetype('./img/fonts/Tuesday Jingle.ttf',
+                                             160)
+        self.subtitle_font = ImageFont.truetype(
+            './img/fonts/Tuesday Jingle.ttf', 120)
         self.body_font = ImageFont.truetype('./img/fonts/act.regular.ttf', 100)
         self.udb = UserDatabase(self.client)
         self.char_lib = characters.Characters(client)
@@ -26,13 +27,19 @@ class Pillow(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before, after):
-        if before.avatar_url != after.avatar_url and os.path.exists(f'./img/pfp/{before.id}.jpg'):
+        if before.avatar_url != after.avatar_url and os.path.exists(
+                f'./img/pfp/{before.id}.jpg'):
             os.remove(f'./img/pfp/{before.id}.jpg')
 
-    async def generate_profile(self, ctx, user, birthday='N/A', prim_char=None):
+    async def generate_profile(self,
+                               ctx,
+                               user,
+                               birthday='N/A',
+                               prim_char=None):
         bg = Image.open('./img/backgrounds/profile_bg.jpg').convert('RGBA')
         response = requests.get(user.avatar_url)
-        pfp = Image.open(io.BytesIO(response.content)).resize((536, 536))
+        pfp = Image.open(io.BytesIO(response.content)).resize(
+            (536, 536)).convert('RGBA')
         pfp_border = Image.open('./img/profile_border.png').resize((580, 580))
         bg.paste(pfp, (100, 100), mask=pfp)
         bg.paste(pfp_border, (80, 80), mask=pfp_border)
@@ -40,9 +47,11 @@ class Pillow(commands.Cog):
         tint_color = (255, 255, 255)  # White
         opacity = int(255 * .40)
 
-        overlay = Image.new('RGBA', bg.size, tint_color + (0,))
-        draw = ImageDraw.Draw(overlay)  # Create a context for drawing things on it.
-        draw.rectangle(((660, 240), (1820, 1060)), fill=tint_color + (opacity,))
+        overlay = Image.new('RGBA', bg.size, tint_color + (0, ))
+        draw = ImageDraw.Draw(
+            overlay)  # Create a context for drawing things on it.
+        draw.rectangle(((660, 240), (1820, 1060)),
+                       fill=tint_color + (opacity, ))
 
         user_info = self.udb.find_user(db='users', user=str(user.id))
 
@@ -68,15 +77,26 @@ class Pillow(commands.Cog):
             name = user.display_name.upper()
         else:
             name = user.nick.upper()
-        txt.text((700, 100), name + "'s PROFILE", (18, 136, 196), font=self.title_font)
-        txt.text((695, 95), name + "'s PROFILE", (199, 236, 255), font=self.title_font)
+        txt.text((700, 100),
+                 name + "'s PROFILE", (18, 136, 196),
+                 font=self.title_font)
+        txt.text((695, 95),
+                 name + "'s PROFILE", (199, 236, 255),
+                 font=self.title_font)
         txt.text((680, 250), description, (0, 0, 0), font=self.body_font)
-        txt.text((680, 900), f'Exp: {user_info[1]}', (0, 0, 0), font=self.body_font)
-        txt.text((980, 900), f'Nom noms: {user_info[2]}', (0, 0, 0), font=self.body_font)
-        txt.text((1480, 900), f'Birthday: {birthday}', (0, 0, 0), font=self.body_font)
+        txt.text((680, 900),
+                 f'Exp: {user_info[1]}', (0, 0, 0),
+                 font=self.body_font)
+        txt.text((980, 900),
+                 f'Nom noms: {user_info[2]}', (0, 0, 0),
+                 font=self.body_font)
+        txt.text((1480, 900),
+                 f'Birthday: {birthday}', (0, 0, 0),
+                 font=self.body_font)
 
         if prim_char is not None:
-            portrait = Image.open(f'./img/char_portrait/Character_{prim_char[0]}_Portrait.png')
+            portrait = Image.open(
+                f'./img/char_portrait/Character_{prim_char[0]}_Portrait.png')
             bg.paste(portrait, (400, 600), mask=portrait)
             level = self.char_lib.level_calc(prim_char[1])[0]
             char_info = self.char_lib.find_character(char_name=prim_char[0])
@@ -91,35 +111,53 @@ class Pillow(commands.Cog):
         with io.BytesIO() as image_binary:
             bg.save(image_binary, 'PNG')
             image_binary.seek(0)
-            await ctx.send(file=discord.File(fp=image_binary, filename='profile.png'))
+            await ctx.send(
+                file=discord.File(fp=image_binary, filename='profile.png'))
 
     def generate_banner(self, five, fours):
         bg = Image.open('./img/backgrounds/banner_bg.png').convert('RGBA')
-        five_portrait = Image.open(f'./img/char_portrait/Character_{five}_Portrait.png').resize((360, 600))
-        four_portrait = [Image.open(f'./img/char_portrait/Character_{fours[0]}_Portrait.png').resize((360, 600)),
-                         Image.open(f'./img/char_portrait/Character_{fours[1]}_Portrait.png').resize((360, 600)),
-                         Image.open(f'./img/char_portrait/Character_{fours[2]}_Portrait.png').resize((360, 600))]
+        five_portrait = Image.open(
+            f'./img/char_portrait/Character_{five}_Portrait.png').resize(
+                (360, 600))
+        four_portrait = [
+            Image.open(f'./img/char_portrait/Character_{fours[0]}_Portrait.png'
+                       ).resize((360, 600)),
+            Image.open(f'./img/char_portrait/Character_{fours[1]}_Portrait.png'
+                       ).resize((360, 600)),
+            Image.open(f'./img/char_portrait/Character_{fours[2]}_Portrait.png'
+                       ).resize((360, 600))
+        ]
         tint_color = (255, 255, 255)  # White
         opacity = int(255 * .40)
-        overlay = Image.new('RGBA', bg.size, tint_color + (0,))
+        overlay = Image.new('RGBA', bg.size, tint_color + (0, ))
         draw = ImageDraw.Draw(overlay)
         for i in range(4):
-            draw.rectangle(((192 + i * 384, 190), (192 + (i + 1) * 384 - 24, 190 + 700)), outline=(255, 255, 255))
-            draw.rectangle(((192 + i * 384, 190), (192 + (i + 1) * 384 - 24, 190 + 700)),
-                           fill=(tint_color + (opacity,)))
+            draw.rectangle(
+                ((192 + i * 384, 190), (192 + (i + 1) * 384 - 24, 190 + 700)),
+                outline=(255, 255, 255))
+            draw.rectangle(
+                ((192 + i * 384, 190), (192 + (i + 1) * 384 - 24, 190 + 700)),
+                fill=(tint_color + (opacity, )))
 
         bg = Image.alpha_composite(bg, overlay)
         bg.paste(five_portrait, (192, 250), mask=five_portrait)
         for i in range(3):
-            bg.paste(four_portrait[i], (192 + (i + 1) * 384, 250), mask=four_portrait[i])
+            bg.paste(four_portrait[i], (192 + (i + 1) * 384, 250),
+                     mask=four_portrait[i])
         # text time
         text_layer = Image.new('RGBA', bg.size)
         txt = ImageDraw.Draw(text_layer)
-        txt.text((420, 50), "Today's Banner Rotation", (255, 209, 248), font=self.title_font)
-        txt.text((415, 45), "Today's Banner Rotation", (255, 255, 255), font=self.title_font)
+        txt.text((420, 50),
+                 "Today's Banner Rotation", (255, 209, 248),
+                 font=self.title_font)
+        txt.text((415, 45),
+                 "Today's Banner Rotation", (255, 255, 255),
+                 font=self.title_font)
         txt.text((200, 190), five, (87, 125, 194), font=self.subtitle_font)
         for i in range(3):
-            txt.text(((584 + i * 384), 190), fours[i], (87, 125, 194), font=self.subtitle_font)
+            txt.text(((584 + i * 384), 190),
+                     fours[i], (87, 125, 194),
+                     font=self.subtitle_font)
 
         bg = Image.alpha_composite(bg, text_layer)
         bg.save('./img/banner.png')
@@ -139,15 +177,22 @@ class Pillow(commands.Cog):
                 else:
                     xp[2] += 1
             else:
-                portraits.append(Image.open(f'./img/char_portrait/Character_{item}_Portrait.png').resize((390, 650)))
+                portraits.append(
+                    Image.open(
+                        f'./img/char_portrait/Character_{item}_Portrait.png').
+                    resize((390, 650)))
                 char += 1
         tint_color = (255, 255, 255)  # White
         opacity = int(255 * .40)
-        overlay = Image.new('RGBA', bg.size, tint_color + (0,))
+        overlay = Image.new('RGBA', bg.size, tint_color + (0, ))
         draw = ImageDraw.Draw(overlay)
         for i in range(char):
-            draw.rectangle(((96 + i * 360, 265), (96 + (i + 1) * 360 - 12, 265 + 600)), outline=(255, 255, 255))
-            draw.rectangle(((96 + i * 360, 265), (96 + (i + 1) * 360 - 12, 265 + 600)), fill=tint_color+(opacity,))
+            draw.rectangle(
+                ((96 + i * 360, 265), (96 + (i + 1) * 360 - 12, 265 + 600)),
+                outline=(255, 255, 255))
+            draw.rectangle(
+                ((96 + i * 360, 265), (96 + (i + 1) * 360 - 12, 265 + 600)),
+                fill=tint_color + (opacity, ))
 
         bg = Image.alpha_composite(bg, overlay)
         for i in range(char):
@@ -161,17 +206,30 @@ class Pillow(commands.Cog):
         # text time
         text_layer = Image.new('RGBA', bg.size)
         txt = ImageDraw.Draw(text_layer)
-        txt.text((600, 50), "Summon Results", (255, 209, 248), font=self.title_font)
-        txt.text((595, 45), "Summon Results", (255, 255, 255), font=self.title_font)
-        txt.text((96 + char * 360, 500), 'XP books: ', (255, 255, 255), font=self.subtitle_font)
-        txt.text((150 + char * 360, 600), str(xp[0]), (255, 255, 255), font=self.body_font)
-        txt.text((400 + char * 360, 600), str(xp[1]), (255, 255, 255), font=self.body_font)
-        txt.text((650 + char * 360, 600), str(xp[2]), (255, 255, 255), font=self.body_font)
+        txt.text((600, 50),
+                 "Summon Results", (255, 209, 248),
+                 font=self.title_font)
+        txt.text((595, 45),
+                 "Summon Results", (255, 255, 255),
+                 font=self.title_font)
+        txt.text((96 + char * 360, 500),
+                 'XP books: ', (255, 255, 255),
+                 font=self.subtitle_font)
+        txt.text((150 + char * 360, 600),
+                 str(xp[0]), (255, 255, 255),
+                 font=self.body_font)
+        txt.text((400 + char * 360, 600),
+                 str(xp[1]), (255, 255, 255),
+                 font=self.body_font)
+        txt.text((650 + char * 360, 600),
+                 str(xp[2]), (255, 255, 255),
+                 font=self.body_font)
         bg = Image.alpha_composite(bg, text_layer)
         with io.BytesIO() as image_binary:
             bg.save(image_binary, 'PNG')
             image_binary.seek(0)
-            await ctx.send(file=discord.File(fp=image_binary, filename='results.png'))
+            await ctx.send(
+                file=discord.File(fp=image_binary, filename='results.png'))
 
 
 def setup(client):
