@@ -96,7 +96,7 @@ class Pillow(commands.Cog):
 
         if prim_char is not None:
             portrait = Image.open(
-                f'./img/char_portrait/Character_{prim_char[0]}_Portrait.png')
+                f'./img/char_portrait/Character_{prim_char[0].replace(" ", "+")}_Portrait.png')
             bg.paste(portrait, (400, 600), mask=portrait)
             level = self.char_lib.level_calc(prim_char[1])[0]
             char_info = self.char_lib.find_character(char_name=prim_char[0])

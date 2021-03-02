@@ -149,8 +149,8 @@ class InventoryDatabase(commands.Cog):
                 return
             char = characters[index - 1]
             char_info = self.char_lib.find_character(char_name=char[0])
-            embed.add_field(name='Name', value=char[0])
-            embed.add_field(name='Rarity', value=str(char_info[1]) + ':star:')
+            embed.add_field(name='Name', value=f'{char[0]} - {str(char_info[1])} :star:')
+            embed.add_field(name='Constellations', value=char[2])
             embed.add_field(name='Affiliation', value=char_info[2])
             level = self.char_lib.level_calc(char[1])[0]
             embed.add_field(name='Attack', value=str(int(char_info[3] + char_info[5] * level)))
