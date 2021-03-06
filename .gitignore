@@ -137,3 +137,4 @@ data/user.db-journal
 img/results.png
 data/inventory.json
 data/gacha.db
+data/bot_token
