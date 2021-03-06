@@ -112,7 +112,7 @@ class Exp(commands.Cog):
             birthday = 'N/A' if len(birthday_doc) == 0 else birthday_doc[0].get('birthday')
         with TinyDB('./data/inventory.json') as bd:
             character_doc = bd.search(Query().user == user.id)
-            if character_doc is None or character_doc[0].get('primary') is None:
+            if len(character_doc) == 0 or character_doc[0].get('primary') is None:
                 prim_char = None
             else:
                 prim_char = character_doc[0].get('chars')[character_doc[0].get('primary') - 1]

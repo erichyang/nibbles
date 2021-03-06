@@ -202,7 +202,9 @@ class Gamble(commands.Cog):
             return
         if amount.isdigit():
             amount = int(amount)
-
+        # hard code hu tao name
+        if amount == "Hu":
+            amount = "Hu Tao"
         if isinstance(amount, str):
             if idb.transfer_card(sender_id, amount) == 'done':
                 idb.add_char(receiver_id, amount)
