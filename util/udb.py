@@ -32,11 +32,11 @@ class UserDatabase(commands.Cog):
         name = ''
         val = ''
         for i in range(0, len(lb)):
-            rank += str(i + 1) + '\n'
             member = guild.get_member(lb[i][0])
             if member is None:
                 continue
-            elif member.nick is None:
+            rank += str(i + 1) + '\n'
+            if member.nick is None:
                 name += member.display_name + '\n'
             else:
                 name += member.nick + '\n'

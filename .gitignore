@@ -138,3 +138,4 @@ img/results.png
 data/inventory.json
 data/gacha.db
 data/bot_token
+*.json
