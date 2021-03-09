@@ -25,12 +25,12 @@ class Characters(commands.Cog):
         else:
             return self.c.fetchone()
 
-    @commands.command(hidden=True)
-    @has_permissions(manage_guild=True)
-    async def insert_character(self, *, param):
-        # c.execute("INSERT INTO users VALUES (123456789, 0, 0)")
-        self.c.execute(f"INSERT INTO characters VALUES ({param})")
-        self.conn.commit()
+    # @commands.command(hidden=True)
+    # @has_permissions(manage_guild=True)
+    # async def insert_character(self, *, param):
+    #     # c.execute("INSERT INTO users VALUES (123456789, 0, 0)")
+    #     self.c.execute(f"INSERT INTO characters VALUES ({param})")
+    #     self.conn.commit()
 
     def find(self, var: str):
         self.c.execute(f'SELECT {var} FROM characters')

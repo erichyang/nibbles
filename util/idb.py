@@ -207,6 +207,8 @@ class InventoryDatabase(commands.Cog):
             return
         doc = doc[0]
         char_id = doc.get('primary')
+        if char_id is None:
+            return
         char_info = doc.get('chars')
         char_info[char_id - 1][1] += random.randint(500, 2500)
         with TinyDB('./data/inventory.json') as db:

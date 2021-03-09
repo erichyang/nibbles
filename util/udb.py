@@ -87,12 +87,6 @@ class UserDatabase(commands.Cog):
         self.c.execute("VACUUM")
         self.conn.commit()
 
-    @commands.command(hidden=True)
-    @has_permissions(manage_guild=True)
-    async def close_udb(self, ctx):
-        self.conn.close()
-        await ctx.send('user db connection closed')
-
     def top_eighteen(self):
         self.c.execute("SELECT user_id FROM users ORDER BY pts DESC LIMIT 18")
         return self.c.fetchall()

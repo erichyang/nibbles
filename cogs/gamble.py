@@ -61,12 +61,15 @@ class Gamble(commands.Cog):
         self.wheel = []
         self.db = udb.UserDatabase(client)
         self.idb = idb.InventoryDatabase(client)
+        self.servers = client.get_cog('ServerManage')
 
     # 12 hr - task
     @tasks.loop(hours=12)
     async def announce(self):
-        channel = await self.client.fetch_channel(681149093858508834)
-        await channel.send('Your free wheel of fortune is now available!')
+        channels = self.servers.all_primary_channel()
+        for ch_id in channels:
+            channel = await self.client.fetch_channel(ch_id[0])
+            await channel.send('Your free wheel of fortune is now available!')
         self.wheel = []
 
     @commands.command(hidden=True)
@@ -294,7 +297,7 @@ class Gamble(commands.Cog):
 
             await reaction.message.clear_reactions()
             await reaction.message.edit(content='Black Jack battle between ' + self.bj['init'].display_name + ' and ' +
-                                                user.nick + ' for :cookie: ' + str(self.bj['bet']))
+                                                user.display_name + ' for :cookie: ' + str(self.bj['bet']))
             self.bj['chal'] = user
             self._bj_deck()
 
@@ -387,7 +390,7 @@ class Gamble(commands.Cog):
             await self.bj[user].send("Your opponent isn't ready yet!")
             await self.bj[other].send("Your opponent is ready!")
             return
-        chnl = self.bj[user].guild.get_channel(752676890413629471)
+        chnl = self.bj['msg'].channel
         embed = discord.Embed(colour=discord.Colour(random.randint(0, 0xFFFFFF)),
                               description="The results of the game",
                               timestamp=datetime.now())

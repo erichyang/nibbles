@@ -17,6 +17,8 @@ class Status(commands.Cog):
     # commands
     @commands.Cog.listener()
     async def on_member_update(self, prev, cur):
+        if prev.guild.id != 607298393370394625:
+            return
         if cur.nick is not None and cur.nick.lower() != cur.nick:
             await cur.edit(nick=cur.nick.lower())
         if cur.activity is not None and cur.activity.name in self.games:
@@ -57,7 +59,8 @@ class Status(commands.Cog):
             await member.move_to(vc)
 
         if prev.channel is not None:
-            if prev.channel.id not in [625001001467772928, 703248310634414183] and len(prev.channel.members) == 0:
+            if member.guild.id == 607298393370394625 and prev.channel.id not in [625001001467772928, 703248310634414183] \
+                    and len(prev.channel.members) == 0:
                 await prev.channel.delete()
 
 

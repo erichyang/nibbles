@@ -41,11 +41,11 @@ class Exp(commands.Cog):
                 return
             last = datetime.strptime(record[3], '%H:%M:%S')
             tdelta = now - last
-            if message.content[:1] == '.' or tdelta.seconds < random.randrange(45, 60):
+            if message.content[0] == '.' or tdelta.seconds < random.randrange(45, 60):
                 return
             val = random.randrange(6, 8)
 
-            if message.channel.id != 703247498508238938:
+            if message.channel.id != 703247498508238938 and message.guild.id == 607298393370394625:
                 await self.db.update(db='users', var='pts', amount='+' + str(val), user=str(_id))
             await self.db.update(db='users', var='bal', amount='+' + str(val), user=str(_id))
             await self.db.set_time(db='users', user=str(_id))
@@ -64,7 +64,9 @@ class Exp(commands.Cog):
 
     @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
-    async def init_roles(self, ctx):
+    async def reset_pts(self, ctx):
+        if ctx.guild.id != 607298393370394625:
+            return
         await self.db.set('users', 'pts', '0', None)
         await ctx.send('done')
 
@@ -106,7 +108,10 @@ class Exp(commands.Cog):
     @commands.command(aliases=['lb', 'xp_lb', 'pts_lb'], description='check the top ten people with the highest points!'
                                                                      '\n.leaderboard; .lb; .xp_lb; .pts_lb')
     async def leaderboard(self, ctx):
-        await ctx.channel.send(embed=await self.db.lb('pts', ctx.guild))
+        if ctx.guild.id != 607298393370394625:
+            await ctx.send('sowwy but leaderboard is only available in Project Void')
+            return
+        await ctx.send(embed=await self.db.lb('pts', ctx.guild))
 
     @commands.command(description='check your profile that has your exp and nom noms!\n.profile; .profile @nibbles')
     async def profile(self, ctx):
@@ -156,6 +161,8 @@ class Exp(commands.Cog):
 
     @staticmethod
     async def manage_exp_roles(message, xp, t6, t18):
+        if message.guild.id != 607298393370394625:
+            return
         moons = message.guild.get_role(706989660244541540)
         planets = message.guild.get_role(709910163879886917)
         stars = message.guild.get_role(698255109406326876)

@@ -75,12 +75,6 @@ class GachaDatabase(commands.Cog):
             return self.c.fetchone()[0]
         return self.c.fetchone()
 
-    @commands.command(hidden=True)
-    @has_permissions(manage_guild=True)
-    async def close_gdb(self, ctx):
-        self.conn.close()
-        await ctx.send('gacha db connection closed')
-
 
 def setup(client):
     client.add_cog(GachaDatabase(client))

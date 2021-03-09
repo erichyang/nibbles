@@ -16,6 +16,7 @@ class Summon(commands.Cog):
         self.udb = udb.UserDatabase(client)
         self.gdb = gdb.GachaDatabase(client)
         self.pillow = pillow.Pillow(client)
+        self.servers = client.get_cog('ServerManage')
 
     # events
     @commands.Cog.listener()
@@ -25,7 +26,7 @@ class Summon(commands.Cog):
     # repeat every 24 hours
     @tasks.loop(hours=24)
     async def new_banner_rotation(self):
-        channel = await self.client.fetch_channel(681149093858508834)
+
         five, four = self.gdb.new_banner()
         desc = '5:star: ' + five + f'\n4:star: {four[0]}, {four[1]}, {four[2]}'
         self.pillow.generate_banner(five, four)
@@ -35,15 +36,21 @@ class Summon(commands.Cog):
 
         img = discord.File('./img/banner.png', 'banner.png')
         embed.set_image(url="attachment://banner.png")
-
-        await channel.send(file=img, embed=embed)
-
+        channels = self.servers.all_primary_channel()
         today = datetime.now().strftime("%m/%d")
         with TinyDB('./data/birthday.json') as _db:
             for people in _db.search(Query().birthday == today):
-                await channel.send(f"It is {channel.guild.get_member(people['user']).mention}'s birthday today!")
-                await channel.send(f"You received 14400 nom noms!")
                 await self.udb.update('users', 'bal', '+14400', str(people['user']))
+
+        for ch_id in channels:
+            channel = await self.client.fetch_channel(ch_id[0])
+            await channel.send(file=img, embed=embed)
+            with TinyDB('./data/birthday.json') as _db:
+                for people in _db.search(Query().birthday == today):
+                    if channel.guild.get_member(people['user']) is None:
+                        return
+                    await channel.send(f"It is {channel.guild.get_member(people['user']).mention}'s birthday today!")
+                    await channel.send(f"You received 14400 nom noms!")
 
     @commands.command(description='Find out the banner for today!\n.banner')
     async def banner(self, ctx):

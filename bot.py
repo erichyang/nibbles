@@ -6,12 +6,11 @@ import random
 import pytz
 
 from discord.ext import commands, tasks
+from discord.ext.commands import has_permissions
 from itertools import cycle
 from threading import Thread
 import time
 from datetime import datetime, date, timedelta
-
-from discord.ext.commands import has_permissions
 
 client = commands.Bot(command_prefix='.',
                       intents=discord.Intents.all())
@@ -23,15 +22,16 @@ status = cycle([
     'grand adventure', 'collecting taxes'
 ])
 
-for filename in os.listdir('./cogs'):
-    if filename.endswith('.py'):
-        client.load_extension(f'cogs.{filename[:-3]}')
-
 for filename in os.listdir('./util'):
     if filename.endswith('.py'):
         client.load_extension(f'util.{filename[:-3]}')
 
+for filename in os.listdir('./cogs'):
+    if filename.endswith('.py'):
+        client.load_extension(f'cogs.{filename[:-3]}')
+
 loop = asyncio.get_event_loop()
+servers = client.get_cog('ServerManage')
 
 
 @client.event
@@ -62,12 +62,15 @@ def launch_tasks():
 @tasks.loop(minutes=random.randrange(10, 45))
 async def change_status():
     await client.change_presence(activity=discord.Streaming(
-        name=next(status), url='https://twitch.tv/bitnoms'))
+        name=next(status), url='https://discord.gg/wWyDZgREFf'))
 
 
 @client.event
 async def on_member_join(member):
-    await member.guild.get_channel(681149093858508834).send(
+    prim = servers.find_primary_channel(member.guild.id)
+    if prim is None:
+        return
+    await member.guild.get_channel(prim).send(
         f'Heyaa {member.name}, '
         f'I\'m nibbles! <:kayaya:778399319803035699>')
     await member.add_roles(discord.utils.get(member.guild.roles, name='Moons'))
@@ -76,7 +79,10 @@ async def on_member_join(member):
 
 @client.event
 async def on_member_remove(member):
-    await member.guild.get_channel(681149093858508834).send(
+    prim = servers.find_primary_channel(member.guild.id)
+    if prim is None:
+        return
+    await member.guild.get_channel(prim).send(
         f'Bai bai {member.name} <:qiqi:813767632904781915>')
 
 
