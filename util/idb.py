@@ -96,7 +96,7 @@ class InventoryDatabase(commands.Cog):
         inv = search(_id)[0]
         color = discord.Colour(random.randint(0, 0xFFFFFF))
         if 'primary' in inv:
-            char_name = inv.get('chars')[inv.get('primary')-1][0]
+            char_name = inv.get('chars')[inv.get('primary') - 1][0]
             primary = 'Primary character: ' + char_name
         else:
             primary = 'No primary character'
@@ -156,7 +156,8 @@ class InventoryDatabase(commands.Cog):
             embed.add_field(name='Attack', value=str(int(char_info[3] + char_info[5] * level)))
             embed.add_field(name='Health', value=str(int(char_info[4] + char_info[6] * level)))
             embed.add_field(name='Level', value=str(level))
-            file = discord.File(f'./img/char_portrait/Character_{char[0].replace(" ", "+")}_Portrait.png', filename="char.png")
+            file = discord.File(f'./img/char_portrait/Character_{char[0].replace(" ", "+")}_Portrait.png',
+                                filename="char.png")
             embed.set_image(url="attachment://char.png")
         content = f'||{message.author.id} {index}||'
         msg = await message.channel.send(content=content, file=file, embed=embed)
@@ -167,7 +168,8 @@ class InventoryDatabase(commands.Cog):
     async def on_message(self, message):
         if message.reference is not None:
             replied_msg = message.reference.cached_message
-            if replied_msg is not None and replied_msg.author.bot and replied_msg.content == 'reply to this message with a number to check a specific character in your inventory!':
+            if replied_msg is not None and replied_msg.author.bot and replied_msg.content == \
+                    'reply to this message with a number to check a specific character in your inventory!':
                 await self.query_char(message)
         if isinstance(message.channel, discord.channel.DMChannel) and message.author.id in self.book_select:
             if message.content.isdigit():
@@ -193,11 +195,22 @@ class InventoryDatabase(commands.Cog):
                     await message.channel.send("you don't have that many books!")
                     return
                 await message.channel.send(f'using {amount} {book} books to level up...')
-                await message.channel.send('=' + '—-—'*10 + '=')
+                await message.channel.send('=' + '—-—' * 10 + '=')
                 char_id = int(msg.content.split('.')[0])
-                self.level_up(message.author.id, char_id-1, book, amount)
                 await self.level_viewer(message.author, char_id)
                 self.book_select.pop(message.author.id)
+
+    @staticmethod
+    async def chat_primary_xp(message):
+        doc = search(message.author.id)
+        if len(doc) == 0:
+            return
+        doc = doc[0]
+        char_id = doc.get('primary')
+        char_info = doc.get('chars')
+        char_info[char_id - 1][1] += random.randint(500, 2500)
+        with TinyDB('./data/inventory.json') as db:
+            db.update({'chars': char_info}, Query().user == message.author.id)
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
@@ -255,17 +268,17 @@ class InventoryDatabase(commands.Cog):
         with TinyDB('./data/inventory.json') as db:
             doc = db.search(Query().user == user.id)[0]
         # print(doc)
-        character = doc.get('chars')[char_id-1]
+        character = doc.get('chars')[char_id - 1]
         xp = character[1]
         level = self.char_lib.level_calc(xp)
-        next_ten = int(math.ceil((level[0]+1) / 10.0)) * 10
+        next_ten = int(math.ceil((level[0] + 1) / 10.0)) * 10
         embed.add_field(name='Current Level', value=str(level[0]), inline=False)
         # print(level)
         if level[2] != 'MAX':
             proportion = int((float(level[1]) / level[2]) * 10)
             output = '[' + proportion * '▰' + (10 - proportion) * '▱' + ']'
             output += f'\n{level[1]} - {level[2] - level[1]}/{level[2]} left'
-            level_ten = self.char_lib.fetch_levels()[next_ten-1]
+            level_ten = self.char_lib.fetch_levels()[next_ten - 1]
             proportion = int((float(xp) / level_ten[1]) * 10)
             ten_output = '[' + proportion * '▰' + (10 - proportion) * '▱' + ']'
             ten_output += f'\n{xp} - {level_ten[1] - xp}/{level_ten[1]} left'
@@ -275,8 +288,10 @@ class InventoryDatabase(commands.Cog):
         embed.add_field(name='XP until next level', value=output, inline=False)
 
         embed.add_field(name='XP until level ' + str(next_ten), value=ten_output, inline=False)
-
-        msg = await user.send(f'{char_id}. {character[0]}\nPurple - 20,000 Blue - 5,000 Green - 1,000', embed=embed)
+        books = doc.get('books')
+        await user.send(f'Purple - 20,000 xp\nBlue - 5,000 xp\nGreen - 1,000 xp')
+        msg = await user.send(
+            f'{char_id}. {character[0]}\n{books[0]} Purples, {books[1]} Blues, {books[2]} Green books', embed=embed)
         await msg.add_reaction(purple)
         await msg.add_reaction(blue)
         await msg.add_reaction(green)

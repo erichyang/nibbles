@@ -138,29 +138,36 @@ class Gamble(commands.Cog):
             await ctx.send(f'please wait {error.retry_after:,.2f} seconds before using coin flip again')
             await ctx.send('do you want to reconsider your bet?')
 
-    @commands.command(aliases=['wheel', 'spin'],
-                      description='spin a wheel of fortune for free every 12 hours! '
-                                  'You can win prizes from :cookie:80-10000\n.gamble_wheel; .wheel; .spin')
-    async def gamble_wheel(self, ctx):
-        if ctx.channel.id == 681149093858508834:
-            await ctx.send(f'the wheel of fortune belongs in {self.client.get_channel(752676890413629471).mention}!')
-            await ctx.send('<:angy:789977140200341515>')
-            return
-        bal = self.db.find_user(db='users', var='bal', user=str(ctx.author.id))
+    # @commands.command(aliases=['wheel', 'spin'],
+    #                   description='spin a wheel of fortune for free every 12 hours! '
+    #                               'You can win prizes from :cookie:80-10000\n.gamble_wheel; .wheel; .spin')
+    @commands.command(aliases=['spin'])
+    async def wheel(self, ctx):
+        await ctx.send('Currently, your first message after each reset will automatically roll the wheel!')
+        await ctx.send('So go ahead and say hi to everyone for your wheel :D')
 
-        if ctx.author.id in self.wheel:
-            await ctx.send("You already used your free wheel of fortune!")
-            return
+    @commands.Cog.listener()
+    async def on_message(self, msg):
+        if msg.author.id not in self.wheel and not msg.author.bot:
+            if len(msg.content) > 0 and msg.content[0] != '.':
+                await self.gamble_wheel(msg.author, msg.channel)
 
-        self.wheel.append(ctx.author.id)
+    async def gamble_wheel(self, author, channel):
+        # if ctx.channel.id == 681149093858508834:
+        #     await ctx.send(f'the wheel of fortune belongs in {self.client.get_channel(752676890413629471).mention}!')
+        #     await ctx.send('<:angy:789977140200341515>')
+        #     return
+        bal = self.db.find_user(db='users', var='bal', user=str(author.id))
+
+        self.wheel.append(author.id)
 
         embed = discord.Embed(title="**SPINNING**", colour=discord.Colour(random.randint(0, 0xFFFFFF)))
         embed.set_image(url="https://cdn.discordapp.com/attachments/703247498508238938/800820068426317854/wheel.gif")
-        embed.set_thumbnail(url=ctx.author.avatar_url)
-        embed.set_author(name=str(ctx.author))
+        embed.set_thumbnail(url=author.avatar_url)
+        embed.set_author(name=str(author))
         embed.set_footer(text="best of luck!", icon_url="https://cdn.discordapp.com/emojis/747848187192148048.png?v=1")
 
-        msg = await ctx.send(content="Spinning the Wheel of Fortune", embed=embed)
+        msg = await channel.send(content="Spinning the Wheel of Fortune", embed=embed, delete_after=75)
 
         result = random.randint(1, 100)
         prize = 150
@@ -182,12 +189,12 @@ class Gamble(commands.Cog):
         time.sleep(4)
 
         embed = discord.Embed(title="**REWARDS**", colour=discord.Colour(random.randint(0, 0xFFFFFF)))
-        embed.set_thumbnail(url=ctx.author.avatar_url)
-        embed.set_author(name=str(ctx.author))
+        embed.set_thumbnail(url=author.avatar_url)
+        embed.set_author(name=str(author))
         embed.add_field(name="Prize", value=str(prize) + " nom noms", inline=False)
         embed.add_field(name="Current Balance", value=str(bal[0] + prize), inline=False)
 
-        await self.db.update(db='users', var='bal', amount='+' + (str(prize)), user=str(ctx.author.id))
+        await self.db.update(db='users', var='bal', amount='+' + (str(prize)), user=str(author.id))
 
         await msg.edit(content='Wheel of Fortune Results', embed=embed)
 

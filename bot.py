@@ -14,12 +14,7 @@ from datetime import datetime, date, timedelta
 from discord.ext.commands import has_permissions
 
 client = commands.Bot(command_prefix='.',
-                      intents=discord.Intents(messages=True,
-                                              guilds=True,
-                                              reactions=True,
-                                              members=True,
-                                              presences=True,
-                                              voice_states=True))
+                      intents=discord.Intents.all())
 client.remove_command('help')
 
 status = cycle([
@@ -156,5 +151,4 @@ async def on_raw_reaction_remove(payload):
             discord.utils.get(guild.roles, name='Cookie Squad'))
 
 
-with open('data/bot_token', 'r') as f:
-    client.run(f.read())
+client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.90H7LW32mCJIzmtVyZTQehjhfSE')

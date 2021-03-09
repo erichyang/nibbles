@@ -37,6 +37,7 @@ class Characters(commands.Cog):
         return self.c.fetchall()
 
     def level_calc(self, xp: int):
+        xp += 1
         self.c.execute('SELECT level, total FROM xp')
         level = 1
         for total_req in self.c.fetchall():
@@ -44,6 +45,7 @@ class Characters(commands.Cog):
                 level = total_req[0]
         self.c.execute(f'SELECT total, next_lvl FROM xp WHERE level = {level}')
         temp = self.c.fetchone()
+        xp -= 1
         if temp[0] == '':
             cur_xp = xp
         else:

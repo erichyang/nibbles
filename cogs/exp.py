@@ -8,7 +8,7 @@ from datetime import datetime
 from discord.ext.commands import has_permissions
 from tinydb import TinyDB, Query
 
-from util import udb
+from util import udb, idb
 from util.pillow import Pillow
 
 import re
@@ -20,6 +20,7 @@ class Exp(commands.Cog):
         self.client = client
         self.vc = {}
         self.db = udb.UserDatabase(client)
+        self.idb = idb.InventoryDatabase(client)
         self.pillow = Pillow(self.client)
 
     # events
@@ -48,6 +49,7 @@ class Exp(commands.Cog):
                 await self.db.update(db='users', var='pts', amount='+' + str(val), user=str(_id))
             await self.db.update(db='users', var='bal', amount='+' + str(val), user=str(_id))
             await self.db.set_time(db='users', user=str(_id))
+            await self.idb.chat_primary_xp(message)
 
         if record is not None and not isinstance(message.author, discord.User):
             temp = self.db.top_six('pts')
@@ -75,6 +77,13 @@ class Exp(commands.Cog):
         elif cur.channel is None:
             tdelta = datetime.now() - self.vc.pop(member.id)
             val = int(tdelta.seconds / 30)
+            _id = member.id
+            record = self.db.find_user(db='users', user=str(_id))
+            now = datetime.now()
+            if record is None:
+                if not member.bot:
+                    await self.db.insert(db='users', init_val=f"({str(_id)}, 0, 160, '{now.strftime('%H:%M:%S')}', '')")
+
             await self.db.update(db='users', var='pts', amount='+' + str(val), user=str(member.id))
             await self.db.update(db='users', var='bal', amount='+' + str(val), user=str(member.id))
 
