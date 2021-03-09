@@ -22,7 +22,7 @@ class ServerManage(commands.Cog):
     def find_primary_channel(self, guild_id):
         self.c.execute(f"SELECT primary_channel FROM servers WHERE guild = {guild_id}")
         temp = self.c.fetchone()
-        if len(temp) == 0:
+        if temp is None:
             return None
         else:
             return temp[0]

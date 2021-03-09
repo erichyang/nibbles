@@ -62,7 +62,9 @@ class Exp(commands.Cog):
             top_et = []
             for person in temp:
                 top_et.append(person[0])
-            await self.manage_exp_roles(message, record[1], top_six, top_et)
+
+            if message.guild.id == 607298393370394625:
+                await self.manage_exp_roles(message, record[1], top_six, top_et)
 
     @commands.command(hidden=True)
     @has_permissions(manage_guild=True)

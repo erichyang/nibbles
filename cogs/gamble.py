@@ -144,7 +144,7 @@ class Gamble(commands.Cog):
     # @commands.command(aliases=['wheel', 'spin'],
     #                   description='spin a wheel of fortune for free every 12 hours! '
     #                               'You can win prizes from :cookie:80-10000\n.gamble_wheel; .wheel; .spin')
-    @commands.command(aliases=['spin'])
+    @commands.command(aliases=['spin'], description='deprecated spinning command')
     async def wheel(self, ctx):
         await ctx.send('Currently, your first message after each reset will automatically roll the wheel!')
         await ctx.send('So go ahead and say hi to everyone for your wheel :D')

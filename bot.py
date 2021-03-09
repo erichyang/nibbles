@@ -73,6 +73,8 @@ async def on_member_join(member):
     await member.guild.get_channel(prim).send(
         f'Heyaa {member.name}, '
         f'I\'m nibbles! <:kayaya:778399319803035699>')
+    if member.guild.id != 607298393370394625:
+        return
     await member.add_roles(discord.utils.get(member.guild.roles, name='Moons'))
     await member.edit(nick=member.name.lower())
 
@@ -97,6 +99,11 @@ async def on_command_error(ctx, error):
     else:
         if not isinstance(error, commands.CommandNotFound):
             print(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
+async def on_guild_join(guild):
+    if len(guild.text_channels) > 0:
+        await guild.text_channels[0].send('Please use .set_channel <channel_id> to tell nibbles where to speak!')
+
+
 
 
 @client.command(name='help', hidden=True)
