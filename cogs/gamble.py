@@ -151,7 +151,7 @@ class Gamble(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if msg.author.id not in self.wheel and not msg.author.bot:
+        if msg.author.id not in self.wheel and not msg.author.bot and msg.guild is not None:
             if len(msg.content) > 0 and msg.content[0] != '.':
                 await self.gamble_wheel(msg.author, msg.channel)
 

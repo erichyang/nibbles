@@ -197,6 +197,7 @@ class InventoryDatabase(commands.Cog):
                 await message.channel.send(f'using {amount} {book} books to level up...')
                 await message.channel.send('=' + '—-—' * 10 + '=')
                 char_id = int(msg.content.split('.')[0])
+                self.level_up(message.author.id, char_id-1, book, amount)
                 await self.level_viewer(message.author, char_id)
                 self.book_select.pop(message.author.id)
 

@@ -30,6 +30,8 @@ class Exp(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        if message.guild is None:
+            return
         now = datetime.now()
         _id = message.author.id
         record = self.db.find_user(db='users', user=str(_id))
