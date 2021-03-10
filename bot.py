@@ -62,7 +62,7 @@ def launch_tasks():
 @tasks.loop(minutes=random.randrange(10, 45))
 async def change_status():
     await client.change_presence(activity=discord.Streaming(
-        name=next(status), url='https://discord.gg/wWyDZgREFf'))
+        name=next(status), url='https://twitch.tv/bitnoms'))
 
 
 @client.event
@@ -100,10 +100,12 @@ async def on_command_error(ctx, error):
         if not isinstance(error, commands.CommandNotFound):
             print(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
 async def on_guild_join(guild):
-    if len(guild.text_channels) > 0:
-        await guild.text_channels[0].send('Please use .set_channel <channel_id> to tell nibbles where to speak!')
-
-
+    for channel in guild.text_channels:
+        member = await guild.fetch_member(client.user.id)
+        if channel.permissions_for(member).send_messages:
+            await channel.send('Please use .set_channel <channel_id> to tell nibbles where to speak!')
+            await channel.send('Use .opt_in_banner to receive the new genshin gacha banner daily!')
+            return
 
 
 @client.command(name='help', hidden=True)
