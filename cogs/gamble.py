@@ -68,7 +68,7 @@ class Gamble(commands.Cog):
     async def announce(self):
         channels = self.servers.all_primary_channel()
         for ch_id in channels:
-            channel = await self.client.fetch_channel(ch_id[0])
+            channel = await self.client.fetch_channel(ch_id[1])
             await channel.send('Your free wheel of fortune is now available!')
         self.wheel = []
 
