@@ -99,6 +99,8 @@ async def on_command_error(ctx, error):
     else:
         if not isinstance(error, commands.CommandNotFound):
             print(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
+
+
 async def on_guild_join(guild):
     for channel in guild.text_channels:
         member = await guild.fetch_member(client.user.id)

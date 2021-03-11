@@ -1,5 +1,6 @@
 import math
 import random
+from collections import Counter
 
 import discord
 from discord.ext import commands
@@ -105,9 +106,7 @@ class InventoryDatabase(commands.Cog):
         embed.set_author(name=ctx.author.display_name if ctx.author.nick is None else ctx.author.nick)
         for index, char in enumerate(inv.get('chars')):
             rarity = self.char_lib.find_character(char[0], 'rarity')
-            embed.add_field(name=f'{index + 1}. {char[0]}',
-                            value=f'Rarity {rarity}:star:\nXP {char[1]}\n Const. {char[2]}',
-                            inline=True)
+            embed.add_field(name=f'{index + 1}. {char[0]}', value=f'Rarity {rarity}:star:\nLevel {self.char_lib.level_calc(char[1])[0]}\nConst. {char[2]}', inline=True)
         await ctx.send(embed=embed)
 
         embed = discord.Embed(title="And other stuff!", colour=color)
@@ -117,10 +116,8 @@ class InventoryDatabase(commands.Cog):
         embed.add_field(name='Green Books', value=str(books[2]))
         trading = inv.get('trading_cards')
         if trading is not None:
-            cards = trading[0]
-            for item in trading[1:]:
-                cards += ', ' + item
-            embed.add_field(name='Transferable cards', value=cards)
+            characters = Counter(trading)
+            embed.add_field(name='Transferable cards', value=str(characters).replace("'", "")[9:-2])
         await ctx.send(embed=embed)
 
         await ctx.send('reply to this message with a number to check a specific character in your inventory!')
@@ -137,8 +134,6 @@ class InventoryDatabase(commands.Cog):
                 await self.query_char(ctx.message, index + 1)
 
     async def query_char(self, message, index=0):
-        embed = discord.Embed(title='your character', color=discord.Color(random.randint(0, 0xFFFFFF)))
-        embed.set_author(name=message.author.display_name)
         with TinyDB('./data/inventory.json') as db:
             doc = db.search(Query().user == message.author.id)[0]
             characters = doc.get('chars')
@@ -149,13 +144,15 @@ class InventoryDatabase(commands.Cog):
                 return
             char = characters[index - 1]
             char_info = self.char_lib.find_character(char_name=char[0])
-            embed.add_field(name='Name', value=f'{char[0]} - {str(char_info[1])} :star:')
-            embed.add_field(name='Constellations', value=char[2])
+            embed = discord.Embed(title=f'{char[0]} - {str(char_info[1])} :star:', color=discord.Color(random.randint(0, 0xFFFFFF)))
+            embed.set_author(name=message.author.display_name)
             embed.add_field(name='Affiliation', value=char_info[2])
+            embed.add_field(name='Constellations', value=char[2])
             level = self.char_lib.level_calc(char[1])[0]
             embed.add_field(name='Attack', value=str(int(char_info[3] + char_info[5] * level)))
             embed.add_field(name='Health', value=str(int(char_info[4] + char_info[6] * level)))
             embed.add_field(name='Level', value=str(level))
+            embed.add_field(name='XP', value=str(char[1]))
             file = discord.File(f'./img/char_portrait/Character_{char[0].replace(" ", "+")}_Portrait.png',
                                 filename="char.png")
             embed.set_image(url="attachment://char.png")
