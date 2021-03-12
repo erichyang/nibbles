@@ -64,7 +64,9 @@ class Pillow(commands.Cog):
 
         count = 13
         for i in range(len(desc)):
-            if count >= 45 and desc[i] == ' ':
+            if desc[i:i + 1] == '\n':
+                count = 0
+            elif count >= 45 and desc[i] == ' ':
                 desc = desc[:i] + '\n' + desc[i + 1:]
                 count = 0
             else:
