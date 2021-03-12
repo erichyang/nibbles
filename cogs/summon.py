@@ -30,7 +30,7 @@ class Summon(commands.Cog):
         percent = (float(tdelta.days) / 365)
         whole = int(percent * 15)
         partial = int(percent * 90) % 6
-        empty = 15 - whole - len(partial)
+        empty = 15 - whole - partial
         braille = {
             0: '',
             1: '⣄',

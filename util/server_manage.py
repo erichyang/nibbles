@@ -47,7 +47,7 @@ class ServerManage(commands.Cog):
     @has_permissions(manage_guild=True)
     async def set_channel(self, ctx, channel_id):
         if self.find_primary_channel(ctx.guild.id) is None:
-            self.c.execute(f"INSERT INTO servers VALUES ({ctx.guild.id}, {channel_id})")
+            self.c.execute(f"INSERT INTO servers VALUES ({ctx.guild.id}, {channel_id}, FALSE)")
         else:
             self.c.execute(f"UPDATE servers SET primary_channel = {channel_id} WHERE guild = {ctx.guild.id}")
         self.conn.commit()
