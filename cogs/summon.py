@@ -30,8 +30,9 @@ class Summon(commands.Cog):
         percent = (float(tdelta.days) / 365)
         whole = int(percent * 15)
         partial = int(percent * 90) % 6
+        empty = 15 - whole - len(partial)
         braille = {
-            0: '⣀',
+            0: '',
             1: '⣄',
             2: '⣆',
             3: '⣇',
@@ -40,7 +41,6 @@ class Summon(commands.Cog):
             6: '⣿'
         }
         partial = braille[partial]
-        empty = 14 - whole
         year_progress = f'[{(whole * "⣿")}{partial}{(empty * "⣀")}]'
 
         five, four = self.gdb.new_banner()

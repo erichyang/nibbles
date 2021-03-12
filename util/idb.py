@@ -95,19 +95,12 @@ class InventoryDatabase(commands.Cog):
             await ctx.send("you haven't summoned yet!")
             return
         inv = search(_id)[0]
-        color = discord.Colour(random.randint(0, 0xFFFFFF))
-        if 'primary' in inv:
-            char_name = inv.get('chars')[inv.get('primary') - 1][0]
-            primary = 'Primary character: ' + char_name
-        else:
-            primary = 'No primary character'
-        embed = discord.Embed(title=primary, color=color)
-
-        embed.set_author(name=ctx.author.display_name if ctx.author.nick is None else ctx.author.nick)
-        for index, char in enumerate(inv.get('chars')):
-            rarity = self.char_lib.find_character(char[0], 'rarity')
-            embed.add_field(name=f'{index + 1}. {char[0]}', value=f'Rarity {rarity}:star:\nLevel {self.char_lib.level_calc(char[1])[0]}\nConst. {char[2]}', inline=True)
-        await ctx.send(embed=embed)
+        color = random.randint(0, 0xFFFFFF)
+        section = 0
+        msg = await ctx.send(content=f'||MI{section} {_id} {color}||',
+                       embed=self.main_inventory_view(_id, inv, discord.Color(color), ctx.author, section))
+        await msg.add_reaction('⬅️')
+        await msg.add_reaction('➡️')
 
         embed = discord.Embed(title="And other stuff!", colour=color)
         books = inv.get('books')
@@ -121,6 +114,28 @@ class InventoryDatabase(commands.Cog):
         await ctx.send(embed=embed)
 
         await ctx.send('reply to this message with a number to check a specific character in your inventory!')
+
+    def main_inventory_view(self, _id, inv, color, author, sect):
+        if 'primary' in inv:
+            char_name = inv.get('chars')[inv.get('primary') - 1][0]
+            primary = 'Primary character: ' + char_name
+        else:
+            primary = 'No primary character'
+        embed = discord.Embed(title=primary, color=color)
+
+        embed.set_author(name=author.display_name if author.nick is None else author.nick)
+        start_index = 15 * sect
+        end_index = 15 + 15 * sect
+        characters = inv.get('chars')
+        if end_index >= len(characters):
+            end_index = len(characters) - 1
+        for index, char in enumerate(characters[start_index:end_index]):
+            rarity = self.char_lib.find_character(char[0], 'rarity')
+            embed.add_field(name=f'{index + 1}. {char[0]}',
+                            value=f'Rarity {rarity}:star:\nLevel {self.char_lib.level_calc(char[1])[0]}\nConst. {char[2]}',
+                            inline=True)
+        embed.set_footer(text=f'Page {sect+1}')
+        return embed
 
     @commands.command(description='navigate to a detailed view of your character without using inventory!\n'
                                   '.character Ganyu')
@@ -239,6 +254,30 @@ class InventoryDatabase(commands.Cog):
             await reaction.message.remove_reaction(emoji=green, member=self.client.user)
             await reaction.message.channel.send('How many books would you like to use')
             self.book_select[user.id] = reaction.message
+            return
+
+        if (reaction.emoji == '⬅️' or reaction.emoji == '➡️') and reaction.message.author.bot and not user.bot and \
+                '||MI' in reaction.message.content:
+            _id = user.id
+            parse = reaction.message.content[4:-2].split(' ')
+            parse[0] = int(parse[0])
+            parse[1] = int(parse[1])
+            parse[2] = int(parse[2])
+            if _id != parse[1]:
+                return
+
+            section = parse[0]
+            inv = search(_id)[0]
+            if reaction.emoji == '⬅️':
+                section -= 1 if section > 0 else 0
+            else:
+                section += 1 if section < int(len(inv.get('chars'))/15) else 0
+            color = parse[2]
+
+            embed = self.main_inventory_view(_id, inv, color, user, section)
+            await reaction.message.edit(content=f'||MI{section} {_id} {color}||', embed=embed)
+            await reaction.remove(user)
+            return
 
     @staticmethod
     def level_up(user_id, char_id, book_type, amount):
