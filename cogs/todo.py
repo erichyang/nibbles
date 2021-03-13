@@ -12,7 +12,8 @@ def todo_embed(uid, author_name):
         desc = '\n'
         for index, task in enumerate(todo):
             desc += f'{index + 1}. {task}\n\n'
-        embed = discord.Embed(title=f"{len(todo)} Tasks", colour=discord.Colour(0x24bdff), description=desc)
+        title = f"{len(todo)} Tasks" if len(todo) > 0 else 'Congratulations, you finished your tasks!'
+        embed = discord.Embed(title=title, colour=discord.Colour(0x24bdff), description=desc)
 
         embed.set_author(name=author_name)
         return embed
@@ -36,7 +37,7 @@ class Todo(commands.Cog):
             if len(todo) != 0:
                 new_list = todo[0].get('todo')
                 new_list.append(item)
-                db.update({'user': ctx.author.id, 'todo': new_list})
+                db.update({'user': ctx.author.id, 'todo': new_list}, Query().user == ctx.author.id)
             else:
                 db.insert({'user': ctx.author.id, 'todo': [item]})
 
@@ -75,7 +76,7 @@ class Todo(commands.Cog):
             else:
                 await ctx.send('such task does not exist :(')
                 return
-            db.update({'user': ctx.author.id, 'todo': new_list})
+            db.update({'user': ctx.author.id, 'todo': new_list}, Query().user == ctx.author.id)
             await ctx.send(content='task has been checked off!', embed=todo_embed(ctx.author.id, ctx.author.display_name if ctx.author.nick is None else ctx.author.nick))
 
 
