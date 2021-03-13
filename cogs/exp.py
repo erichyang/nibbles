@@ -80,7 +80,7 @@ class Exp(commands.Cog):
             return
         if prev.channel is None:
             self.vc[member.id] = datetime.now()
-        elif cur.channel is None:
+        elif cur.channel is None and member.id in self.vc:
             tdelta = datetime.now() - self.vc.pop(member.id)
             val = int(tdelta.seconds / 30)
             _id = member.id
