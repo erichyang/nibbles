@@ -151,7 +151,7 @@ class Gamble(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if msg.guild.id == 819061920652591105:
+        if msg.guild is not None and msg.guild.id == 819061920652591105:
             return
         if msg.author.id not in self.wheel and not msg.author.bot and msg.guild is not None:
             if len(msg.content) > 0 and msg.content[0] != '.':

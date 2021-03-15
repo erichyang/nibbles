@@ -17,7 +17,7 @@ class Status(commands.Cog):
     # commands
     @commands.Cog.listener()
     async def on_member_update(self, prev, cur):
-        if prev.guild.id != 607298393370394625:
+        if prev.guild is not None and prev.guild.id != 607298393370394625:
             return
         if cur.nick is not None and cur.nick.lower() != cur.nick:
             await cur.edit(nick=cur.nick.lower())

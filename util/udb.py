@@ -21,31 +21,6 @@ class UserDatabase(commands.Cog):
     async def on_ready(self):
         print('DataBase online')
 
-    # database utility functions
-    async def lb(self, category: str, guild):
-        self.c.execute("SELECT * FROM users ORDER BY " + category + " DESC LIMIT 18")
-        title = 'most active!' if category == 'pts' else 'richest!'
-        unit = category if category == 'pts' else ':cookie:'
-        embed_var = discord.Embed(title="People who are the " + title, color=random.randint(0, 0xFFFFFF))
-        lb = self.c.fetchall()
-        rank = ''
-        name = ''
-        val = ''
-        for i in range(0, len(lb)):
-            member = guild.get_member(lb[i][0])
-            if member is None:
-                continue
-            rank += str(i + 1) + '\n'
-            if member.nick is None:
-                name += member.display_name + '\n'
-            else:
-                name += member.nick + '\n'
-            val += str(lb[i][1 if category == 'pts' else 2]) + unit + '\n'
-        embed_var.add_field(name='Rank', value=rank, inline=True)
-        embed_var.add_field(name='Name', value=name, inline=True)
-        embed_var.add_field(name='Points' if category == 'pts' else 'Balance', value=val, inline=True)
-        return embed_var
-
     async def set_time(self, db: str, user: str):
         self.c.execute(f"UPDATE {db} SET time = '{datetime.now().strftime('%H:%M:%S')}' WHERE user_id = {user}")
         self.conn.commit()
@@ -80,6 +55,23 @@ class UserDatabase(commands.Cog):
     def top_six(self, category):
         self.c.execute("SELECT user_id FROM users ORDER BY " + category + " DESC LIMIT 6")
         return self.c.fetchall()
+
+    def lb(self, guild):
+        self.c.execute("SELECT user_id, pts FROM users ORDER BY pts DESC LIMIT 18")
+        unit = 'pts'
+        lb = self.c.fetchall()
+        rank = ''
+        name = ''
+        val = ''
+        for i, entry in enumerate(lb):
+            member = guild.get_member(lb[i][0])
+            if member is None:
+                continue
+            rank += str(i + 1) + '\n\n'
+            # name += str(entry[0]) + '\n\n'
+            name += member.display_name if member.nick is None else member.nick + '\n\n'
+            val += str(entry[1]) + unit + '\n\n'
+        return rank, name, val
 
     # repeat every 12 hours
     @tasks.loop(hours=12)

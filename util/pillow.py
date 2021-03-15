@@ -16,7 +16,8 @@ class Pillow(commands.Cog):
                                              160)
         self.subtitle_font = ImageFont.truetype(
             './img/fonts/Tuesday Jingle.ttf', 120)
-        self.body_font = ImageFont.truetype('./img/fonts/act.regular.ttf', 100)
+        self.body_font = ImageFont.truetype('./img/fonts/ACT.regular.ttf', 100)
+        self.hand_font = ImageFont.truetype('./img/fonts/GHMS.ttf', 50)
         self.udb = UserDatabase(self.client)
         self.char_lib = characters.Characters(client)
 
@@ -230,8 +231,21 @@ class Pillow(commands.Cog):
         with io.BytesIO() as image_binary:
             bg.save(image_binary, 'PNG')
             image_binary.seek(0)
-            await ctx.send(
-                file=discord.File(fp=image_binary, filename='results.png'))
+            await ctx.send(file=discord.File(fp=image_binary, filename='results.png'))
+
+    def generate_lb(self, ranks, names, pts):
+        bg = Image.open('./img/backgrounds/leaderboard.png').convert('RGBA')
+
+        text_layer = Image.new('RGBA', bg.size)
+        txt = ImageDraw.Draw(text_layer)
+        txt.text((100, 350), ranks, (255, 255, 255), font=self.hand_font)
+        txt.text((200, 350), names, (255, 255, 255), font=self.hand_font)
+        txt.text((850, 350), pts, (255, 255, 255), font=self.hand_font)
+        bg = Image.alpha_composite(bg, text_layer)
+        with io.BytesIO() as image_binary:
+            bg.save(image_binary, 'PNG')
+            image_binary.seek(0)
+            return discord.File(fp=image_binary, filename='leaderboard.png')
 
 
 def setup(client):

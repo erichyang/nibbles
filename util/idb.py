@@ -98,7 +98,7 @@ class InventoryDatabase(commands.Cog):
         color = random.randint(0, 0xFFFFFF)
         section = 0
         msg = await ctx.send(content=f'||MI{section} {_id} {color}||',
-                       embed=self.main_inventory_view(_id, inv, discord.Color(color), ctx.author, section))
+                             embed=self.main_inventory_view(_id, inv, discord.Color(color), ctx.author, section))
         await msg.add_reaction('⬅️')
         await msg.add_reaction('➡️')
 
@@ -128,13 +128,13 @@ class InventoryDatabase(commands.Cog):
         end_index = 15 + 15 * sect
         characters = inv.get('chars')
         if end_index >= len(characters):
-            end_index = len(characters) - 1
+            end_index = len(characters)
         for index, char in enumerate(characters[start_index:end_index]):
             rarity = self.char_lib.find_character(char[0], 'rarity')
-            embed.add_field(name=f'{index + 1}. {char[0]}',
+            embed.add_field(name=f'{index + 1 + start_index}. {char[0]}',
                             value=f'Rarity {rarity}:star:\nLevel {self.char_lib.level_calc(char[1])[0]}\nConst. {char[2]}',
                             inline=True)
-        embed.set_footer(text=f'Page {sect+1}')
+        embed.set_footer(text=f'Page {sect + 1}')
         return embed
 
     @commands.command(description='navigate to a detailed view of your character without using inventory!\n'
@@ -159,7 +159,8 @@ class InventoryDatabase(commands.Cog):
                 return
             char = characters[index - 1]
             char_info = self.char_lib.find_character(char_name=char[0])
-            embed = discord.Embed(title=f'{char[0]} - {str(char_info[1])} :star:', color=discord.Color(random.randint(0, 0xFFFFFF)))
+            embed = discord.Embed(title=f'{char[0]} - {str(char_info[1])} :star:',
+                                  color=discord.Color(random.randint(0, 0xFFFFFF)))
             embed.set_author(name=message.author.display_name)
             embed.add_field(name='Affiliation', value=char_info[2])
             embed.add_field(name='Constellations', value=char[2])
@@ -209,7 +210,7 @@ class InventoryDatabase(commands.Cog):
                 await message.channel.send(f'using {amount} {book} books to level up...')
                 await message.channel.send('=' + '—-—' * 10 + '=')
                 char_id = int(msg.content.split('.')[0])
-                self.level_up(message.author.id, char_id-1, book, amount)
+                self.level_up(message.author.id, char_id - 1, book, amount)
                 await self.level_viewer(message.author, char_id)
                 self.book_select.pop(message.author.id)
 
@@ -271,7 +272,7 @@ class InventoryDatabase(commands.Cog):
             if reaction.emoji == '⬅️':
                 section -= 1 if section > 0 else 0
             else:
-                section += 1 if section < int(len(inv.get('chars'))/15) else 0
+                section += 1 if section < int(len(inv.get('chars')) / 15) else 0
             color = parse[2]
 
             embed = self.main_inventory_view(_id, inv, color, user, section)

@@ -115,7 +115,8 @@ class Exp(commands.Cog):
         if ctx.guild.id != 607298393370394625:
             await ctx.send('sowwy but leaderboard is only available in Project Void')
             return
-        await ctx.send(embed=await self.db.lb('pts', ctx.guild))
+
+        await ctx.send(file=self.pillow.generate_lb(*self.db.lb(ctx.guild)))
 
     @commands.command(description='check your profile that has your exp and nom noms!\n.profile; .profile @nibbles')
     async def profile(self, ctx):
