@@ -89,8 +89,8 @@ class Exp(commands.Cog):
             if record is None:
                 if not member.bot:
                     await self.db.insert(db='users', init_val=f"({str(_id)}, 0, 160, '{now.strftime('%H:%M:%S')}', '')")
-
-            await self.db.update(db='users', var='pts', amount='+' + str(val), user=str(member.id))
+            if member.guild.id == 607298393370394625:
+                await self.db.update(db='users', var='pts', amount='+' + str(val), user=str(member.id))
             await self.db.update(db='users', var='bal', amount='+' + str(val), user=str(member.id))
 
     # commands
