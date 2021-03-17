@@ -69,8 +69,9 @@ class UserDatabase(commands.Cog):
                 continue
             rank += str(i + 1) + '\n\n'
             # name += str(entry[0]) + '\n\n'
-            name += member.display_name if member.nick is None else member.nick + '\n\n'
-            val += str(entry[1]) + unit + '\n\n'
+            name += member.display_name if member.nick is None else member.nick
+            name += '\n\n'
+            val += str(entry[1]) + ' ' + unit + '\n\n'
         return rank, name, val
 
     # repeat every 12 hours

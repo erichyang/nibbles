@@ -287,7 +287,7 @@ class Gamble(commands.Cog):
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
         if 'chal' not in self.bj and not user.bot and 'init' in self.bj and user.id != self.bj['init'].id \
-                and reaction.message == self.bj['msg']:
+                and 'msg' in self.bj and reaction.message == self.bj['msg']:
             if 'challenged' in self.bj and user != self.bj['challenged']:
                 return
 
@@ -389,8 +389,6 @@ class Gamble(commands.Cog):
         self.bj[user + '_end'] = _bj_total(self.bj[user + '_hand'])
         other = 'init' if user != 'init' else 'chal'
         if other + '_end' not in self.bj:
-            await self.bj[user].send("Your opponent isn't ready yet!")
-            await self.bj[other].send("Your opponent is ready!")
             return
         chnl = self.bj['msg'].channel
         embed = discord.Embed(colour=discord.Colour(random.randint(0, 0xFFFFFF)),

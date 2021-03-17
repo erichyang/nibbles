@@ -240,7 +240,7 @@ class Pillow(commands.Cog):
         txt = ImageDraw.Draw(text_layer)
         txt.text((100, 350), ranks, (255, 255, 255), font=self.hand_font)
         txt.text((200, 350), names, (255, 255, 255), font=self.hand_font)
-        txt.text((850, 350), pts, (255, 255, 255), font=self.hand_font)
+        txt.text((800, 350), pts, (255, 255, 255), font=self.hand_font)
         bg = Image.alpha_composite(bg, text_layer)
         with io.BytesIO() as image_binary:
             bg.save(image_binary, 'PNG')

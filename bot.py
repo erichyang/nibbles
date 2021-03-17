@@ -145,7 +145,7 @@ async def on_message(message):
             'Nibbles thinks that is wrong.', 'My nom noms said no.',
             'Nibbles disagree.', 'Noooooo!', 'That is incorrect.'
         ]
-        await message.channel.send(random.choice(eight_ball))
+        await message.channel.send(f'{random.choice(eight_ball)}\nuse .help for more!')
     else:
         await client.process_commands(message)
 
