@@ -63,15 +63,8 @@ class Gamble(commands.Cog):
         self.idb = idb.InventoryDatabase(client)
         self.servers = client.get_cog('ServerManage')
 
-    # 12 hr - task
-    @tasks.loop(hours=12)
-    async def announce(self):
-        channels = self.servers.all_primary_channel()
-        for ch_id in channels:
-            channel = await self.client.fetch_channel(ch_id[1])
-            async for message in channel.history(limit=10):
-                if message.author.bot and message.content == 'Your free wheel of fortune is now available!':
-                    return
+    async def announce_wheel(self, channels):
+        for channel in channels:
             await channel.send('Your free wheel of fortune is now available!')
         self.wheel = []
 

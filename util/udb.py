@@ -74,12 +74,6 @@ class UserDatabase(commands.Cog):
             val += str(entry[1]) + ' ' + unit + '\n\n'
         return rank, name, val
 
-    # repeat every 12 hours
-    @tasks.loop(hours=12)
-    async def vacuum(self):
-        self.c.execute("VACUUM")
-        self.conn.commit()
-
     def top_eighteen(self):
         self.c.execute("SELECT user_id FROM users ORDER BY pts DESC LIMIT 18")
         return self.c.fetchall()

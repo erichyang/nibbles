@@ -23,55 +23,32 @@ class Summon(commands.Cog):
     async def on_ready(self):
         print('Summon online')
 
-    # repeat every 24 hours
-    @tasks.loop(hours=24)
-    async def new_banner_rotation(self):
-        tdelta = datetime.today() - datetime(datetime.today().year, 1, 1)
-        percent = (float(tdelta.days) / 365)
-        whole = int(percent * 15)
-        partial = int(percent * 90) % 6
-        empty = 15 - whole - partial
-        braille = {
-            0: '',
-            1: '⣄',
-            2: '⣆',
-            3: '⣇',
-            4: '⣧',
-            5: '⣷',
-            6: '⣿'
-        }
-        partial = braille[partial]
-        year_progress = f'[{(whole * "⣿")}{partial}{(empty * "⣀")}]'
+    async def birthday(self, channels):
+        today = datetime.now().strftime("%m/%d")
+        birthday_ppl = []
+        with TinyDB('./data/birthday.json') as _db:
+            for people in _db.search(Query().birthday == today):
+                await self.udb.update('users', 'bal', '+14400', str(people['user']))
+                birthday_ppl.append(people['user'])
 
+        for channel in channels:
+            for birthday_boi in birthday_ppl:
+                if channel.guild.get_member(birthday_boi) is not None:
+                    await channel.send(f"It is {channel.guild.get_member(people['user']).mention}'s birthday today!")
+                    await channel.send(f"You received 14400 nom noms!")
+
+    async def new_banner_rotation(self, channels):
         five, four = self.gdb.new_banner()
-        desc = '5:star: ' + five + f'\n4:star: {four[0]}, {four[1]}, {four[2]}'
         self.pillow.generate_banner(five, four)
+        desc = '5:star: ' + five + f'\n4:star: {four[0]}, {four[1]}, {four[2]}'
         embed = discord.Embed(colour=discord.Colour(random.randint(0, 0xFFFFFF)),
                               description=desc,
                               timestamp=datetime.now())
 
-        channels = self.servers.all_primary_channel()
-        today = datetime.now().strftime("%m/%d")
-        with TinyDB('./data/birthday.json') as _db:
-            for people in _db.search(Query().birthday == today):
-                await self.udb.update('users', 'bal', '+14400', str(people['user']))
-
-        for ch_id in channels:
-            channel = await self.client.fetch_channel(ch_id[1])
-            async for message in channel.history(limit=10):
-                if message.author.bot and 'Progress Bar:' in message.content:
-                    return
-            await channel.send(f'{datetime.today().year} Progress Bar: \n{year_progress} {(percent * 100):.2f}%')
-            if ch_id[2]:
-                img = discord.File('./img/banner.png', 'banner.png')
-                embed.set_image(url="attachment://banner.png")
-                await channel.send(file=img, embed=embed)
-            with TinyDB('./data/birthday.json') as _db:
-                for people in _db.search(Query().birthday == today):
-                    if channel.guild.get_member(people['user']) is None:
-                        continue
-                    await channel.send(f"It is {channel.guild.get_member(people['user']).mention}'s birthday today!")
-                    await channel.send(f"You received 14400 nom noms!")
+        for channel in channels:
+            img = discord.File('./img/banner.png', 'banner.png')
+            embed.set_image(url="attachment://banner.png")
+            await channel.send(file=img, embed=embed)
 
     @commands.command(description='Find out the banner for today!\n.banner')
     async def banner(self, ctx):

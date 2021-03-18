@@ -51,12 +51,56 @@ def launch_tasks():
                                 datetime.min.time()) + timedelta(hours=6)
     midnight = midnight.astimezone(pytz.timezone("America/Chicago"))
     tdelta = midnight - now
-    launch_time = tdelta.total_seconds() % (24 * 3600)
-    time.sleep(launch_time)
-    client.get_cog('Gamble').announce.start()
-    client.get_cog('Summon').new_banner_rotation.start()
-    client.get_cog('UserDatabase').vacuum.start()
-    client.get_cog('GachaDatabase').vacuum.start()
+    midnight_time = tdelta.total_seconds() % (24 * 3600)
+    if midnight_time > 43200:
+        time.sleep(midnight_time-43200)
+    else:
+        time.sleep(midnight_time)
+    announcement_manager.start()
+
+
+async def announce_year_progress(channels):
+    tdelta = datetime.today() - datetime(datetime.today().year, 1, 1)
+    percent = (float(tdelta.days) / 365)
+    whole = int(percent * 15)
+    partial = int(percent * 90) % 6
+    empty = 15 - whole - partial
+    braille = {
+        0: '',
+        1: '⣄',
+        2: '⣆',
+        3: '⣇',
+        4: '⣧',
+        5: '⣷',
+        6: '⣿'
+    }
+    partial = braille[partial]
+    year_progress = f'[{(whole * "⣿")}{partial}{(empty * "⣀")}]'
+    for channel in channels:
+        await channel.send(f'{datetime.today().year} Progress Bar: \n{year_progress} {(percent * 100):.2f}%')
+
+
+@tasks.loop(hours=12)
+async def announcement_manager():
+    channels = servers.all_primary_channel()
+    announce_to = []
+    opt_gacha = []
+    for index, ch_id in enumerate(channels):
+        channel = await client.fetch_channel(ch_id[1])
+        if ch_id[2]:
+            opt_gacha.append(channel)
+        await client.get_cog('Summon').birthday(channel)
+        send = True
+        async for message in channel.history(limit=10):
+            if message.author.bot and message.content == 'Your free wheel of fortune is now available!':
+                send = False
+        if send:
+            announce_to.append(channel)
+    now = datetime.utcnow()
+    await client.get_cog('Gamble').announce_wheel(announce_to)
+    if now.hour == 18:
+        await client.get_cog('Summon').new_banner_rotation(opt_gacha)
+        await announce_year_progress(announce_to)
 
 
 @tasks.loop(minutes=random.randrange(10, 45))
@@ -106,7 +150,7 @@ async def on_guild_join(guild):
         member = await guild.fetch_member(client.user.id)
         if channel.permissions_for(member).send_messages:
             await channel.send('Please use .set_channel <channel_id> to tell nibbles where to speak!')
-            await channel.send('Use .opt_in_banner to receive the new genshin gacha banner daily!')
+            await channel.send('Use .opt_in_banner afterwards to receive the new genshin gacha banner daily!')
             return
 
 

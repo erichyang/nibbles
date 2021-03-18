@@ -64,11 +64,6 @@ class GachaDatabase(commands.Cog):
         self.c.execute(f"INSERT INTO {db} VALUES {content}")
         self.conn.commit()
 
-    @tasks.loop(hours=12)
-    async def vacuum(self):
-        self.c.execute("VACUUM")
-        self.conn.commit()
-
     def fetch_char_info(self, name, var='*'):
         self.c.execute(f'SELECT {var} FROM characters WHERE name = {name}')
         if var != '*':
