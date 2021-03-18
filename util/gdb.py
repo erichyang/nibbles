@@ -17,8 +17,7 @@ class GachaDatabase(commands.Cog):
         self.fives = ['Albedo', 'Ayaka', 'Diluc', 'Ganyu', 'Jean', 'Keqing', 'Klee', 'Mona', 'Qiqi', 'Tartaglia',
                       'Venti', 'Xiao', 'Zhongli', 'Hu Tao']
         self.fours = ['Amber', 'Barbara', 'Bennett', 'Beidou', 'Chongyun', 'Diona', 'Fischl', 'Kaeya', 'Lisa',
-                      'Ningguang',
-                      'Noelle', 'Razor', 'Sucrose', 'Xiangling', 'Xingqiu', 'Xinyan']
+                      'Ningguang', 'Noelle', 'Razor', 'Sucrose', 'Xiangling', 'Xingqiu', 'Xinyan', 'Rosaria']
         with open('./data/banner_info', 'r') as f:
             self.cur5 = f.readline()[:-1]
             self.cur4 = []
