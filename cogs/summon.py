@@ -31,8 +31,8 @@ class Summon(commands.Cog):
                 await self.udb.update('users', 'bal', '+14400', str(people['user']))
                 birthday_ppl.append(people['user'])
 
-        for channel in channels:
-            for birthday_boi in birthday_ppl:
+        for birthday_boi in birthday_ppl:
+            for channel in channels:
                 if channel.guild.get_member(birthday_boi) is not None:
                     await channel.send(f"It is {channel.guild.get_member(people['user']).mention}'s birthday today!")
                     await channel.send(f"You received 14400 nom noms!")
