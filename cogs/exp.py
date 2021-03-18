@@ -54,17 +54,17 @@ class Exp(commands.Cog):
             await self.idb.chat_primary_xp(message)
 
         if record is not None and not isinstance(message.author, discord.User):
-            temp = self.db.top_six('pts')
-            top_six = []
+            temp = self.db.top_four('pts')
+            top_four = []
             for person in temp:
-                top_six.append(person[0])
+                top_four.append(person[0])
             temp = self.db.top_eighteen()
             top_et = []
             for person in temp:
                 top_et.append(person[0])
 
             if message.guild.id == 607298393370394625:
-                await self.manage_exp_roles(message, record[1], top_six, top_et)
+                await self.manage_exp_roles(message, record[1], top_four, top_et)
 
     @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
@@ -165,14 +165,14 @@ class Exp(commands.Cog):
         await ctx.send('your birthday is now set as ' + birthday)
 
     @staticmethod
-    async def manage_exp_roles(message, xp, t6, t18):
+    async def manage_exp_roles(message, xp, t4, t18):
         if message.guild.id != 607298393370394625:
             return
         moons = message.guild.get_role(706989660244541540)
         planets = message.guild.get_role(709910163879886917)
         stars = message.guild.get_role(698255109406326876)
 
-        if xp >= 1000 and message.author.id in t6:
+        if xp >= 1500 and message.author.id in t4:
             await message.author.add_roles(stars)
             if planets in message.author.roles:
                 await message.author.remove_roles(planets)

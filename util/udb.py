@@ -52,8 +52,8 @@ class UserDatabase(commands.Cog):
         self.c.execute(f'SELECT {var} FROM {db}')
         return self.c.fetchone()
 
-    def top_six(self, category):
-        self.c.execute("SELECT user_id FROM users ORDER BY " + category + " DESC LIMIT 6")
+    def top_four(self, category):
+        self.c.execute("SELECT user_id FROM users ORDER BY " + category + " DESC LIMIT 4")
         return self.c.fetchall()
 
     def lb(self, guild):
