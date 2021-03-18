@@ -58,6 +58,9 @@ class Summon(commands.Cog):
 
         for ch_id in channels:
             channel = await self.client.fetch_channel(ch_id[1])
+            async for message in channel.history(limit=10):
+                if message.author.bot and 'Progress Bar:' in message.content:
+                    return
             await channel.send(f'{datetime.today().year} Progress Bar: \n{year_progress} {(percent * 100):.2f}%')
             if ch_id[2]:
                 img = discord.File('./img/banner.png', 'banner.png')
