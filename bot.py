@@ -97,7 +97,7 @@ async def announcement_manager():
             announce_to.append(channel)
     now = datetime.utcnow()
     await client.get_cog('Gamble').announce_wheel(announce_to)
-    if now.hour == 18:
+    if now.hour != 18:
         await client.get_cog('Summon').birthday(channels)
         await announce_year_progress(announce_to)
         await client.get_cog('Summon').new_banner_rotation(opt_gacha)
