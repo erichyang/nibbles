@@ -93,7 +93,7 @@ async def announcement_manager():
         async for message in channel.history(limit=10):
             if message.author.bot and message.content == 'Your free wheel of fortune is now available!':
                 send = False
-        if send:
+        if send and channel.guild.me.guild_permissions.send_messages:
             announce_to.append(channel)
     now = datetime.utcnow()
     await client.get_cog('Gamble').announce_wheel(announce_to)
@@ -147,8 +147,7 @@ async def on_command_error(ctx, error):
 
 async def on_guild_join(guild):
     for channel in guild.text_channels:
-        member = await guild.fetch_member(client.user.id)
-        if channel.permissions_for(member).send_messages:
+        if channel.guild.me.guild_permissions.send_messages:
             await channel.send('Please use .set_channel <channel_id> to tell nibbles where to speak!')
             await channel.send('Use .opt_in_banner afterwards to receive the new genshin gacha banner daily!')
             return

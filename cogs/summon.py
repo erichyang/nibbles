@@ -33,7 +33,8 @@ class Summon(commands.Cog):
 
         for birthday_boi in birthday_ppl:
             for channel in channels:
-                if channel.guild.get_member(birthday_boi) is not None:
+                if channel.guild.get_member(birthday_boi) is not None and \
+                        channel.guild.me.guild_permissions.send_messages:
                     await channel.send(f"It is {channel.guild.get_member(people['user']).mention}'s birthday today!")
                     await channel.send(f"You received 14400 nom noms!")
 
