@@ -1,7 +1,6 @@
 import math
 import random
 from collections import Counter
-from functools import cache
 
 import discord
 from discord.ext import commands
@@ -147,7 +146,6 @@ class InventoryDatabase(commands.Cog):
 
         await ctx.send('reply to this message with a number to check a specific character in your inventory!')
 
-    @cache
     def main_inventory_view(self, _id, inv, color, author, sect):
         if 'primary' in inv:
             char_name = inv.get('chars')[inv.get('primary') - 1][0]
