@@ -40,7 +40,9 @@ class Todo(commands.Cog):
                 db.update({'user': ctx.author.id, 'todo': new_list}, Query().user == ctx.author.id)
             else:
                 db.insert({'user': ctx.author.id, 'todo': [item]})
-
+        async for message in ctx.channel.history(limit=10):
+            if message.author.bot and 'todo' in message.content:
+                await message.delete()
         await ctx.send(content='Added to your todo list!', embed=todo_embed(ctx.author.id,
                                                                             ctx.author.display_name if ctx.author.nick is None else ctx.author.nick))
 
@@ -52,6 +54,9 @@ class Todo(commands.Cog):
             user = ctx.author
         name = user.display_name if user.nick is None else user.nick
         embed = todo_embed(user.id, name)
+        async for message in ctx.channel.history(limit=10):
+            if message.author.bot and 'todo' in message.content:
+                await message.delete()
         if embed is not None:
             await ctx.send(content=f"{name}'s to-do list", embed=embed)
         else:
@@ -72,12 +77,15 @@ class Todo(commands.Cog):
             if isinstance(value, str):
                 new_list.remove(value)
             elif len(todo) >= value:
-                new_list.pop(value-1)
+                new_list.pop(value - 1)
             else:
                 await ctx.send('such task does not exist :(')
                 return
             db.update({'user': ctx.author.id, 'todo': new_list}, Query().user == ctx.author.id)
-            await ctx.send(content='task has been checked off!', embed=todo_embed(ctx.author.id, ctx.author.display_name if ctx.author.nick is None else ctx.author.nick))
+            async for message in ctx.channel.history(limit=10):
+                if message.author.bot and 'todo' in message.content:
+                    await message.delete()
+            await ctx.send(content='todo task has been checked off!', embed=todo_embed(ctx.author.id, ctx.author.display_name if ctx.author.nick is None else ctx.author.nick))
 
 
 def setup(client):

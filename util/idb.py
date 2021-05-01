@@ -1,6 +1,7 @@
 import math
 import random
 from collections import Counter
+from functools import cache
 
 import discord
 from discord.ext import commands
@@ -76,6 +77,37 @@ def add_book(user_id, color):
         db.update({'books': temp_books}, Query().user == user_id)
 
 
+def partition(array, start, end, compare_func):
+    pivot = array[start]
+    low = start + 1
+    high = end
+
+    while True:
+        while low <= high and compare_func(array[high], pivot):
+            high = high - 1
+
+        while low <= high and not compare_func(array[low], pivot):
+            low = low + 1
+
+        if low <= high:
+            array[low], array[high] = array[high], array[low]
+        else:
+            break
+
+    array[start], array[high] = array[high], array[start]
+
+    return high
+
+
+def quick_sort(array, start, end, compare_func):
+    if start >= end:
+        return
+
+    p = partition(array, start, end, compare_func)
+    quick_sort(array, start, p - 1, compare_func)
+    quick_sort(array, p + 1, end, compare_func)
+
+
 class InventoryDatabase(commands.Cog):
 
     def __init__(self, client):
@@ -115,6 +147,7 @@ class InventoryDatabase(commands.Cog):
 
         await ctx.send('reply to this message with a number to check a specific character in your inventory!')
 
+    @cache
     def main_inventory_view(self, _id, inv, color, author, sect):
         if 'primary' in inv:
             char_name = inv.get('chars')[inv.get('primary') - 1][0]
@@ -127,6 +160,9 @@ class InventoryDatabase(commands.Cog):
         start_index = 15 * sect
         end_index = 15 + 15 * sect
         characters = inv.get('chars')
+        if characters is None:
+            return
+        quick_sort(characters, 0, len(characters) - 1, lambda x, y: x[1] < y[1])
         if end_index >= len(characters):
             end_index = len(characters)
         for index, char in enumerate(characters[start_index:end_index]):

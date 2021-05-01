@@ -19,7 +19,7 @@ class UserDatabase(commands.Cog):
     # add cog to main system
     @commands.Cog.listener()
     async def on_ready(self):
-        print('DataBase online')
+        print('User DataBase online')
 
     async def set_time(self, db: str, user: str):
         self.c.execute(f"UPDATE {db} SET time = '{datetime.now().strftime('%H:%M:%S')}' WHERE user_id = {user}")
@@ -52,8 +52,12 @@ class UserDatabase(commands.Cog):
         self.c.execute(f'SELECT {var} FROM {db}')
         return self.c.fetchone()
 
-    def top_four(self, category):
-        self.c.execute("SELECT user_id FROM users ORDER BY " + category + " DESC LIMIT 4")
+    def top_six(self, category):
+        self.c.execute("SELECT user_id FROM users ORDER BY " + category + " DESC LIMIT 6")
+        return self.c.fetchall()
+
+    def top_eighteen(self):
+        self.c.execute("SELECT user_id FROM users ORDER BY pts DESC LIMIT 18")
         return self.c.fetchall()
 
     def lb(self, guild):
@@ -74,9 +78,6 @@ class UserDatabase(commands.Cog):
             val += str(entry[1]) + ' ' + unit + '\n\n'
         return rank, name, val
 
-    def top_eighteen(self):
-        self.c.execute("SELECT user_id FROM users ORDER BY pts DESC LIMIT 18")
-        return self.c.fetchall()
 
 
 def setup(client):

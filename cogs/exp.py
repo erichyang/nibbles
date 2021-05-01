@@ -53,18 +53,9 @@ class Exp(commands.Cog):
             await self.db.set_time(db='users', user=str(_id))
             await self.idb.chat_primary_xp(message)
 
-        if record is not None and not isinstance(message.author, discord.User):
-            temp = self.db.top_four('pts')
-            top_four = []
-            for person in temp:
-                top_four.append(person[0])
-            temp = self.db.top_eighteen()
-            top_et = []
-            for person in temp:
-                top_et.append(person[0])
-
-            if message.guild.id == 607298393370394625:
-                await self.manage_exp_roles(message, record[1], top_four, top_et)
+        if record is not None and not isinstance(message.author,
+                                                 discord.User) and message.guild.id == 607298393370394625:
+            await self.manage_exp_roles(message.guild, message.author)
 
     @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
@@ -91,6 +82,7 @@ class Exp(commands.Cog):
                     await self.db.insert(db='users', init_val=f"({str(_id)}, 0, 160, '{now.strftime('%H:%M:%S')}', '')")
             if member.guild.id == 607298393370394625:
                 await self.db.update(db='users', var='pts', amount='+' + str(val), user=str(member.id))
+                await self.manage_exp_roles(member.guild, member)
             await self.db.update(db='users', var='bal', amount='+' + str(val), user=str(member.id))
 
     # commands
@@ -164,32 +156,42 @@ class Exp(commands.Cog):
             bd.insert({'user': ctx.author.id, 'birthday': birthday})
         await ctx.send('your birthday is now set as ' + birthday)
 
-    @staticmethod
-    async def manage_exp_roles(message, xp, t4, t18):
-        if message.guild.id != 607298393370394625:
-            return
-        moons = message.guild.get_role(706989660244541540)
-        planets = message.guild.get_role(709910163879886917)
-        stars = message.guild.get_role(698255109406326876)
+    async def manage_exp_roles(self, guild, author):
+        xp = self.db.find_user(db='users', user=str(author.id))[1]
 
-        if xp >= 1500 and message.author.id in t4:
-            await message.author.add_roles(stars)
-            if planets in message.author.roles:
-                await message.author.remove_roles(planets)
-            if moons in message.author.roles:
-                await message.author.remove_roles(moons)
-        elif xp >= 500 and message.author.id in t18:
-            await message.author.add_roles(planets)
-            if stars in message.author.roles:
-                await message.author.remove_roles(stars)
-            if moons in message.author.roles:
-                await message.author.remove_roles(moons)
+        temp = self.db.top_six('pts')
+        t6 = []
+        for person in temp:
+            t6.append(person[0])
+        temp = self.db.top_eighteen()
+        t18 = []
+        for person in temp:
+            t18.append(person[0])
+
+        if guild.id != 607298393370394625:
+            return
+        moons = guild.get_role(706989660244541540)
+        planets = guild.get_role(709910163879886917)
+        stars = guild.get_role(698255109406326876)
+
+        if xp >= 1500 and author.id in t6:
+            await author.add_roles(stars)
+            if planets in author.roles:
+                await author.remove_roles(planets)
+            if moons in author.roles:
+                await author.remove_roles(moons)
+        elif xp >= 250 and author.id in t18:
+            await author.add_roles(planets)
+            if stars in author.roles:
+                await author.remove_roles(stars)
+            if moons in author.roles:
+                await author.remove_roles(moons)
         else:
-            await message.author.add_roles(moons)
-            if stars in message.author.roles:
-                await message.author.remove_roles(stars)
-            if planets in message.author.roles:
-                await message.author.remove_roles(planets)
+            await author.add_roles(moons)
+            if stars in author.roles:
+                await author.remove_roles(stars)
+            if planets in author.roles:
+                await author.remove_roles(planets)
 
 
 def setup(client):
