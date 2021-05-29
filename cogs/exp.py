@@ -39,7 +39,7 @@ class Exp(commands.Cog):
             if not message.author.bot:
                 await self.db.insert(db='users', init_val=f"({str(_id)}, 0, 160, '{now.strftime('%H:%M:%S')}', '')")
         else:
-            if len(message.content) < 2:
+            if len(message.content) < 2 or message.content[0] == '$':
                 return
             last = datetime.strptime(record[3], '%H:%M:%S')
             tdelta = now - last
