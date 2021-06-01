@@ -25,7 +25,7 @@ def transfer_card(user_id, character):
         characters = user.get('trading_cards')
         if characters is not None and character in characters:
             characters.remove(character)
-            db.update({'trading_card': characters}, Query().user == user)
+            db.update({'trading_cards': characters}, Query().user == user_id)
             return 'done'
         else:
             return 'fail'
