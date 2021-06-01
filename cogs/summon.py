@@ -57,9 +57,9 @@ class Summon(commands.Cog):
         await ctx.send(content="Today's banner", file=discord.File('./img/banner.png', 'banner.png'))
 
     # commands
-    @commands.command(aliases=['wish_event', 'summon_event'],
+    @commands.command(aliases=['we'],
                       description='wish for new characters and levels on the rotating event banner at a price of 160 '
-                                  'nom noms each\nwish_event 1; .event_wish 10; .summon_event 10')
+                                  'nom noms each\n.we 10')
     async def event_wish(self, ctx, amount=1):
         if len(idb.search(ctx.author.id)) == 0:
             idb.create_user(ctx.author.id)
@@ -98,9 +98,9 @@ class Summon(commands.Cog):
         # print(categories)
         # print(results)
 
-    @commands.command(aliases=['wish_reg', 'summon_reg'],
+    @commands.command(aliases=['wr'],
                       description='wish for new characters and levels on the rotating event banner at a price of 160 '
-                                  'nom noms each\nwish_reg 1; .summon_reg 10')
+                                  'nom noms each\nwr 10')
     async def reg_wish(self, ctx, amount=1):
         if len(idb.search(ctx.author.id)) == 0:
             idb.create_user(ctx.author.id)

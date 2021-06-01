@@ -119,7 +119,7 @@ class InventoryDatabase(commands.Cog):
     async def on_ready(self):
         print('Inventory Database online')
 
-    @commands.command(description='check your inventory full of goodies!\n.inventory')
+    @commands.command(aliases=['inv'], description='check your inventory full of goodies!\n.inventory; .inv')
     async def inventory(self, ctx, _id=0):
         _id = ctx.author.id if _id == 0 else _id
         if len(search(_id)) == 0:
@@ -171,8 +171,8 @@ class InventoryDatabase(commands.Cog):
         embed.set_footer(text=f'Page {sect + 1}')
         return embed
 
-    @commands.command(description='navigate to a detailed view of your character without using inventory!\n'
-                                  '.character Ganyu')
+    @commands.command(aliases=['char'], description='navigate to a detailed view of your character without using '
+                                                    'inventory!\n.character Ganyu; .char Eula')
     async def character(self, ctx, character_name):
         character_name = character_name[0].upper() + character_name[1:]
         if character_name == 'Hu':
