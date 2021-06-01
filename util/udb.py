@@ -18,7 +18,7 @@ class UserDatabase(commands.Cog):
     async def on_ready(self):
         print('User DataBase online')
 
-    @commands.command()
+    @commands.command(description='check your current rank and experience in Project Void!')
     async def rank(self, ctx):
         if ctx.guild.id != 607298393370394625:
             await ctx.send('sowwy but leaderboard is only available in Project Void')

@@ -152,17 +152,28 @@ async def on_guild_join(guild):
             await channel.send('Use .opt_in_banner afterwards to receive the new genshin gacha banner daily!')
             return
 
+utility = ['choose', 'poll', 'get_pfp', 'size', 'profile', 'set_desc', 'set_birthday']
+genshin = ['banner', 'event_wish', 'reg_wish', 'inventory', 'character', 'pity']
+economy = ['gamble_black_jack', 'gamble_coin', 'bal', 'transfer']
+leaderboard = ['leaderboard', 'rank']
+todo = ['todo_list', 'todo_add', 'todo_check']
 
 @client.command(name='help', hidden=True)
 async def descriptions(ctx):
-    embed_var = discord.Embed(title="Nibbles is here to help",
-                              color=random.randint(0, 0xFFFFFF))
-    for item in client.commands:
-        if not item.hidden:
-            embed_var.add_field(name=item.name,
-                                value=item.description,
-                                inline=False)
-    await ctx.send(embed=embed_var)
+    desc = 'Here are the categories of nibbles\'s commands! React to the corresponding category to learn more!'
+    embed = discord.Embed(title="Nibbles is here to help", color=random.randint(0, 0xFFFFFF), description=desc)
+
+    embed.add_field(name='**Utility** 🔧', value=str(utility))
+    embed.add_field(name='**Genshin** <:genshin:849405822781227069>', value=str(genshin))
+    embed.add_field(name='**Economy** 💰', value=str(economy))
+    embed.add_field(name='**Leaderboard** 🌟', value=str(leaderboard))
+    embed.add_field(name='**To-do** ✅', value=str(todo))
+    help_msg = await ctx.send(content='Help menu', embed=embed)
+    await help_msg.add_reaction('🔧')
+    await help_msg.add_reaction('<:genshin:849405822781227069>')
+    await help_msg.add_reaction('💰')
+    await help_msg.add_reaction('🌟')
+    await help_msg.add_reaction('✅')
 
 
 @client.command(hidden=True)
@@ -191,6 +202,42 @@ async def on_message(message):
         await message.channel.send(f'{random.choice(eight_ball)}\nuse .help for more!')
     else:
         await client.process_commands(message)
+
+
+@client.event
+async def on_reaction_add(reaction, user):
+    if reaction.message.content == 'Help menu' and not user.bot:
+        embed = discord.Embed.Empty
+        if reaction.emoji == '🔧':
+            embed = discord.Embed(title='Utility')
+            for comm_name in utility:
+                embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
+        elif str(reaction.emoji) == '<:genshin:849405822781227069>':
+            embed = discord.Embed(title='Genshin')
+            for comm_name in genshin:
+                embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
+            print(embed)
+        elif reaction.emoji == '💰':
+            embed = discord.Embed(title='Economy')
+            for comm_name in economy:
+                embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
+        elif reaction.emoji == '🌟':
+            embed = discord.Embed(title='Leaderboard')
+            for comm_name in leaderboard:
+                embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
+        elif reaction.emoji == '✅':
+            embed = discord.Embed(title='To-do List')
+            for comm_name in todo:
+                embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
+        await reaction.message.edit(embed=embed)
+
+
+def help_embed_value(comm_name):
+    command = client.get_command(comm_name)
+    value = command.description
+    if len(command.aliases) != 0:
+        value += f"\n{'aliases' if len(command.aliases) > 1 else 'alias'}: {command.aliases}"
+    return value
 
 
 @client.event
