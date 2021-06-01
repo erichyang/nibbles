@@ -144,8 +144,6 @@ class InventoryDatabase(commands.Cog):
             embed.add_field(name='Transferable cards', value=str(characters).replace("'", "")[9:-2])
         await ctx.send(embed=embed)
 
-        await ctx.send('reply to this message with a number to check a specific character in your inventory!')
-
     def main_inventory_view(self, _id, inv, color, author, sect):
         if 'primary' in inv:
             char_name = inv.get('chars')[inv.get('primary') - 1][0]
@@ -213,11 +211,6 @@ class InventoryDatabase(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.reference is not None:
-            replied_msg = message.reference.cached_message
-            if replied_msg is not None and replied_msg.author.bot and replied_msg.content == \
-                    'reply to this message with a number to check a specific character in your inventory!':
-                await self.query_char(message)
         if isinstance(message.channel, discord.channel.DMChannel) and message.author.id in self.book_select:
             if message.content.isdigit():
                 msg = self.book_select.get(message.author.id)
