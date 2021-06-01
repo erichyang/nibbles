@@ -231,6 +231,7 @@ class Pillow(commands.Cog):
         with io.BytesIO() as image_binary:
             bg.save(image_binary, 'PNG')
             image_binary.seek(0)
+            await asyncio.sleep(3)
             await ctx.send(file=discord.File(fp=image_binary, filename='results.png'))
 
     def generate_lb(self, ranks, names, pts):

@@ -71,6 +71,8 @@ class Summon(commands.Cog):
         if not self._wish_check_bal(ctx.author.id, amount):
             await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
             return
+        await self.udb.update('users', 'bal', '-' + str(160 * amount), str(ctx.author.id))
+
         embed = discord.Embed()
         categories = await self._wish_rarity_calc(ctx.author.id, 'event', amount)
         if categories[0] > 0 or categories[1] > 0 and amount >= 5:
@@ -87,9 +89,7 @@ class Summon(commands.Cog):
         await ctx.send(embed=embed, delete_after=5)
         results = self._wish_event_results(categories)
         await self.pillow.generate_wishes(ctx, results)
-        time.sleep(3)
 
-        await self.udb.update('users', 'bal', '-' + str(160 * amount), str(ctx.author.id))
         for item in results:
             if 'book' in item:
                 idb.add_book(ctx.author.id, item)
@@ -110,6 +110,7 @@ class Summon(commands.Cog):
         if not self._wish_check_bal(ctx.author.id, amount):
             await ctx.send(f'you cannot afford {amount} summon{"" if amount == 1 else "s"}!')
             return
+        await self.udb.update('users', 'bal', '-' + str(160 * amount), str(ctx.author.id))
 
         categories = await self._wish_rarity_calc(ctx.author.id, 'reg', amount)
         embed = discord.Embed()
@@ -128,9 +129,6 @@ class Summon(commands.Cog):
         await ctx.send(embed=embed, delete_after=5)
         results = self._wish_reg_results(categories)
         await self.pillow.generate_wishes(ctx, results)
-        time.sleep(3)
-
-        await self.udb.update('users', 'bal', '-' + str(160 * amount), str(ctx.author.id))
 
         for item in results:
             if 'book' in item:

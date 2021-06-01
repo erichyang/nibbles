@@ -182,16 +182,14 @@ class Gamble(commands.Cog):
         elif 40 <= result <= 50:
             prize = 80
 
-        time.sleep(4)
-
         embed = discord.Embed(title="**REWARDS**", colour=discord.Colour(random.randint(0, 0xFFFFFF)))
         embed.set_thumbnail(url=author.avatar_url)
         embed.set_author(name=str(author))
         embed.add_field(name="Prize", value=str(prize) + " nom noms", inline=False)
         embed.add_field(name="Current Balance", value=str(bal[0] + prize), inline=False)
 
+        await asyncio.sleep(4)
         await self.db.update(db='users', var='bal', amount='+' + (str(prize)), user=str(author.id))
-
         await msg.edit(content='Wheel of Fortune Results', embed=embed)
 
     @commands.command(description='give your money to someone else, but why would you do that if you could give them '
