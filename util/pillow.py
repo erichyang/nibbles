@@ -1,3 +1,4 @@
+import asyncio
 import io
 import os
 import requests
@@ -17,7 +18,7 @@ class Pillow(commands.Cog):
         self.subtitle_font = ImageFont.truetype(
             './img/fonts/Tuesday Jingle.ttf', 120)
         self.body_font = ImageFont.truetype('./img/fonts/ACT.regular.ttf', 100)
-        self.hand_font = ImageFont.truetype('./img/fonts/GHMS.ttf', 50)
+        self.hand_font = ImageFont.truetype('./img/fonts/Kitnoms-Regular.ttf', 50)
         self.udb = UserDatabase(self.client)
         self.char_lib = characters.Characters(client)
 
@@ -239,9 +240,10 @@ class Pillow(commands.Cog):
 
         text_layer = Image.new('RGBA', bg.size)
         txt = ImageDraw.Draw(text_layer)
-        txt.text((100, 350), ranks, (255, 255, 255), font=self.hand_font)
-        txt.text((200, 350), names, (255, 255, 255), font=self.hand_font)
-        txt.text((800, 350), pts, (255, 255, 255), font=self.hand_font)
+        WHITE = (0, 0, 0)
+        txt.text((45, 125), ranks, WHITE, font=self.hand_font, spacing=23)
+        txt.text((90, 125), names, WHITE, font=self.hand_font, spacing=23)
+        txt.text((350, 125), pts, WHITE, font=self.hand_font, spacing=23)
         bg = Image.alpha_composite(bg, text_layer)
         with io.BytesIO() as image_binary:
             bg.save(image_binary, 'PNG')

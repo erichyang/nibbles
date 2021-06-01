@@ -74,12 +74,13 @@ class UserDatabase(commands.Cog):
         return self.c.fetchall()
 
     def lb(self, guild):
-        self.c.execute("SELECT user_id, pts FROM users ORDER BY pts DESC LIMIT 18")
+        self.c.execute("SELECT user_id, pts FROM users ORDER BY pts DESC")
         unit = 'pts'
         lb = self.c.fetchall()
         rank = ''
         name = ''
         val = ''
+        count = 0
         for i, entry in enumerate(lb):
             member = guild.get_member(lb[i][0])
             if member is None:
@@ -89,6 +90,9 @@ class UserDatabase(commands.Cog):
             name += member.display_name if member.nick is None else member.nick
             name += '\n\n'
             val += str(entry[1]) + ' ' + unit + '\n\n'
+            count += 1
+            if count == 10:
+                break
         return rank, name, val
 
 
