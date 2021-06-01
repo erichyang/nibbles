@@ -163,10 +163,6 @@ class Exp(commands.Cog):
         t6 = []
         for person in temp:
             t6.append(person[0])
-        temp = self.db.top_eighteen()
-        t18 = []
-        for person in temp:
-            t18.append(person[0])
 
         if guild.id != 607298393370394625:
             return
@@ -180,7 +176,7 @@ class Exp(commands.Cog):
                 await author.remove_roles(planets)
             if moons in author.roles:
                 await author.remove_roles(moons)
-        elif xp >= 250 and author.id in t18:
+        elif xp >= 250 and author.id:
             await author.add_roles(planets)
             if stars in author.roles:
                 await author.remove_roles(stars)

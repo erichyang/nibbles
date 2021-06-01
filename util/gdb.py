@@ -14,10 +14,9 @@ class GachaDatabase(commands.Cog):
         self.conn = sqlite3.connect('./data/gacha.db')
         # pity, banner, rates
         self.c = self.conn.cursor()
-        self.fives = ['Albedo', 'Ayaka', 'Diluc', 'Ganyu', 'Jean', 'Keqing', 'Klee', 'Mona', 'Qiqi', 'Tartaglia',
-                      'Venti', 'Xiao', 'Zhongli', 'Hu Tao']
-        self.fours = ['Amber', 'Barbara', 'Bennett', 'Beidou', 'Chongyun', 'Diona', 'Fischl', 'Kaeya', 'Lisa',
-                      'Ningguang', 'Noelle', 'Razor', 'Sucrose', 'Xiangling', 'Xingqiu', 'Xinyan', 'Rosaria']
+        characters = client.get_cog('Characters')
+        self.fives, self.fours = characters.all_characters()
+
         with open('./data/banner_info', 'r') as f:
             self.cur5 = f.readline()[:-1]
             self.cur4 = []

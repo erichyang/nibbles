@@ -55,26 +55,15 @@ class ServerManage(commands.Cog):
 
     @commands.command(hidden=True)
     @has_permissions(manage_guild=True)
-    async def opt_in_banner(self, ctx):
+    async def opt_banner(self, ctx, flag: True):
         if self.find_primary_channel(ctx.guild.id) is None:
             return
         else:
-            self.c.execute(f"UPDATE servers SET banner = TRUE WHERE guild = {ctx.guild.id}")
+            self.c.execute(f"UPDATE servers SET banner = {1 if flag else 0} WHERE guild = {ctx.guild.id}")
         self.conn.commit()
-        await ctx.send('Opted in to gacha banner announcement!')
+        await ctx.send(f'Opted {flag} for gacha banner announcement!')
 
-    @commands.command(hidden=True)
-    @has_permissions(manage_guild=True)
-    async def opt_out_banner(self, ctx):
-        if self.find_primary_channel(ctx.guild.id) is None:
-            return
-        else:
-            self.c.execute(f"UPDATE servers SET banner = FALSE WHERE guild = {ctx.guild.id}")
-        self.conn.commit()
-        await ctx.send('Opted out of gacha banner announcement!')
-
-    @opt_in_banner.error
-    @opt_out_banner.error
+    @opt_banner.error
     @set_channel.error
     async def permission_error(self, ctx, error):
         await ctx.send("you don't have permissions to do that! <:pout:734597385258270791>")

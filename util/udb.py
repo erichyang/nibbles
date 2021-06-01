@@ -1,9 +1,6 @@
-import random
 import sqlite3
 
-import discord
 from discord.ext import commands, tasks
-from discord.ext.commands import has_permissions
 from datetime import datetime
 
 
@@ -74,10 +71,6 @@ class UserDatabase(commands.Cog):
 
     def top_six(self, category):
         self.c.execute("SELECT user_id FROM users ORDER BY " + category + " DESC LIMIT 6")
-        return self.c.fetchall()
-
-    def top_eighteen(self):
-        self.c.execute("SELECT user_id FROM users ORDER BY pts DESC LIMIT 18")
         return self.c.fetchall()
 
     def lb(self, guild):

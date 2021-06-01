@@ -17,6 +17,18 @@ class Characters(commands.Cog):
     async def on_ready(self):
         print('Characters online')
 
+    def all_characters(self):
+        self.c.execute(f'SELECT name FROM characters WHERE rarity = 5')
+        fives = self.c.fetchall()
+        self.c.execute(f'SELECT name FROM characters WHERE rarity = 4')
+        fours = self.c.fetchall()
+
+        for index, five in enumerate(fives):
+            fives[index] = five[0]
+        for index, four in enumerate(fours):
+            fours[index] = four[0]
+        return fives, fours
+
     def find_character(self, char_name: str, var: str = '*'):
         self.c.execute(
             f"SELECT {var} FROM characters WHERE name = '{char_name}'")
@@ -24,13 +36,6 @@ class Characters(commands.Cog):
             return self.c.fetchone()[0]
         else:
             return self.c.fetchone()
-
-    # @commands.command(hidden=True)
-    # @has_permissions(manage_guild=True)
-    # async def insert_character(self, *, param):
-    #     # c.execute("INSERT INTO users VALUES (123456789, 0, 0)")
-    #     self.c.execute(f"INSERT INTO characters VALUES ({param})")
-    #     self.conn.commit()
 
     def find(self, var: str):
         self.c.execute(f'SELECT {var} FROM characters')

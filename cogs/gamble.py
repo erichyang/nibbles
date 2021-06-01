@@ -1,8 +1,11 @@
+import asyncio
+from threading import Thread
+
 import discord
 
 import time
 from datetime import datetime
-from discord.ext import commands, tasks
+from discord.ext import commands
 from discord.ext.commands import has_permissions, cooldown, BucketType, CommandOnCooldown
 import random
 
@@ -136,14 +139,6 @@ class Gamble(commands.Cog):
         if isinstance(error, CommandOnCooldown):
             await ctx.send(f'please wait {error.retry_after:,.2f} seconds before using coin flip again')
             await ctx.send('do you want to reconsider your bet?')
-
-    # @commands.command(aliases=['wheel', 'spin'],
-    #                   description='spin a wheel of fortune for free every 12 hours! '
-    #                               'You can win prizes from :cookie:80-10000\n.gamble_wheel; .wheel; .spin')
-    @commands.command(aliases=['spin'], description='deprecated spinning command')
-    async def wheel(self, ctx):
-        await ctx.send('Currently, your first message after each reset will automatically roll the wheel!')
-        await ctx.send('So go ahead and say hi to everyone for your wheel :D')
 
     @commands.Cog.listener()
     async def on_message(self, msg):

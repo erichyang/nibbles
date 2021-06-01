@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import random
 
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 from tinydb import TinyDB, Query
 
 from util import udb, gdb, idb, pillow
@@ -95,8 +95,6 @@ class Summon(commands.Cog):
                 idb.add_book(ctx.author.id, item)
             else:
                 idb.add_char(ctx.author.id, item)
-        # print(categories)
-        # print(results)
 
     @commands.command(aliases=['wr'],
                       description='wish for new characters and levels on the rotating event banner at a price of 160 '
