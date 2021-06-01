@@ -21,6 +21,26 @@ class UserDatabase(commands.Cog):
     async def on_ready(self):
         print('User DataBase online')
 
+    @commands.command()
+    async def rank(self, ctx):
+        if ctx.guild.id != 607298393370394625:
+            await ctx.send('sowwy but leaderboard is only available in Project Void')
+            return
+        if len(ctx.message.mentions) == 0:
+            user_id = ctx.author.id
+        else:
+            user_id = ctx.message.mentions[0].id
+        self.c.execute("SELECT user_id, pts FROM users ORDER BY pts DESC")
+        lb = self.c.fetchall()
+        rank = -1
+        pts = 0
+        for i, entry in enumerate(lb):
+            if entry[0] == user_id:
+                rank = i+1
+                pts = entry[1]
+                break
+        await ctx.send(f'Rank: {rank} <:KannaWow:843900425555410996>\nPoints: {pts} ⭐')
+
     async def set_time(self, db: str, user: str):
         self.c.execute(f"UPDATE {db} SET time = '{datetime.now().strftime('%H:%M:%S')}' WHERE user_id = {user}")
         self.conn.commit()
