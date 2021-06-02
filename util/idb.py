@@ -119,8 +119,8 @@ class InventoryDatabase(commands.Cog):
     async def on_ready(self):
         print('Inventory Database online')
 
-    @commands.command(aliases=['inv'], description='check your inventory full of goodies!\n.inventory; .inv')
-    async def inventory(self, ctx, _id=0):
+    @commands.command(aliases=['ginv'], description='check your inventory full of goodies!\n.inventory; .inv')
+    async def genshin_inventory(self, ctx, _id=0):
         _id = ctx.author.id if _id == 0 else _id
         if len(search(_id)) == 0:
             await ctx.send("you haven't summoned yet!")

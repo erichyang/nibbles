@@ -153,10 +153,11 @@ async def on_guild_join(guild):
             return
 
 utility = ['choose', 'poll', 'get_pfp', 'size', 'profile', 'set_desc', 'set_birthday']
-genshin = ['banner', 'event_wish', 'reg_wish', 'inventory', 'character', 'pity']
+genshin = ['banner', 'event_wish', 'reg_wish', 'genshin_inventory', 'character', 'pity']
 economy = ['gamble_black_jack', 'gamble_coin', 'bal', 'transfer']
 leaderboard = ['leaderboard', 'rank']
 todo = ['todo_list', 'todo_add', 'todo_check']
+
 
 @client.command(name='help', hidden=True)
 async def descriptions(ctx):
@@ -166,13 +167,15 @@ async def descriptions(ctx):
     embed.add_field(name='**Utility** 🔧', value=str(utility))
     embed.add_field(name='**Genshin** <:genshin:849405822781227069>', value=str(genshin))
     embed.add_field(name='**Economy** 💰', value=str(economy))
-    embed.add_field(name='**Leaderboard** 🌟', value=str(leaderboard))
+    if ctx.guild.id == 607298393370394625:
+        embed.add_field(name='**Leaderboard** 🌟', value=str(leaderboard))
     embed.add_field(name='**To-do** ✅', value=str(todo))
     help_msg = await ctx.send(content='Help menu', embed=embed)
     await help_msg.add_reaction('🔧')
     await help_msg.add_reaction('<:genshin:849405822781227069>')
     await help_msg.add_reaction('💰')
-    await help_msg.add_reaction('🌟')
+    if ctx.guild.id == 607298393370394625:
+        await help_msg.add_reaction('🌟')
     await help_msg.add_reaction('✅')
 
 
