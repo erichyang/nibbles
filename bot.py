@@ -145,6 +145,7 @@ async def on_command_error(ctx, error):
             print(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
 
 
+@client.event
 async def on_guild_join(guild):
     await guild.owner.send("Haiii I'm nibbles, I am happy to meet you <a:ChikaYay:846769277944332319>")
     await guild.owner.send("Set up for nibbles is ez! There are numerous things that nibbles can do, use the command "
