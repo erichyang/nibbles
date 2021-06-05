@@ -15,7 +15,7 @@ class Purge(commands.Cog):
         print('Purge online')
 
     # commands
-    @commands.command(hidden=True)
+    @commands.command(hidden=True, description='delete the last number of messages\n.purge 10')
     @has_permissions(manage_messages=True)
     async def purge(self, ctx, amount):
         await ctx.channel.purge(limit=int(amount) + 1)

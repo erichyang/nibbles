@@ -157,11 +157,13 @@ genshin = ['banner', 'event_wish', 'reg_wish', 'genshin_inventory', 'character',
 economy = ['gamble_black_jack', 'gamble_coin', 'bal', 'transfer']
 leaderboard = ['leaderboard', 'rank']
 todo = ['todo_list', 'todo_add', 'todo_check']
+mod = ['purge', 'settings']
 
 
 @client.command(name='help', hidden=True)
 async def descriptions(ctx):
-    desc = 'Here are the categories of nibbles\'s commands! React to the corresponding category to learn more!'
+    desc = 'Here are the categories of nibbles\'s commands! React to the corresponding category to learn more!\n'
+    desc += 'Mention nibbles for an :8ball: response!'
     embed = discord.Embed(title="Nibbles is here to help", color=random.randint(0, 0xFFFFFF), description=desc)
 
     embed.add_field(name='**Utility** 🔧', value=str(utility))
@@ -170,6 +172,8 @@ async def descriptions(ctx):
     if ctx.guild.id == 607298393370394625:
         embed.add_field(name='**Leaderboard** 🌟', value=str(leaderboard))
     embed.add_field(name='**To-do** ✅', value=str(todo))
+    if ctx.author.permissions_in(ctx.channel).manage_guild:
+        embed.add_field(name='**Moderation Tools** 🔨', value=str(mod))
     help_msg = await ctx.send(content='Help menu', embed=embed)
     await help_msg.add_reaction('🔧')
     await help_msg.add_reaction('<:genshin:849405822781227069>')
@@ -177,6 +181,8 @@ async def descriptions(ctx):
     if ctx.guild.id == 607298393370394625:
         await help_msg.add_reaction('🌟')
     await help_msg.add_reaction('✅')
+    if ctx.author.permissions_in(ctx.channel).manage_guild:
+        await help_msg.add_reaction('🔨')
 
 
 @client.command(hidden=True)
@@ -194,11 +200,11 @@ async def on_message(message):
     if message.reference is None and client.user.mentioned_in(message):
         eight_ball = [
             'Nibbles agree.', 'Yesssu!', 'Yes yes.', 'Nibbles approve.',
-            'You can count on it.', 'Nibbles thinks that is correct.',
+            'You can bet nom noms on it.', 'Nibbles thinks that is correct.',
             'Most likely.', 'Good good.', 'Ooooo wats dat?',
             'My nom noms said yes.', 'Huh? What did you say?.',
             'I\'m sleepy... ask later.', 'Its a secret hehe.',
-            'Mommy says stranger danger!.', 'Daddy said he doesn\'t know.',
+            'Mommy says stranger danger!.', 'Bit said he doesn\'t know.',
             'Nibbles thinks that is wrong.', 'My nom noms said no.',
             'Nibbles disagree.', 'Noooooo!', 'That is incorrect.'
         ]
@@ -231,6 +237,10 @@ async def on_reaction_add(reaction, user):
         elif reaction.emoji == '✅':
             embed = discord.Embed(title='To-do List')
             for comm_name in todo:
+                embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
+        elif reaction.emoji == '🔨':
+            embed = discord.Embed(title='Moderation Tools')
+            for comm_name in mod:
                 embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
         await reaction.message.edit(embed=embed)
 

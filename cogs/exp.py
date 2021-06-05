@@ -105,7 +105,6 @@ class Exp(commands.Cog):
                                                                      '\n.leaderboard; .lb; .xp_lb; .pts_lb')
     async def leaderboard(self, ctx):
         if ctx.guild.id != 607298393370394625:
-            await ctx.send('sowwy but leaderboard is only available in Project Void')
             return
 
         await ctx.send(file=self.pillow.generate_lb(*self.db.lb(ctx.guild)))
@@ -151,7 +150,7 @@ class Exp(commands.Cog):
             return
         with TinyDB('./data/birthday.json') as bd:
             if bd.search(Query().user == ctx.author.id):
-                await ctx.send('you already set your birthday! If you have made an error, contact an admin')
+                await ctx.send('you already set your birthday! If you have made a mistake, contact ʙɪᴛ#5595')
                 return
             bd.insert({'user': ctx.author.id, 'birthday': birthday})
         await ctx.send('your birthday is now set as ' + birthday)

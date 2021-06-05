@@ -21,7 +21,6 @@ class UserDatabase(commands.Cog):
     @commands.command(description='check your current rank and experience in Project Void!')
     async def rank(self, ctx):
         if ctx.guild.id != 607298393370394625:
-            await ctx.send('sowwy but leaderboard is only available in Project Void')
             return
         if len(ctx.message.mentions) == 0:
             user_id = ctx.author.id
