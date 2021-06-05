@@ -4,23 +4,24 @@ from collections import Counter
 
 import discord
 from discord.ext import commands
+from discord.ext.commands import MissingRequiredArgument
 from tinydb import TinyDB, Query
 
 from util.characters import Characters
 
 
 def create_user(user_id):
-    with TinyDB('./data/inventory.json') as db:
+    with TinyDB('./data/genshin_inventory.json') as db:
         db.insert({'user': user_id, 'chars': [], 'books': [0, 0, 0]})
 
 
 def search(user_id):
-    with TinyDB('./data/inventory.json') as db:
+    with TinyDB('./data/genshin_inventory.json') as db:
         return db.search(Query().user == user_id)
 
 
 def transfer_card(user_id, character):
-    with TinyDB('./data/inventory.json') as db:
+    with TinyDB('./data/genshin_inventory.json') as db:
         user = db.search(Query().user == user_id)[0]
         characters = user.get('trading_cards')
         if characters is not None and character in characters:
@@ -38,7 +39,7 @@ def add_card(user_id, char):
         cards.append(char)
     else:
         cards = [char]
-    with TinyDB('./data/inventory.json') as db:
+    with TinyDB('./data/genshin_inventory.json') as db:
         db.update({'trading_cards': cards}, Query().user == user_id)
 
 
@@ -50,7 +51,7 @@ def add_char(user_id, char):
         if characters[0] == char:
             if characters[2] < 6:
                 characters[2] += 1
-                with TinyDB('./data/inventory.json') as db:
+                with TinyDB('./data/genshin_inventory.json') as db:
                     db.update({'chars': temp_chars}, Query().user == user_id)
                 return
             else:
@@ -58,7 +59,7 @@ def add_char(user_id, char):
                 return
 
     temp_chars.append((char, 0, 0))
-    with TinyDB('./data/inventory.json') as db:
+    with TinyDB('./data/genshin_inventory.json') as db:
         db.update({'chars': temp_chars}, Query().user == user_id)
 
 
@@ -72,7 +73,7 @@ def add_book(user_id, color):
         temp_books[1] += 1
     else:
         temp_books[2] += 1
-    with TinyDB('./data/inventory.json') as db:
+    with TinyDB('./data/genshin_inventory.json') as db:
         db.update({'books': temp_books}, Query().user == user_id)
 
 
@@ -181,7 +182,7 @@ class InventoryDatabase(commands.Cog):
                 await self.query_char(ctx.message, index + 1)
 
     async def query_char(self, message, index=0):
-        with TinyDB('./data/inventory.json') as db:
+        with TinyDB('./data/genshin_inventory.json') as db:
             doc = db.search(Query().user == message.author.id)[0]
             characters = doc.get('chars')
             if message.content.isdigit():
@@ -215,7 +216,7 @@ class InventoryDatabase(commands.Cog):
             if message.content.isdigit():
                 msg = self.book_select.get(message.author.id)
                 amount = int(message.content)
-                with TinyDB('./data/inventory.json') as db:
+                with TinyDB('./data/genshin_inventory.json') as db:
                     books = db.search(Query().user == message.author.id)[0].get('books')
 
                 flag = True
@@ -252,7 +253,7 @@ class InventoryDatabase(commands.Cog):
             return
         char_info = doc.get('chars')
         char_info[char_id - 1][1] += random.randint(500, 2500)
-        with TinyDB('./data/inventory.json') as db:
+        with TinyDB('./data/genshin_inventory.json') as db:
             db.update({'chars': char_info}, Query().user == message.author.id)
 
     @commands.Cog.listener()
@@ -266,7 +267,7 @@ class InventoryDatabase(commands.Cog):
         if str(user.id) in reaction.message.content and reaction.message.author.bot and (not user.bot) \
                 and reaction.emoji == '🌟':
             char_id = int(reaction.message.content.split(' ')[-1][:-2])
-            with TinyDB('./data/inventory.json') as db:
+            with TinyDB('./data/genshin_inventory.json') as db:
                 db.update({'primary': char_id}, Query().user == user.id)
                 await reaction.message.channel.send('You have set your primary character!')
             return
@@ -309,7 +310,7 @@ class InventoryDatabase(commands.Cog):
 
     @staticmethod
     def level_up(user_id, char_id, book_type, amount):
-        with TinyDB('./data/inventory.json') as db:
+        with TinyDB('./data/genshin_inventory.json') as db:
             user_info = db.search(Query().user == user_id)[0]
             books_tuple = user_info.get('books')
             if book_type == 'purple':
@@ -332,7 +333,7 @@ class InventoryDatabase(commands.Cog):
         blue = '<:blue_book:808011854558920744>'
         green = '<:green_book:808011842328199188>'
         embed = discord.Embed(title='Levels')
-        with TinyDB('./data/inventory.json') as db:
+        with TinyDB('./data/genshin_inventory.json') as db:
             doc = db.search(Query().user == user.id)[0]
         # print(doc)
         character = doc.get('chars')[char_id - 1]

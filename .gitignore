@@ -135,7 +135,7 @@ dmypy.json
 data/user.db
 data/user.db-journal
 img/results.png
-data/inventory.json
+data/genshin_inventory.json
 data/gacha.db
 data/bot_token
 *.json

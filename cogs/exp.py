@@ -120,7 +120,7 @@ class Exp(commands.Cog):
         with TinyDB('./data/birthday.json') as bd:
             birthday_doc = bd.search(Query().user == user.id)
             birthday = 'N/A' if len(birthday_doc) == 0 else birthday_doc[0].get('birthday')
-        with TinyDB('./data/inventory.json') as bd:
+        with TinyDB('./data/genshin_inventory.json') as bd:
             character_doc = bd.search(Query().user == user.id)
             if len(character_doc) == 0 or character_doc[0].get('primary') is None:
                 prim_char = None
