@@ -116,7 +116,7 @@ async def on_member_join(member):
         return
     await member.guild.get_channel(prim).send(
         f'Heyaa {member.name}, '
-        f'I\'m nibbles! <:kayaya:778399319803035699>')
+        f'I\'m nibbles and welcome to the server! <:kayaya:778399319803035699>')
     if member.guild.id != 607298393370394625:
         return
     await member.add_roles(discord.utils.get(member.guild.roles, name='Moons'))
@@ -146,14 +146,14 @@ async def on_command_error(ctx, error):
 
 
 async def on_guild_join(guild):
-    for channel in guild.text_channels:
-        if channel.guild.me.guild_permissions.send_messages:
-            await channel.send('Please use .set_channel <channel_id> to tell nibbles where to speak!')
-            await channel.send('Use .opt_in_banner afterwards to receive the new genshin gacha banner daily!')
-            return
+    await guild.owner.send("Haiii I'm nibbles, I am happy to meet you <a:ChikaYay:846769277944332319>")
+    await guild.owner.send("Set up for nibbles is ez! There are numerous things that nibbles can do, use the command "
+                           ".settings in a channel you would want nibbles to be in to start!")
+    await guild.owner.send("If you run into any issues, you could always ask ʙɪᴛ#5595!")
+    return
 
 utility = ['choose', 'poll', 'get_pfp', 'size', 'profile', 'set_desc', 'set_birthday']
-genshin = ['banner', 'event_wish', 'reg_wish', 'genshin_inventory', 'character', 'pity']
+genshin = ['banner', 'event_wish', 'reg_wish', 'genshin_inventory', 'character', 'pity', 'quick_sell']
 economy = ['gamble_black_jack', 'gamble_coin', 'bal', 'transfer']
 leaderboard = ['leaderboard', 'rank']
 todo = ['todo_list', 'todo_add', 'todo_check']
