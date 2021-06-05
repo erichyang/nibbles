@@ -364,6 +364,32 @@ class InventoryDatabase(commands.Cog):
         await msg.add_reaction(blue)
         await msg.add_reaction(green)
 
+    @commands.command(description='Quickly sell your tradable genshin characters at a set price\n'
+                                  '.quick_sell Noelle all; .qs Qiqi 7',
+                      aliases=['qs'])
+    async def quick_sell(self, ctx, character, amount='all'):
+        db = self.client.get_cog('UserDatabase')
+        if amount == 'all':
+            amount = '9999'
+        elif not amount.isdigit():
+            await ctx.send('Please use either the word all or a number')
+            return
+        amount = int(amount)
+        user_id = ctx.author.id
+        count = 0
+        for _ in range(amount):
+            if transfer_card(user_id, character) == 'fail':
+                break
+            count += 1
+        await db.update('users', 'bal', '+' + str(350 * count), str(ctx.author.id))
+        await ctx.send('Characters sold!')
+
+    @quick_sell.error
+    async def quick_sell_error(self, ctx, error):
+        if isinstance(error, MissingRequiredArgument):
+            await ctx.send('Please do .qs CharacterName number/all, the last parameter left empty implies all')
+        else:
+            await ctx.send(error)
 
 def setup(client):
     client.add_cog(InventoryDatabase(client))
