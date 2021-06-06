@@ -3,3 +3,4 @@ pytz==2020.1
 Pillow>=7.2.0
 tinydb>=4.3.0
 requests>=2.24.0
+jikanpy>=4.3.2

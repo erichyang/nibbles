@@ -170,8 +170,8 @@ class InventoryDatabase(commands.Cog):
         embed.set_footer(text=f'Page {sect + 1}')
         return embed
 
-    @commands.command(aliases=['char'], description='navigate to a detailed view of your character without using '
-                                                    'inventory!\n.character Ganyu; .char Eula')
+    @commands.command(aliases=['char'], description='navigate to a detailed view of your character!\n.character '
+                                                    'Ganyu; .char Eula')
     async def character(self, ctx, character_name):
         character_name = character_name[0].upper() + character_name[1:]
         if character_name == 'Hu':
@@ -367,7 +367,7 @@ class InventoryDatabase(commands.Cog):
     @commands.command(description='Quickly sell your tradable genshin characters at a set price\n'
                                   '.quick_sell Noelle all; .qs Qiqi 7',
                       aliases=['qs'])
-    async def quick_sell(self, ctx, character, amount='all'):
+    async def quick_sell(self, ctx, character, amount=1):
         db = self.client.get_cog('UserDatabase')
         if amount == 'all':
             amount = '9999'
@@ -378,16 +378,17 @@ class InventoryDatabase(commands.Cog):
         user_id = ctx.author.id
         count = 0
         for _ in range(amount):
-            if transfer_card(user_id, character) == 'fail':
+            temp = transfer_card(user_id, character)
+            if temp == 'fail':
                 break
             count += 1
         await db.update('users', 'bal', '+' + str(350 * count), str(ctx.author.id))
-        await ctx.send('Characters sold!')
+        await ctx.send(f'{count } character{"s" if count > 1 else ""} sold!')
 
     @quick_sell.error
     async def quick_sell_error(self, ctx, error):
         if isinstance(error, MissingRequiredArgument):
-            await ctx.send('Please do .qs CharacterName number/all, the last parameter left empty implies all')
+            await ctx.send('Please do .qs CharacterName number, the last parameter left empty implies one')
         else:
             await ctx.send(error)
 

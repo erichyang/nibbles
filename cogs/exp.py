@@ -47,7 +47,8 @@ class Exp(commands.Cog):
                 return
             val = random.randrange(6, 8)
 
-            if message.channel.id != 703247498508238938 and message.guild.id == 607298393370394625:
+            if message.channel.id not in [703247498508238938, 752676890413629471] and \
+                    message.guild.id == 607298393370394625:
                 await self.db.update(db='users', var='pts', amount='+' + str(val), user=str(_id))
             await self.db.update(db='users', var='bal', amount='+' + str(val), user=str(_id))
             await self.db.set_time(db='users', user=str(_id))
