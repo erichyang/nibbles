@@ -369,12 +369,6 @@ class InventoryDatabase(commands.Cog):
                       aliases=['qs'])
     async def quick_sell(self, ctx, character, amount=1):
         db = self.client.get_cog('UserDatabase')
-        if amount == 'all':
-            amount = '9999'
-        elif not amount.isdigit():
-            await ctx.send('Please use either the word all or a number')
-            return
-        amount = int(amount)
         user_id = ctx.author.id
         count = 0
         for _ in range(amount):
