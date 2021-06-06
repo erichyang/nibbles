@@ -14,7 +14,11 @@ class Size(commands.Cog):
     # commands
     @commands.command(description='Find out how many members is in this server!\n.size')
     async def size(self, ctx):
-        await ctx.send(f'The server currently has: {ctx.guild.member_count} members')
+        num = ctx.guild.member_count
+        for member in ctx.guild.members:
+            if member.bot:
+                num-=1
+        await ctx.send(f'The server currently has: {num} human members')
 
 
 def setup(client):
