@@ -23,21 +23,13 @@ class Summon(commands.Cog):
     async def on_ready(self):
         print('Summon online')
 
-    async def birthday(self, channels):
-        today = datetime.now().strftime("%m/%d")
-        birthday_ppl = []
-        with TinyDB('./data/birthday.json') as _db:
-            for people in _db.search(Query().birthday == today):
-                await self.udb.update('users', 'bal', '+14400', str(people['user']))
-                birthday_ppl.append(people['user'])
-
-        for birthday_boi in birthday_ppl:
-            for channel in channels:
-                channel = channel[0]
-                if channel.guild.get_member(birthday_boi) is not None and \
-                        channel.guild.me.guild_permissions.send_messages:
-                    await channel.send(f"It is {channel.guild.get_member(people['user']).mention}'s birthday today!")
-                    await channel.send(f"You received 14400 nom noms!")
+    async def birthday(self, user, channels):
+        # function called for every user's birthday
+        await self.udb.update('users', 'bal', '+14400', str(user))
+        mention = channels[0].guild.get_member(user).mention
+        for channel in channels:
+            await channel.send(f"It is {mention}'s birthday today!")
+            await channel.send(f"You received 14400 nom noms!")
 
     async def new_banner_rotation(self, channels):
         five, four = self.gdb.new_banner()

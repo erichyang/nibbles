@@ -391,5 +391,6 @@ class InventoryDatabase(commands.Cog):
         else:
             await ctx.send(error)
 
+
 def setup(client):
     client.add_cog(InventoryDatabase(client))

@@ -82,25 +82,19 @@ async def announce_year_progress(channels):
 
 @tasks.loop(hours=12)
 async def announcement_manager():
-    channels = servers.all_primary_channel()
-    announce_to = []
-    opt_gacha = []
-    for index, ch_id in enumerate(channels):
-        channel = await client.fetch_channel(ch_id[1])
-        if ch_id[2]:
-            opt_gacha.append(channel)
-        send = True
-        async for message in channel.history(limit=10):
-            if message.author.bot and message.content == 'Your free wheel of fortune is now available!':
-                send = False
-        if send and channel.guild.me.guild_permissions.send_messages:
-            announce_to.append(channel)
+    # wheel
+    await client.get_cog('Gamble').announce_wheel(await servers.wheel_channels())
+
     now = datetime.utcnow()
-    await client.get_cog('Gamble').announce_wheel(announce_to)
-    if now.hour != 18:
-        await client.get_cog('Summon').birthday(channels)
-        await announce_year_progress(announce_to)
-        await client.get_cog('Summon').new_banner_rotation(opt_gacha)
+    if True:  # now.hour != 18:
+        # genshin_banner
+        await client.get_cog('Summon').new_banner_rotation(await servers.banner_channels())
+        # year_progress
+        await announce_year_progress(await servers.year_progress_channels())
+        # birthday
+        birthdays = servers.birthday_channels()
+        for birthday in birthdays:
+            await client.get_cog('Summon').birthday(birthday[0], birthday[1])
 
 
 @tasks.loop(minutes=random.randrange(10, 45))
@@ -111,38 +105,20 @@ async def change_status():
 
 @client.event
 async def on_member_join(member):
-    prim = servers.find_primary_channel(member.guild.id)
-    if prim is None:
-        return
-    await member.guild.get_channel(prim).send(
-        f'Heyaa {member.name}, '
+    channel = servers.greetings_channel(member.guild.id)
+    await channel.send(
+        f'Haii {member.name}, '
         f'I\'m nibbles and welcome to the server! <:kayaya:778399319803035699>')
-    if member.guild.id != 607298393370394625:
-        return
-    await member.add_roles(discord.utils.get(member.guild.roles, name='Moons'))
-    await member.edit(nick=member.name.lower())
+    if member.guild.id == 607298393370394625:
+        await member.add_roles(discord.utils.get(member.guild.roles, name='Moons'))
+        await member.edit(nick=member.name.lower())
 
 
 @client.event
 async def on_member_remove(member):
-    prim = servers.find_primary_channel(member.guild.id)
-    if prim is None:
-        return
-    await member.guild.get_channel(prim).send(
-        f'Bai bai {member.name} <:qiqi:813767632904781915>')
+    channel = servers.greetings_channel(member.guild.id)
+    await channel.send(f'Bai bai {member.name} <:qiqi:813767632904781915>')
 
-
-@client.event
-async def on_command_error(ctx, error):
-    if '.transfer' in ctx.message.content:
-        return
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(
-            "nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>"
-        )
-    else:
-        if not isinstance(error, commands.CommandNotFound):
-            print(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
 
 
 @client.event
@@ -226,7 +202,6 @@ async def on_reaction_add(reaction, user):
             embed = discord.Embed(title='Genshin')
             for comm_name in genshin:
                 embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
-            print(embed)
         elif reaction.emoji == '💰':
             embed = discord.Embed(title='Economy')
             for comm_name in economy:

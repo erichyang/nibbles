@@ -45,14 +45,14 @@ class Status(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, prev, cur):
         if (cur.channel is not None) and cur.channel.id == 625001001467772928:
-            name = random.choice(['🎮', '🌎', '⭐', '🌠', '🌌']) + random.choice(['Jumpy Dumpty', 'Baron Bunny',
-                                                                                 'Starword Sword', 'Celestial Shower',
-                                                                                 'Raincutter', 'Planet Befall', 'Oz',
-                                                                                 'Searing Onslaught', 'Adeptus\' Abode',
-                                                                                 'Emergency Food', 'Cocogoat'])
+            vc_names = ['🍩 Donut', '🍜 Ramen', '🥟 Dumpling', '🌮 Taco', '🥐 Croissant', '🍞 Bread', '🥞 Pancakes',
+                        '🧇 Waffle', '🍕 Pizza', '🌯 Burrito', '🍣 Sushi', '🍙 Onigiri', '🧁 Cupcake', '🍪 Cookie',
+                        '🥧 Pie', '🍫 Chocolate', '☕ Coffee', '🧋 Bubble Tea']
 
             if member.activity is not None and member.activity.name in self.games:
                 name = random.choice(['🎮', '🌎', '⭐', '🌠', '🌌']) + member.activity.name
+            else:
+                name = random.choice(vc_names)
 
             vc = await member.guild.create_voice_channel(name, category=discord.utils.get(member.guild.categories,
                                                                                           name='Void Zone'))
