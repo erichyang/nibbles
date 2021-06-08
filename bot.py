@@ -118,6 +118,16 @@ async def on_member_remove(member):
     await channel.send(f'Bai bai {member.name} <:qiqi:813767632904781915>')
 
 
+@client.event
+async def on_command_error(ctx, error):
+    if '.transfer' in ctx.message.content:
+        return
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("nibbles can't do anything, something is missing! <:ShibaNervous:703366029425901620>")
+    elif isinstance(error, commands.CommandNotFound):
+        pass
+    else:
+        print(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
 
 @client.event
 async def on_guild_join(guild):
