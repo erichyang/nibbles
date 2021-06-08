@@ -71,9 +71,9 @@ class Gamble(commands.Cog):
         self.servers = client.get_cog('ServerManage')
 
     async def announce_wheel(self, channels):
+        self.wheel = []
         for channel in channels:
             await channel.send('Your free wheel of fortune is now available!')
-        self.wheel = []
 
     @commands.command(hidden=True)
     @has_permissions(manage_guild=True)

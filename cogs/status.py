@@ -47,7 +47,7 @@ class Status(commands.Cog):
         if (cur.channel is not None) and cur.channel.id == 625001001467772928:
             vc_names = ['🍩 Donut', '🍜 Ramen', '🥟 Dumpling', '🌮 Taco', '🥐 Croissant', '🍞 Bread', '🥞 Pancakes',
                         '🧇 Waffle', '🍕 Pizza', '🌯 Burrito', '🍣 Sushi', '🍙 Onigiri', '🧁 Cupcake', '🍪 Cookie',
-                        '🥧 Pie', '🍫 Chocolate', '☕ Coffee', '🧋 Bubble Tea']
+                        '🥧 Pie', '🍫 Chocolate', '☕ Coffee']
 
             if member.activity is not None and member.activity.name in self.games:
                 name = random.choice(['🎮', '🌎', '⭐', '🌠', '🌌']) + member.activity.name

@@ -45,10 +45,8 @@ async def on_ready():
 
 def launch_tasks():
     asyncio.set_event_loop(client.loop)
-    now = pytz.utc.localize(datetime.utcnow()).astimezone(
-        pytz.timezone("America/Chicago"))
-    midnight = datetime.combine(date.today() + timedelta(days=1),
-                                datetime.min.time()) + timedelta(hours=6)
+    now = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone("America/Chicago"))
+    midnight = datetime.combine(date.today() + timedelta(days=1), datetime.min.time()) + timedelta(hours=6)
     midnight = midnight.astimezone(pytz.timezone("America/Chicago"))
     tdelta = midnight - now
     midnight_time = tdelta.total_seconds() % (24 * 3600)
@@ -86,7 +84,7 @@ async def announcement_manager():
     await client.get_cog('Gamble').announce_wheel(await servers.wheel_channels())
 
     now = datetime.utcnow()
-    if True:  # now.hour != 18:
+    if now.hour != 18:
         # genshin_banner
         await client.get_cog('Summon').new_banner_rotation(await servers.banner_channels())
         # year_progress
