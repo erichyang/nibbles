@@ -18,13 +18,17 @@ def _bj_total(hand):
     for card in hand:
         if card[0] == 1:
             num_ace += 1
-            val += 11
+            val += 1
         elif card[0] == 11 or card[0] == 12 or card[0] == 13:
             val += 10
         else:
             val += card[0]
-    while val > 21 and num_ace > 0:
-        val -= 10
+    dist = 21 - val
+
+    while dist > num_ace*10 and num_ace > 0:
+        val += 10
+        num_ace -= 1
+        dist = 21-val
     return val
 
 
@@ -207,6 +211,9 @@ class Gamble(commands.Cog):
         if amount == "Hu":
             amount = "Hu Tao"
         if isinstance(amount, str):
+            if len(idb.search(receiver_id)) == 0:
+                await ctx.send("The receiver has not created an inventory yet! Please start by summoning. ")
+                return
             if idb.transfer_card(sender_id, amount) == 'done':
                 idb.add_char(receiver_id, amount)
                 await ctx.send("sent " + amount + " to " + ctx.message.mentions[0].display_name)

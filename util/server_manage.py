@@ -2,6 +2,7 @@ import sqlite3
 from datetime import datetime
 
 import discord
+from discord import Forbidden
 from discord.ext import commands
 from discord.ext.commands import has_permissions, MissingPermissions
 from tinydb import TinyDB, Query
@@ -37,7 +38,10 @@ class ServerManage(commands.Cog):
         ch_ids = self._retrieve_subscriptions('wheel')
         channels = []
         for ch_id in ch_ids:
-            channel = await self.client.fetch_channel(ch_id[0])
+            try:
+                channel = await self.client.fetch_channel(ch_id[0])
+            except Forbidden:
+                continue
             send = True
             async for message in channel.history(limit=10):
                 if message.author.bot and message.content == 'Your free wheel of fortune is now available!':
@@ -50,7 +54,10 @@ class ServerManage(commands.Cog):
         ch_ids = self._retrieve_subscriptions('genshin_banner')
         channels = []
         for ch_id in ch_ids:
-            channel = await self.client.fetch_channel(ch_id[0])
+            try:
+                channel = await self.client.fetch_channel(ch_id[0])
+            except Forbidden:
+                continue
             perms = channel.guild.me.guild_permissions
             if perms.attach_files and perms.embed_links and perms.send_messages:
                 channels.append(channel)
@@ -60,7 +67,10 @@ class ServerManage(commands.Cog):
         ch_ids = self._retrieve_subscriptions('year_progress')
         channels = []
         for ch_id in ch_ids:
-            channel = await self.client.fetch_channel(ch_id[0])
+            try:
+                channel = await self.client.fetch_channel(ch_id[0])
+            except Forbidden:
+                continue
             perms = channel.guild.me.guild_permissions
             if perms.send_messages:
                 channels.append(channel)
