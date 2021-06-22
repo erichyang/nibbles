@@ -153,22 +153,23 @@ async def descriptions(ctx):
     desc += 'Mention nibbles for an :8ball: response!'
     embed = discord.Embed(title="Nibbles is here to help", color=random.randint(0, 0xFFFFFF), description=desc)
 
-    embed.add_field(name='**Utility** 🔧', value=str(utility))
-    embed.add_field(name='**Genshin** <:genshin:849405822781227069>', value=str(genshin))
     embed.add_field(name='**Anime** <a:KannaEat:844266819430776924>', value=str(anime))
+    embed.add_field(name='**Genshin** <:genshin:849405822781227069>', value=str(genshin))
     embed.add_field(name='**Economy** 💰', value=str(economy))
     if ctx.guild.id == 607298393370394625:
         embed.add_field(name='**Leaderboard** 🌟', value=str(leaderboard))
+    embed.add_field(name='**Utility** 🔧', value=str(utility))
     embed.add_field(name='**To-do** ✅', value=str(todo))
     if ctx.author.permissions_in(ctx.channel).manage_guild:
         embed.add_field(name='**Moderation Tools** 🔨', value=str(mod))
     help_msg = await ctx.send(content='Help menu', embed=embed)
-    await help_msg.add_reaction('🔧')
-    await help_msg.add_reaction('<:genshin:849405822781227069>')
+
     await help_msg.add_reaction('<a:KannaEat:844266819430776924>')
+    await help_msg.add_reaction('<:genshin:849405822781227069>')
     await help_msg.add_reaction('💰')
     if ctx.guild.id == 607298393370394625:
         await help_msg.add_reaction('🌟')
+    await help_msg.add_reaction('🔧')
     await help_msg.add_reaction('✅')
     if ctx.author.permissions_in(ctx.channel).manage_guild:
         await help_msg.add_reaction('🔨')
@@ -207,31 +208,36 @@ async def on_reaction_add(reaction, user):
     if reaction.message.content == 'Help menu' and not user.bot:
         embed = discord.Embed.Empty
         if reaction.emoji == '🔧':
-            embed = discord.Embed(title='Utility')
+            embed = discord.Embed(title='Utility', description='All sorts of commands that might come in handy!')
             for comm_name in utility:
                 embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
         elif str(reaction.emoji) == '<:genshin:849405822781227069>':
-            embed = discord.Embed(title='Genshin')
+            desc = 'Get started by wishing on either the daily rotating banner or the permanent banner.' \
+                   'Use .we to wish on the event banner and .wr for the permanent banner. ' \
+                   'Use the .banner command to see today\'s banner. '
+            embed = discord.Embed(title='Genshin', description='A Genshin gacha simulator!\n' + desc)
             for comm_name in genshin:
                 embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
         elif str(reaction.emoji) == '<a:KannaEat:844266819430776924>':
-            embed = discord.Embed(title='Anime')
+            embed = discord.Embed(title='Anime', description='Collect all your favorite waifus! To get started, '
+                                                             'add some of your favorite animes to your anime list to '
+                                                             'make characters appear in a designated channel.')
             for comm_name in anime:
                 embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
         elif reaction.emoji == '💰':
-            embed = discord.Embed(title='Economy')
+            embed = discord.Embed(title='Economy', description="Nom noms wealth management and GAMBLING 🎰.")
             for comm_name in economy:
                 embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
         elif reaction.emoji == '🌟':
-            embed = discord.Embed(title='Leaderboard')
+            embed = discord.Embed(title='Leaderboard', description="How active are you in Project Void?")
             for comm_name in leaderboard:
                 embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
         elif reaction.emoji == '✅':
-            embed = discord.Embed(title='To-do List')
+            embed = discord.Embed(title='To-do List', description='Manage your task lists with nibbles!')
             for comm_name in todo:
                 embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
         elif reaction.emoji == '🔨':
-            embed = discord.Embed(title='Moderation Tools')
+            embed = discord.Embed(title='Moderation Tools', description='haha mods go <:BennetBonk:853419733776728064>')
             for comm_name in mod:
                 embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
         await reaction.message.edit(embed=embed)
@@ -262,5 +268,5 @@ async def on_raw_reaction_remove(payload):
         await member.remove_roles(
             discord.utils.get(guild.roles, name='Cookie Squad'))
 
-
-client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.90H7LW32mCJIzmtVyZTQehjhfSE')
+# client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.90H7LW32mCJIzmtVyZTQehjhfSE')
+client.run('ODA1ODE3MzM5NDMzMDU4Mzg1.YBgZ4Q.U15wT3efSIu165BX6jj47KNUhdY')
