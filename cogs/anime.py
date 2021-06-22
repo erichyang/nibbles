@@ -182,9 +182,9 @@ class Anime(commands.Cog):
                         break
 
                 if char is not None and char['relationship'] is None:
-                    if reaction.emoji == '🙌':
+                    if reaction.emoji == '💞':
                         char['relationship'] = False
-                    else:
+                    elif reaction.emoji == '🙌':
                         char['relationship'] = True
                     inventory[index] = char
                     with TinyDB('./data/anime.json') as db:
