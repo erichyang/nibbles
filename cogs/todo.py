@@ -23,6 +23,7 @@ class Todo(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        self.bounty = 0
 
     # events
     @commands.Cog.listener()
@@ -43,7 +44,7 @@ class Todo(commands.Cog):
         async for message in ctx.channel.history(limit=10):
             if message.author.bot and 'to-do' in message.content:
                 await message.delete()
-        await ctx.send(content='Added to your todo list!', embed=todo_embed(ctx.author.id,
+        await ctx.send(content='Added to your to-do list!', embed=todo_embed(ctx.author.id,
                                                                             ctx.author.display_name if ctx.author.nick is None else ctx.author.nick))
 
     @commands.command(description='view your to-do list!\n.todo_list; .list; .todo', aliases=['todo', 'list'])
@@ -62,8 +63,9 @@ class Todo(commands.Cog):
         else:
             await ctx.send(content=f"{name} does not have a to-do list yet!")
 
-    @commands.command(description='check off a task from your to-do list\n.todo_check 3;.check 1', aliases=['check', 'remove'])
-    async def todo_check(self, ctx, value):
+    @commands.command(description='check off a task from your to-do list\n.todo_check 3;.check 1',
+                      aliases=['check', 'remove'])
+    async def todo_check(self, ctx, value: int):
         with TinyDB('./data/todo.json') as db:
             todo = db.search(Query().user == ctx.author.id)
             if len(todo) != 0:
@@ -72,12 +74,10 @@ class Todo(commands.Cog):
                 await ctx.send('this user has not made a todo list yet')
                 return
             new_list = todo
-            if value.isdigit():
-                value = int(value)
-            if isinstance(value, str):
-                new_list.remove(value)
-            elif len(todo) >= value:
-                new_list.pop(value - 1)
+            if len(todo) >= value:
+                removed = new_list.pop(value - 1)
+                if '[BNTY]' in removed:
+                    self.bounty += 1
             else:
                 await ctx.send('such task does not exist :(')
                 return
@@ -85,7 +85,21 @@ class Todo(commands.Cog):
             async for message in ctx.channel.history(limit=10):
                 if message.author.bot and 'to-do' in message.content:
                     await message.delete()
-            await ctx.send(content='todo task has been checked off!', embed=todo_embed(ctx.author.id, ctx.author.display_name if ctx.author.nick is None else ctx.author.nick))
+            await ctx.send(content='to-do task has been checked off!', embed=todo_embed(ctx.author.id, ctx.author.display_name if ctx.author.nick is None else ctx.author.nick))
+
+    @commands.command(hidden=True)
+    async def bounty(self, ctx):
+        if ctx.author.id not in [513424144541417483, 201687181238992896]:
+            return
+        await ctx.send(f'{self.bounty}$ of bounty is not yet redeemed!')
+
+    @commands.command(hidden=True)
+    async def bounty_clear(self, ctx):
+        if ctx.author.id not in [513424144541417483, 201687181238992896]:
+            return
+        temp = self.bounty
+        self.bounty = 0
+        await ctx.send(f'{temp}$ of bounty is redeemed!')
 
 
 def setup(client):
