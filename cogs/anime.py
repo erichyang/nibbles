@@ -5,7 +5,7 @@ import time
 from functools import lru_cache
 
 import discord
-from discord.ext.commands import CommandInvokeError
+from discord.ext.commands import CommandInvokeError, BadArgument
 from jikanpy import Jikan, APIException
 
 from tinydb import TinyDB, Query
@@ -418,8 +418,10 @@ class Anime(commands.Cog):
     async def rate_limit_error(self, ctx, error):
         if isinstance(error, CommandInvokeError) and error.original.error_json['type'] == 'RateLimitException':
             await ctx.send('Rate limited to not offend MAL, please try again in 30s <:KaiCry:778399319086596106>')
+        elif isinstance(error, ValueError) or isinstance(error, BadArgument):
+            await ctx.send('<:HuTaoRip:833535556759191572> did you gib nibbles an ID?')
         else:
-            print(error.original)
+            print(error)
 
 
 def setup(client):
