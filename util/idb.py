@@ -170,9 +170,9 @@ class InventoryDatabase(commands.Cog):
         embed.set_footer(text=f'Page {sect + 1}')
         return embed
 
-    @commands.command(aliases=['char'], description='navigate to a detailed view of your character!\n.character '
-                                                    'Ganyu; .char Eula')
-    async def character(self, ctx, character_name):
+    @commands.command(aliases=['gchar'], description='navigate to a detailed view of your character!\n.genshin_character '
+                                                    'Ganyu; .gchar Eula')
+    async def genshin_character(self, ctx, character_name):
         character_name = character_name[0].upper() + character_name[1:]
         if character_name == 'Hu':
             character_name = 'Hu Tao'

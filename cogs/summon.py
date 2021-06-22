@@ -1,10 +1,8 @@
-import time
-from datetime import datetime, timedelta
+from datetime import datetime
 import random
 
 import discord
 from discord.ext import commands
-from tinydb import TinyDB, Query
 
 from util import udb, gdb, idb, pillow
 

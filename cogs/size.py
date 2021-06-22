@@ -18,7 +18,7 @@ class Size(commands.Cog):
         for member in ctx.guild.members:
             if member.bot:
                 num-=1
-        await ctx.send(f'The server currently has: {num} human members')
+        await ctx.send(f'The server currently has {num} human members')
 
 
 def setup(client):

@@ -191,6 +191,7 @@ class Gamble(commands.Cog):
         embed.set_author(name=str(author))
         embed.add_field(name="Prize", value=str(prize) + " nom noms", inline=False)
         embed.add_field(name="Current Balance", value=str(bal[0] + prize), inline=False)
+        embed.set_footer(text='use .help to find out what nom noms do!')
 
         await asyncio.sleep(4)
         await self.db.update(db='users', var='bal', amount='+' + (str(prize)), user=str(author.id))

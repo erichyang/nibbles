@@ -129,6 +129,7 @@ async def on_command_error(ctx, error):
     else:
         print(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
 
+
 @client.event
 async def on_guild_join(guild):
     await guild.owner.send("Haiii I'm nibbles, I am happy to meet you <a:ChikaYay:846769277944332319>")
@@ -138,7 +139,8 @@ async def on_guild_join(guild):
     return
 
 utility = ['choose', 'poll', 'get_pfp', 'size', 'profile', 'set_desc', 'set_birthday']
-genshin = ['banner', 'event_wish', 'reg_wish', 'genshin_inventory', 'character', 'pity', 'quick_sell']
+genshin = ['banner', 'event_wish', 'reg_wish', 'genshin_inventory', 'genshin_character', 'pity', 'quick_sell']
+anime = ['anime_list', 'anime_list_add', 'anime_list_remove', 'anime_inventory', 'anime_search', 'anime_character']
 economy = ['gamble_black_jack', 'gamble_coin', 'bal', 'transfer']
 leaderboard = ['leaderboard', 'rank']
 todo = ['todo_list', 'todo_add', 'todo_check']
@@ -153,6 +155,7 @@ async def descriptions(ctx):
 
     embed.add_field(name='**Utility** 🔧', value=str(utility))
     embed.add_field(name='**Genshin** <:genshin:849405822781227069>', value=str(genshin))
+    embed.add_field(name='**Anime** <a:KannaEat:844266819430776924>', value=str(anime))
     embed.add_field(name='**Economy** 💰', value=str(economy))
     if ctx.guild.id == 607298393370394625:
         embed.add_field(name='**Leaderboard** 🌟', value=str(leaderboard))
@@ -162,6 +165,7 @@ async def descriptions(ctx):
     help_msg = await ctx.send(content='Help menu', embed=embed)
     await help_msg.add_reaction('🔧')
     await help_msg.add_reaction('<:genshin:849405822781227069>')
+    await help_msg.add_reaction('<a:KannaEat:844266819430776924>')
     await help_msg.add_reaction('💰')
     if ctx.guild.id == 607298393370394625:
         await help_msg.add_reaction('🌟')
@@ -193,7 +197,7 @@ async def on_message(message):
             'Nibbles thinks that is wrong.', 'My nom noms said no.',
             'Nibbles disagree.', 'Noooooo!', 'That is incorrect.'
         ]
-        await message.channel.send(f'{random.choice(eight_ball)}\nuse .help for more!')
+        await message.channel.send(f'{random.choice(eight_ball)}')
     else:
         await client.process_commands(message)
 
@@ -209,6 +213,10 @@ async def on_reaction_add(reaction, user):
         elif str(reaction.emoji) == '<:genshin:849405822781227069>':
             embed = discord.Embed(title='Genshin')
             for comm_name in genshin:
+                embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
+        elif str(reaction.emoji) == '<a:KannaEat:844266819430776924>':
+            embed = discord.Embed(title='Anime')
+            for comm_name in anime:
                 embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
         elif reaction.emoji == '💰':
             embed = discord.Embed(title='Economy')

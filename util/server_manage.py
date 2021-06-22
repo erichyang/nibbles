@@ -94,9 +94,17 @@ class ServerManage(commands.Cog):
             birthdays.append((birthday_boi, channels))
         return birthdays
 
-    def anime_channel(self, guild_id):
-        self.c.execute(f'SELECT anime FROM servers WHERE guild = {guild_id}')
-        return self.client.get_channel(self.c.fetchone()[0])
+    async def anime_channels(self):
+        ch_ids = self._retrieve_subscriptions('anime')
+        channels = []
+        for ch_id in ch_ids:
+            try:
+                channel = await self.client.fetch_channel(ch_id[0])
+            except Forbidden:
+                continue
+            if channel.guild.me.guild_permissions.send_messages:
+                channels.append(channel)
+        return channels
 
     def greetings_channel(self, guild_id):
         self.c.execute(f'SELECT greetings FROM servers WHERE guild = {guild_id}')

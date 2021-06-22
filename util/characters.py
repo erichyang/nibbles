@@ -10,7 +10,6 @@ class Characters(commands.Cog):
         self.conn = sqlite3.connect('./data/characters.db')
         # character information library
         self.c = self.conn.cursor()
-        self.level_calc(0)
 
     # add cog to main system
     @commands.Cog.listener()
