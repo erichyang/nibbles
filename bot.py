@@ -268,5 +268,5 @@ async def on_raw_reaction_remove(payload):
         await member.remove_roles(
             discord.utils.get(guild.roles, name='Cookie Squad'))
 
-# client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.90H7LW32mCJIzmtVyZTQehjhfSE')
-client.run('ODA1ODE3MzM5NDMzMDU4Mzg1.YBgZ4Q.U15wT3efSIu165BX6jj47KNUhdY')
+client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.90H7LW32mCJIzmtVyZTQehjhfSE')
+
