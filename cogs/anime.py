@@ -277,7 +277,8 @@ class Anime(commands.Cog):
         if not profile_exists(user.id):
             return
         inventory = anime_db(user.id, 'inventory')
-        quick_sort(inventory, 0, len(inventory) - 1, lambda x, y: x['affection'] < y['affection'])
+        quick_sort(inventory, 0, len(inventory) - 1,
+                   lambda x, y: x['affection'] < y['affection'] and x['mal_id'] < y['mal_id'])
         with TinyDB('./data/anime.json') as db:
             db.update({'inventory': inventory}, Query().user == user.id)
         if (len(inventory) / 15) < sect:
@@ -368,6 +369,7 @@ class Anime(commands.Cog):
         if char is not None:
             lvl = self.genshin_db.level_calc(char['affection'] * 1000)[0]
             relationship = 'strangers'
+
             if char['relationship'] is None or lvl < 60:
                 if lvl >= 40:
                     relationship = 'casual friends'
