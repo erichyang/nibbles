@@ -68,14 +68,14 @@ class Anime(commands.Cog):
         time.sleep(0.5)
         return char
 
-    @tasks.loop(hours=1.5)
+    @tasks.loop(minutes=45)
     async def anime_char_timer(self):
         for channel in await self.server.anime_channels():
             await self.anime_char_spawn(channel)
         self.interactions = []
 
     async def anime_char_spawn(self, channel):
-        await asyncio.sleep(random.randint(0, 1800))
+        await asyncio.sleep(random.randint(0, 900))
         chatters = []
         async for message in channel.history(limit=100):
             if message.author.id not in chatters:
