@@ -409,6 +409,50 @@ class Anime(commands.Cog):
             await msg.add_reaction('🙌')
             await msg.add_reaction('💞')
 
+    @commands.command(description='give an anime character you have claimed to someone else\n.give 118739 @bit',
+                      aliases=['give'])
+    async def anime_give(self, ctx, c_id: int):
+        inventory = anime_db(ctx.author.id, 'inventory')
+        char = None
+        index = -1
+        for i, item in enumerate(inventory):
+            if item['mal_id'] == int(c_id):
+                char = item
+                index = i
+                break
+        recipient = ctx.message.mentions[0]
+        recip_inv = anime_db(recipient.id, 'inventory')
+        if char is not None and len(recip_inv) != 0 and recipient is not ctx.author:
+            inventory.pop(index)
+            char['affection'] = 0
+            char['relationship'] = None
+            recip_inv.append(char)
+            with TinyDB('./data/anime.json') as db:
+                db.update({'inventory': inventory}, Query().user == ctx.author.id)
+                db.update({'inventory': recip_inv}, Query().user == recipient.id)
+            await ctx.send('Done!')
+
+    @commands.command(description=
+                      'kick an anime character from your adventure party, receive a portion of the initial cost back\n'
+                      '.remove 169181', aliases=['akick'])
+    async def anime_character_kick(self, ctx, c_id):
+        inventory = anime_db(ctx.author.id, 'inventory')
+        char = None
+        index = -1
+        refund = int(math.log2(self.mal_character(c_id)['member_favorites'] + 1) * 400)
+        for i, item in enumerate(inventory):
+            if item['mal_id'] == int(c_id):
+                char = item
+                index = i
+                break
+        if char is not None:
+            inventory.pop(index)
+            with TinyDB('./data/anime.json') as db:
+                db.update({'inventory': inventory}, Query().user == ctx.author.id)
+
+            await self.udb.update('users', 'bal', f'+{refund}', ctx.author.id)
+            await ctx.send(f'Refunded {refund} nom noms')
+
     @anime_inventory.error
     @anime_list.error
     @anime_list_add.error
