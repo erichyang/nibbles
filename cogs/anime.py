@@ -144,7 +144,8 @@ class Anime(commands.Cog):
                 await self.udb.update('users', 'bal', f'-{cost}', user.id)
 
                 anime_inventory_add(user.id, mal_id)
-                await channel.send(f'**{user.name}** claimed {reaction.message.embeds[0].title} for {cost} nom noms!')
+                await channel.send(f'**{user.name}** claimed [{mal_id}] {reaction.message.embeds[0].title} '
+                                   f'for {cost} nom noms!')
             elif reaction.emoji == '⬅' or reaction.emoji == '➡':
                 sect = int(reaction.message.embeds[0].footer.text)
                 if reaction.emoji == '⬅':
@@ -277,6 +278,8 @@ class Anime(commands.Cog):
             return
         inventory = anime_db(user.id, 'inventory')
         quick_sort(inventory, 0, len(inventory) - 1, lambda x, y: x['affection'] < y['affection'])
+        with TinyDB('./data/anime.json') as db:
+            db.update({'inventory': inventory}, Query().user == user.id)
         if (len(inventory) / 15) < sect:
             sect -= 1
         cl = []
@@ -305,10 +308,17 @@ class Anime(commands.Cog):
             await msg.add_reaction('⬅')
             await msg.add_reaction('➡')
 
-    @commands.command(aliases=['achar'], description='Look up an anime character by name or ID\n'
-                                                     '.anime_character Kanna Kamui; .achar 170466')
+    @commands.command(aliases=['achar'], description='Look up an anime character by name or ID. '
+                                                     'Quickly access the top of your inventory with A-E. '
+                                                     'Name search term must be longer than three characters. \n'
+                                                     '.anime_character Kanna Kamui; .achar 170466; .achar A')
     async def anime_character(self, ctx, *, character_id):
-        if not character_id.isdigit():
+        if character_id in ['A', 'B', 'C', 'D', 'E']:
+            inventory = anime_db(ctx.author.id, 'inventory')
+            index = ord(character_id) - ord('A')
+            if inventory[index] is not None:
+                character_id = inventory[index]['mal_id']
+        elif not character_id.isdigit():
             anime_results = self.jikan.search('character', character_id)
             content = "Anime Character Search Results - use .achar <MAL ID> for a detailed view of this character!\n"
             count = 0
@@ -460,7 +470,8 @@ class Anime(commands.Cog):
     @anime_inventory.error
     @anime_character.error
     async def rate_limit_error(self, ctx, error):
-        if isinstance(error, CommandInvokeError) and error.original.error_json['type'] == 'RateLimitException':
+        if isinstance(error, CommandInvokeError) and error.original.error_json is not None and \
+                error.original.error_json['type'] == 'RateLimitException':
             await ctx.send('Rate limited to not offend MAL, please try again in 30s <:KaiCry:778399319086596106>')
         elif isinstance(error, ValueError) or isinstance(error, BadArgument):
             await ctx.send('<:HuTaoRip:833535556759191572> did you gib nibbles an ID?')

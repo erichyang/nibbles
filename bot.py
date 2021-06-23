@@ -151,7 +151,9 @@ mod = ['purge', 'settings']
 @client.command(name='help', hidden=True)
 async def descriptions(ctx):
     desc = 'Here are the categories of nibbles\'s commands! React to the corresponding category to learn more!\n'
-    desc += 'Mention nibbles for an :8ball: response!'
+    desc += 'Mention nibbles for an :8ball: response!\n'
+    desc += 'For more help, join [Nibble\'s training ground](https://discord.gg/hycRhPYNpP)'
+
     embed = discord.Embed(title="Nibbles is here to help", color=random.randint(0, 0xFFFFFF), description=desc)
 
     embed.add_field(name='**Anime** <a:KannaEat:844266819430776924>', value=str(anime))
