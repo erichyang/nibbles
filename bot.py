@@ -127,7 +127,8 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.CommandNotFound):
         pass
     else:
-        print(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
+        channel = await client.fetch_channel(819271204468031508)
+        await channel.send(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
 
 
 @client.event

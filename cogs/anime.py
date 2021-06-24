@@ -478,7 +478,8 @@ class Anime(commands.Cog):
         elif isinstance(error, ValueError) or isinstance(error, BadArgument):
             await ctx.send('<:HuTaoRip:833535556759191572> did you gib nibbles an ID?')
         else:
-            print(error)
+            channel = await self.client.fetch_channel(819271204468031508)
+            await channel.send(error)
 
 
 def setup(client):
