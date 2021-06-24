@@ -21,7 +21,7 @@ def anime_db(user_id, item):
         if len(doc) > 0:
             return doc[0].get(item)
         else:
-            return doc
+            return
 
 
 def anime_inventory_add(user_id, character_id):
@@ -83,7 +83,7 @@ class Anime(commands.Cog):
         animes = []
         for user_id in chatters:
             doc = anime_db(user_id, 'anime_list')
-            if len(doc) == 0:
+            if doc is None or len(doc) == 0:
                 continue
             for anime_id in doc:
                 if anime_id not in animes:
@@ -135,7 +135,7 @@ class Anime(commands.Cog):
                 except IndexError:
                     return
                 mal_id = int(embed.footer.text)
-                if any(char['mal_id'] == mal_id for char in inventory):
+                if inventory is not None and any(char['mal_id'] == mal_id for char in inventory):
                     await self.udb.update('users', 'bal', f'+4000', user.id)
                     await channel.send(f'**{user.name}** earned 4000 🍪s!')
                     return
@@ -156,6 +156,8 @@ class Anime(commands.Cog):
             elif reaction.emoji == '👋':
                 c_id = int(reaction.message.embeds[0].footer.text)
                 inventory = anime_db(user.id, 'inventory')
+                if inventory is None:
+                    return
                 char = None
                 index = -1
                 for i, item in enumerate(inventory):
@@ -173,6 +175,8 @@ class Anime(commands.Cog):
                         db.update({'inventory': inventory}, Query().user == user.id)
             elif reaction.emoji == '🙌' or reaction.emoji == '💞':
                 inventory = anime_db(user.id, 'inventory')
+                if inventory is None:
+                    return
                 c_id = int(reaction.message.embeds[0].footer.text)
                 char = None
                 index = -1
@@ -198,6 +202,8 @@ class Anime(commands.Cog):
             await ctx.send('Your anime list is currently empty!')
             return
         anime_ids = anime_db(ctx.author.id, 'anime_list')
+        if anime_ids is None:
+            return
         desc = 'When an anime character randomly appears, your list of animes will have a chance to appear!'
         embed = discord.Embed(title=f'My Animes {len(anime_ids)}/10', description=desc)
         al = []
@@ -278,7 +284,8 @@ class Anime(commands.Cog):
             return
         inventory = anime_db(user.id, 'inventory')
         quick_sort(inventory, 0, len(inventory) - 1,
-                   lambda x, y: x['affection'] < y['affection'] and x['mal_id'] < y['mal_id'])
+                   lambda x, y: ((x['affection'] == y['affection']) and x['mal_id'] > y['mal_id']) or
+                   x['affection'] < y['affection'])
         with TinyDB('./data/anime.json') as db:
             db.update({'inventory': inventory}, Query().user == user.id)
         if (len(inventory) / 15) < sect:
@@ -290,10 +297,18 @@ class Anime(commands.Cog):
             end_index = len(inventory)
         for item in inventory[start_index:end_index]:
             character = self.mal_character(item['mal_id'])
-            cl.append((character['mal_id'], character['name'], item['affection']))
+            cl.append((character['mal_id'], character['name'], item['affection'], item['relationship']))
         desc = ""
         for tup in cl:
-            desc += f"[{tup[0]}] {tup[1]} - {tup[2]}♥\n"
+            desc += f"[{tup[0]}] {tup[1]} - {tup[2]}"
+            if tup[3] is None:
+                heart = '♥'
+            elif tup[3]:
+                heart = '💖'
+            else:
+                heart = '💕'
+
+            desc += f"{heart}\n"
 
         embed = discord.Embed(title=f"{user.name}'s adventure party", description=desc, footer=str(sect))
         embed.set_footer(text=str(sect))
@@ -316,6 +331,8 @@ class Anime(commands.Cog):
     async def anime_character(self, ctx, *, character_id):
         if character_id in ['A', 'B', 'C', 'D', 'E']:
             inventory = anime_db(ctx.author.id, 'inventory')
+            if inventory is None:
+                return
             index = ord(character_id) - ord('A')
             if inventory[index] is not None:
                 character_id = inventory[index]['mal_id']
@@ -365,6 +382,8 @@ class Anime(commands.Cog):
         desc = f"Favorite by {character['member_favorites']} members\n{about}\n\nAppears in: {animes}"
         embed = discord.Embed(title=f"**{character['name']}** {character['name_kanji']}", description=desc)
         inventory = anime_db(ctx.author.id, 'inventory')
+        if inventory is None:
+            return
         char = next((x for x in inventory if x['mal_id'] == int(character_id)), None)
         if char is not None:
             lvl = self.genshin_db.level_calc(char['affection'] * 1000)[0]
@@ -399,7 +418,7 @@ class Anime(commands.Cog):
             embed.add_field(name=f'{title} - {relationship}', value=f"{char['affection']}♥")
             if char['relationship'] is None:
                 embed.add_field(name='React 🙌 or 💞', value='to choose between friendship or romance, respectively. '
-                                'Choose wisely, you only get this choice once per character!')
+                                                             'Choose wisely, you only get this choice once per character!')
             # multiplier of 1000 for converting between genshin and anime levels
             # 0 - strangers
             # 20 - acquaintances
@@ -425,6 +444,8 @@ class Anime(commands.Cog):
                       aliases=['give'])
     async def anime_give(self, ctx, c_id: int):
         inventory = anime_db(ctx.author.id, 'inventory')
+        if inventory is None:
+            return
         char = None
         index = -1
         for i, item in enumerate(inventory):
@@ -434,7 +455,8 @@ class Anime(commands.Cog):
                 break
         recipient = ctx.message.mentions[0]
         recip_inv = anime_db(recipient.id, 'inventory')
-        if char is not None and len(recip_inv) != 0 and recipient is not ctx.author:
+        if char is not None and recip_inv is not None and recipient is not ctx.author and \
+                not any(other['mal_id'] == c_id for other in recip_inv):
             inventory.pop(index)
             char['affection'] = 0
             char['relationship'] = None
@@ -443,12 +465,16 @@ class Anime(commands.Cog):
                 db.update({'inventory': inventory}, Query().user == ctx.author.id)
                 db.update({'inventory': recip_inv}, Query().user == recipient.id)
             await ctx.send('Done!')
+            return
+        await ctx.send('The gift process failed.')
 
     @commands.command(description=
                       'kick an anime character from your adventure party, receive a portion of the initial cost back\n'
                       '.remove 169181', aliases=['akick'])
     async def anime_character_kick(self, ctx, c_id):
         inventory = anime_db(ctx.author.id, 'inventory')
+        if inventory is None:
+            return
         char = None
         index = -1
         refund = int(math.log2(self.mal_character(c_id)['member_favorites'] + 1) * 400)
