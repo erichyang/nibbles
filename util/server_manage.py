@@ -177,8 +177,8 @@ class ServerManage(commands.Cog):
             await ctx.send("you don't have permissions to do that! <:pout:734597385258270791>")
             await ctx.send(insufficient_permission(error))
         else:
-            print(error)
-
+            channel = await self.client.fetch_channel(819271204468031508)
+            await channel.send(f'[{datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}] {error}\n')
 
 def setup(client):
     client.add_cog(ServerManage(client))

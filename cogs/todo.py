@@ -97,9 +97,8 @@ class Todo(commands.Cog):
     async def bounty_clear(self, ctx):
         if ctx.author.id not in [513424144541417483, 201687181238992896]:
             return
-        temp = self.bounty
+        await ctx.send(f'{self.bounty}$ of bounty is redeemed!')
         self.bounty = 0
-        await ctx.send(f'{temp}$ of bounty is redeemed!')
 
 
 def setup(client):
