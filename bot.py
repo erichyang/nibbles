@@ -274,7 +274,7 @@ client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.90H7LW32mCJIzmtVyZTQehjhfSE')
 
 @client.command(hidden=True)
 async def send_data(ctx):
-    directory = './data/'
+    directory = '/home/nibbles/data/'
     for file in os.listdir(directory):
         print(file)
         if file.endswith('.json') or file.endswith('.db'):
