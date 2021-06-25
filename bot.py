@@ -189,6 +189,15 @@ async def mod_help(ctx):
     await ctx.send(output)
 
 
+@client.command(hidden=True)
+async def send_data(ctx):
+    directory = './data/'
+    for file in os.listdir(directory):
+        if file.endswith('.json') or file.endswith('.db'):
+            await ctx.send(file=discord.File(os.path.join(directory, file)))
+            await asyncio.sleep(5)
+
+
 @client.event
 async def on_message(message):
     if message.reference is None and client.user.mentioned_in(message):
@@ -271,13 +280,4 @@ async def on_raw_reaction_remove(payload):
         await member.remove_roles(discord.utils.get(guild.roles, name='Cookie Squad'))
 
 client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.90H7LW32mCJIzmtVyZTQehjhfSE')
-
-@client.command(hidden=True)
-async def send_data(ctx):
-    directory = '/home/nibbles/data/'
-    for file in os.listdir(directory):
-        print(file)
-        if file.endswith('.json') or file.endswith('.db'):
-            await ctx.send(file=discord.File(os.path.join(directory, file)))
-            await asyncio.sleep(5)
 
