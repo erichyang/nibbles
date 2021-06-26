@@ -18,17 +18,14 @@ def _bj_total(hand):
     for card in hand:
         if card[0] == 1:
             num_ace += 1
-            val += 1
         elif card[0] == 11 or card[0] == 12 or card[0] == 13:
             val += 10
         else:
             val += card[0]
-    dist = 21 - val
-
-    while dist > num_ace*10 and num_ace > 0:
-        val += 10
+    val += num_ace*11
+    while val > 21:
+        val -= 10
         num_ace -= 1
-        dist = 21-val
     return val
 
 
@@ -114,8 +111,8 @@ class Gamble(commands.Cog):
         else:
             bet = int(bet)
 
-        if bet > 1600:
-            await ctx.send("Please don't gamble more than 1600, nibbles can't count all these nom noms")
+        if bet > 3200:
+            await ctx.send("Please don't gamble more than 3200, nibbles can't count all these nom noms")
             return
         if bet <= 0:
             await ctx.send('The coin showed ' + random.choice(['heads!', 'tails!']))
