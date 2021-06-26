@@ -115,7 +115,8 @@ async def on_member_join(member):
 @client.event
 async def on_member_remove(member):
     channel = servers.greetings_channel(member.guild.id)
-    await channel.send(f'Bai bai {member.name} <:qiqi:813767632904781915>')
+    if channel is not None:
+        await channel.send(f'Bai bai {member.name} <:qiqi:813767632904781915>')
 
 
 @client.event

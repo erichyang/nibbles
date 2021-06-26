@@ -436,9 +436,9 @@ class Anime(commands.Cog):
         msg = await ctx.send(embed=embed)
         if char is not None:
             await msg.add_reaction('👋')
-        if char['relationship'] is None:
-            await msg.add_reaction('🙌')
-            await msg.add_reaction('💞')
+            if char['relationship'] is None:
+                await msg.add_reaction('🙌')
+                await msg.add_reaction('💞')
 
     @commands.command(description='give an anime character you have claimed to someone else\n.give 118739 @bit',
                       aliases=['give'])
@@ -498,7 +498,7 @@ class Anime(commands.Cog):
     @anime_inventory.error
     @anime_character.error
     async def rate_limit_error(self, ctx, error):
-        if isinstance(error, CommandInvokeError) and error.original.error_json is not None and \
+        if isinstance(error, CommandInvokeError) and hasattr(error.original, 'error_json') and \
                 error.original.error_json['type'] == 'RateLimitException':
             await ctx.send('Rate limited to not offend MAL, please try again in 30s <:KaiCry:778399319086596106>')
         elif isinstance(error, ValueError) or isinstance(error, BadArgument):
