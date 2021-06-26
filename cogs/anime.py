@@ -117,7 +117,7 @@ class Anime(commands.Cog):
         embed = discord.Embed(title=f"**{char['name']}**", description=desc)
         embed.set_image(url=image)
         embed.set_footer(text=str(c_id))
-        msg = await channel.send(embed=embed, delete_after=600)
+        msg = await channel.send(content='Anime character appearance!', embed=embed, delete_after=600)
         await msg.add_reaction('🍪')
 
     @commands.Cog.listener()
@@ -136,8 +136,21 @@ class Anime(commands.Cog):
                     return
                 mal_id = int(embed.footer.text)
                 if inventory is not None and any(char['mal_id'] == mal_id for char in inventory):
-                    await self.udb.update('users', 'bal', f'+4000', user.id)
-                    await channel.send(f'**{user.name}** earned 4000 🍪s!')
+                    index = -1
+                    pin = 100
+                    flag = True
+                    async for message in channel.history(limit=50):
+                        index += 1
+                        if message.author.user == self.client.user:
+                            if message.content == 'Anime character appearance!':
+                                pin = index
+                                flag = True
+                            if message.content == f'**{user.mention}** earned 4000 🍪s!':
+                                if index > pin:
+                                    flag = False
+                    if flag and pin != 100:
+                        await self.udb.update('users', 'bal', f'+4000', user.id)
+                        await channel.send(f'**{user.mention}** earned 4000 🍪s!')
                     return
 
                 await reaction.message.delete()
@@ -166,7 +179,7 @@ class Anime(commands.Cog):
                         index = i
                         break
                 if user.id not in self.interactions and char is not None:
-                    gain = random.randint(10, 100)
+                    gain = random.randint(15, 100)
                     await reaction.message.channel.send(f'You gained {gain} affection!')
                     self.interactions.append(user.id)
                     with TinyDB('./data/anime.json') as db:
