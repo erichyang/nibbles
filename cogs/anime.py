@@ -395,7 +395,6 @@ class Anime(commands.Cog):
             anime_results = anime_results['results']
             content = "Anime Character Search Results - use .achar <MAL ID> for a detailed view of this character!\n"
             count = 0
-            for anime in anime_results['results']:
             for anime in anime_results:
                 count += 1
                 if count == 11:
