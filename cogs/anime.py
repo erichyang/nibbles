@@ -139,7 +139,9 @@ class Anime(commands.Cog):
         with TinyDB('./data/anime.json') as db:
             docs = db.search(Query().wishlist.all([c_id]))
         for user in docs:
-            pings.append(self.client.get_user(user['user']).mention)
+            user = self.client.get_user(user['user'])
+            if user in channel.members:
+                pings.append(user.mention)
 
         msg = await channel.send(content=f'Anime character appearance!\n{unarr(pings)}', embed=embed, delete_after=1800)
         await msg.add_reaction('🍪')
@@ -373,7 +375,10 @@ class Anime(commands.Cog):
 
     @commands.command(aliases=['achar'], description='Look up an anime character by name or ID. '
                                                      'Quickly access the top of your inventory with A-E. '
-                                                     'Name search term must be longer than three characters. \n'
+                                                     'Name search term must be longer than three characters.\n'
+                                                     'If a character is not found here, use the cast of characters '
+                                                     'from the description of the anime using .al <ID> to find your '
+                                                     'character. Sowwy for the inconvenience.\n'
                                                      '.anime_character Kanna Kamui; .achar 170466; .achar A')
     async def anime_character(self, ctx, *, character_id):
         if character_id in ['A', 'B', 'C', 'D', 'E']:
