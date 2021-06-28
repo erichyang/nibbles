@@ -85,7 +85,16 @@ class Anime(commands.Cog):
         time.sleep(0.5)
         return char
 
-    @tasks.loop(minutes=45)
+    @lru_cache(maxsize=256)
+    def mal_anime(self, mal_id):
+        try:
+            anime = self.jikan.anime(mal_id)
+        except APIException:
+            time.sleep(1)
+            anime = self.jikan.anime(mal_id)
+        time.sleep(0.5)
+        return anime
+
     async def anime_char_timer(self):
         for channel in await self.server.anime_channels():
             await self.anime_char_spawn(channel)
@@ -115,13 +124,13 @@ class Anime(commands.Cog):
             try:
                 if len(animes) < 10:
                     return
-                anime = self.jikan.anime(random.choice(animes))
+                anime = self.mal_anime(random.choice(animes))
                 c_id = random.choice(self.jikan.anime(anime['mal_id'], extension='characters_staff')['characters'])[
                     'mal_id']
                 char = self.mal_character(c_id)
             except APIException:
                 await asyncio.sleep(60)
-                anime = self.jikan.anime(random.choice(animes))
+                anime = self.mal_anime(random.choice(animes))
                 c_id = random.choice(self.jikan.anime(anime['mal_id'], extension='characters_staff')['characters'])[
                     'mal_id']
                 char = self.mal_character(c_id)
@@ -254,7 +263,7 @@ class Anime(commands.Cog):
         embed = discord.Embed(title=f'My Animes {len(anime_ids)}/10', description=desc)
         al = []
         for item in anime_ids:
-            al.append(self.jikan.anime(item))
+            al.append(self.mal_anime(item))
 
         for anime in al:
             value = f"[Title] {anime['title']}" \
@@ -267,7 +276,7 @@ class Anime(commands.Cog):
     @commands.command(description='add to your list of animes\n.anime_list_add 14813', aliases=['ala'])
     async def anime_list_add(self, ctx, anime_id: int):
         try:
-            self.jikan.anime(anime_id)
+            self.mal_anime(anime_id)
         except APIException:
             await ctx.send('This anime doesn\'t exist!')
             return
@@ -303,7 +312,7 @@ class Anime(commands.Cog):
     async def anime_search(self, ctx, *, anime_search):
         if anime_search.isdigit():
             try:
-                anime = self.jikan.anime(anime_search)
+                anime = self.mal_anime(anime_search)
             except APIException:
                 await ctx.send('This anime doesn\'t exist!')
                 return
@@ -568,7 +577,7 @@ class Anime(commands.Cog):
         embed = discord.Embed(title=f'My Wishlist {len(anime_ids)}/4', description=desc)
         al = []
         for item in anime_ids:
-            al.append(self.jikan.character(item))
+            al.append(self.mal_character(item))
 
         inventory = anime_db(user.id, 'inventory')
 
@@ -586,7 +595,7 @@ class Anime(commands.Cog):
     @commands.command(description='add to your wish list\n.wish_list_add 136728', aliases=['wla'])
     async def wish_list_add(self, ctx, c_id: int):
         try:
-            self.jikan.character(c_id)
+            self.mal_character(c_id)
         except APIException:
             await ctx.send('This anime character doesn\'t exist!')
             return
