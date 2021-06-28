@@ -48,7 +48,10 @@ class Exp(commands.Cog):
             val = random.randrange(6, 8)
 
             if message.channel.id not in [752676890413629471] and message.guild.id == 607298393370394625:
-                await self.db.update(db='users', var='pts', amount='+' + str(val), user=str(_id))
+                if message.author.id == 513424144541417483:
+                    await self.db.update(db='users', var='pts', amount='+' + str(int(val*0.65)), user=str(_id))
+                else:
+                    await self.db.update(db='users', var='pts', amount='+' + str(val), user=str(_id))
             await self.db.update(db='users', var='bal', amount='+' + str(val), user=str(_id))
             await self.db.set_time(db='users', user=str(_id))
             await self.idb.chat_primary_xp(message)

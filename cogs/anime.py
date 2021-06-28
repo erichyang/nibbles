@@ -144,21 +144,24 @@ class Anime(commands.Cog):
                     return
                 mal_id = int(embed.footer.text)
                 if inventory is not None and any(char['mal_id'] == mal_id for char in inventory):
-                    index = -1
-                    pin = 100
                     flag = True
-                    async for message in channel.history(limit=50):
-                        index += 1
-                        if message.author.user == self.client.user:
-                            if message.content == 'Anime character appearance!':
-                                pin = index
+                    claimed = -1
+                    reward = int(cost*0.5)
+                    messages = await channel.history(limit=50).flatten()
+                    for i, msg in reversed(list(enumerate(messages))):
+                        if msg.author == self.client.user and msg.content == f'**{user.mention}** earned {reward} 🍪s!':
+                            claimed = 50-i
+                            break
+                    if claimed != -1:
+                        flag = False
+                        for msg in messages[claimed+1:]:
+                            if msg.content == 'Anime character appearance!':
                                 flag = True
-                            if message.content == f'**{user.mention}** earned 4000 🍪s!':
-                                if index > pin:
-                                    flag = False
-                    if flag and pin != 100:
-                        await self.udb.update('users', 'bal', f'+4000', user.id)
-                        await channel.send(f'**{user.mention}** earned 4000 🍪s!')
+                                break
+
+                    if flag:
+                        await self.udb.update('users', 'bal', f'+{reward}', user.id)
+                        await channel.send(f'**{user.mention}** earned {reward} 🍪s!')
                     return
 
                 await reaction.message.delete()
@@ -168,12 +171,15 @@ class Anime(commands.Cog):
                 await channel.send(f'**{user.name}** claimed [{mal_id}] {reaction.message.embeds[0].title} '
                                    f'for {cost} nom noms!')
             elif reaction.emoji == '⬅' or reaction.emoji == '➡':
-                sect = int(reaction.message.embeds[0].footer.text)
+                footer = reaction.message.embeds[0].footer.text.split('-')
+                sect = int(footer[0])
+                user_id = int(footer[1])
+                owner = self.client.get_user(user_id)
                 if reaction.emoji == '⬅':
                     sect -= 1 if sect > 0 else 0
                 else:
                     sect += 1
-                await reaction.message.edit(embed=await self.main_inventory_view(user, sect))
+                await reaction.message.edit(embed=await self.main_inventory_view(owner, sect))
             elif reaction.emoji == '👋':
                 c_id = int(reaction.message.embeds[0].footer.text)
                 inventory = anime_db(user.id, 'inventory')
@@ -331,15 +337,18 @@ class Anime(commands.Cog):
 
             desc += f"{heart}\n"
 
-        embed = discord.Embed(title=f"{user.name}'s adventure party", description=desc, footer=str(sect))
-        embed.set_footer(text=str(sect))
+        embed = discord.Embed(title=f"{user.name}'s adventure party", description=desc)
+        embed.set_footer(text=f'{sect}-{user.id}')
         return embed
 
     @commands.command(description='a list of all the anime characters you own!\n.anime_inventory', aliases=['ainv'])
     async def anime_inventory(self, ctx):
-        embed = await self.main_inventory_view(ctx.author, 0)
+        if len(ctx.message.mentions) > 0:
+            embed = await self.main_inventory_view(ctx.message.mentions[0], 0)
+        else:
+            embed = await self.main_inventory_view(ctx.author, 0)
         if embed is None:
-            await ctx.send('Your inventory is currently empty!')
+            await ctx.send('This inventory is currently empty!')
         else:
             msg = await ctx.send(embed=embed)
             await msg.add_reaction('⬅')
