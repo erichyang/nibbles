@@ -387,10 +387,16 @@ class Anime(commands.Cog):
             if len(character_id) <= 3:
                 await ctx.send("Please search for a name that is longer than three letters")
                 return
-            anime_results = self.jikan.search('character', character_id)
+            try:
+                anime_results = self.jikan.search('character', character_id)
+            except APIException:
+                await ctx.send('This query could not locate any results')
+                return
+            anime_results = anime_results['results']
             content = "Anime Character Search Results - use .achar <MAL ID> for a detailed view of this character!\n"
             count = 0
             for anime in anime_results['results']:
+            for anime in anime_results:
                 count += 1
                 if count == 11:
                     break
@@ -554,7 +560,7 @@ class Anime(commands.Cog):
         anime_ids = anime_db(user.id, 'wishlist')
         if anime_ids is None:
             return
-        desc = 'When an anime character randomly appears, your wished characters will have a higher chance to appear!'
+        desc = 'When your wished anime character randomly appears, you will be notified!'
         embed = discord.Embed(title=f'My Wishlist {len(anime_ids)}/4', description=desc)
         al = []
         for item in anime_ids:
