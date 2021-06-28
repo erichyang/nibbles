@@ -15,7 +15,7 @@ from util.idb import quick_sort
 
 
 def anime_db(user_id, item):
-    # item is either anime_list, wish_list, inventory
+    # item is either anime_list, wishlist, inventory
     with TinyDB('./data/anime.json') as db:
         doc = db.search(Query().user == user_id)
         if len(doc) > 0:
@@ -48,6 +48,15 @@ def _parse_about(about, item):
     if len(parse) > 50:
         parse = about[index:].partition('\n')[0]
     return parse
+
+
+def unarr(pings):
+    if len(pings) == 0:
+        return ''
+    output = pings[0]
+    for member in pings[1:]:
+        output += f', {member}'
+    return output
 
 
 class Anime(commands.Cog):
@@ -100,7 +109,8 @@ class Anime(commands.Cog):
         anime = {}
         char = {}
         c_id = -1
-        await asyncio.sleep(20)
+
+        # await asyncio.sleep(20)
         while 'questionmark_23' in image or 'apple-touch-icon' in image:
             try:
                 if len(animes) < 10:
@@ -110,7 +120,7 @@ class Anime(commands.Cog):
                     'mal_id']
                 char = self.mal_character(c_id)
             except APIException:
-                time.sleep(1)
+                await asyncio.sleep(60)
                 anime = self.jikan.anime(random.choice(animes))
                 c_id = random.choice(self.jikan.anime(anime['mal_id'], extension='characters_staff')['characters'])[
                     'mal_id']
@@ -125,7 +135,13 @@ class Anime(commands.Cog):
         embed = discord.Embed(title=f"**{char['name']}**", description=desc)
         embed.set_image(url=image)
         embed.set_footer(text=str(c_id))
-        msg = await channel.send(content='Anime character appearance!', embed=embed, delete_after=1800)
+        pings = []
+        with TinyDB('./data/anime.json') as db:
+            docs = db.search(Query().wishlist.all([c_id]))
+        for user in docs:
+            pings.append(self.client.get_user(user['user']).mention)
+
+        msg = await channel.send(content=f'Anime character appearance!\n{unarr(pings)}', embed=embed, delete_after=1800)
         await msg.add_reaction('🍪')
 
     @commands.Cog.listener()
@@ -155,7 +171,7 @@ class Anime(commands.Cog):
                     if claimed != -1:
                         flag = False
                         for msg in messages[claimed+1:]:
-                            if msg.content == 'Anime character appearance!':
+                            if 'Anime character appearance!' in msg.content:
                                 flag = True
                                 break
 
@@ -225,10 +241,11 @@ class Anime(commands.Cog):
 
     @commands.command(description='your list of animes that you would like to appear\n.anime_list', aliases=['al'])
     async def anime_list(self, ctx):
-        if not profile_exists(ctx.author.id):
+        user = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
+        if not profile_exists(user.id):
             await ctx.send('Your anime list is currently empty!')
             return
-        anime_ids = anime_db(ctx.author.id, 'anime_list')
+        anime_ids = anime_db(user.id, 'anime_list')
         if anime_ids is None:
             return
         desc = 'When an anime character randomly appears, your list of animes will have a chance to appear!'
@@ -527,6 +544,85 @@ class Anime(commands.Cog):
         else:
             channel = await self.client.fetch_channel(819271204468031508)
             await channel.send(error)
+
+    @commands.command(aliases=['wl'], description='Sometimes wishes do come true. (mentions you if a wish appears)')
+    async def wish_list(self, ctx):
+        user = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
+        if not profile_exists(user.id):
+            await ctx.send('Your wish list is currently empty!')
+            return
+        anime_ids = anime_db(user.id, 'wishlist')
+        if anime_ids is None:
+            return
+        desc = 'When an anime character randomly appears, your wished characters will have a higher chance to appear!'
+        embed = discord.Embed(title=f'My Wishlist {len(anime_ids)}/4', description=desc)
+        al = []
+        for item in anime_ids:
+            al.append(self.jikan.character(item))
+
+        inventory = anime_db(user.id, 'inventory')
+
+        for anime in al:
+            value = f"[Name] {anime['name']}" \
+                    f"\n[Favorites] {anime['member_favorites']}" \
+                    f"\n[MyAnimeList]({anime['url']})"
+            owned = ''
+            if any(char['mal_id'] == anime['mal_id'] for char in inventory):
+                owned = ' ✅'
+            embed.add_field(name=str(anime['mal_id']) + owned, value=value)
+
+        await ctx.send(embed=embed)
+
+    @commands.command(description='add to your wish list\n.wish_list_add 136728', aliases=['wla'])
+    async def wish_list_add(self, ctx, c_id: int):
+        try:
+            self.jikan.character(c_id)
+        except APIException:
+            await ctx.send('This anime character doesn\'t exist!')
+            return
+        profile_exists(ctx.author.id)
+        current = anime_db(ctx.author.id, 'wishlist')
+        if len(current) >= 4:
+            await ctx.send('Your wish list is full!')
+            return
+        if c_id in current:
+            await ctx.send('You already have this anime in your list!')
+            return
+        with TinyDB('./data/anime.json') as db:
+            current.append(c_id)
+            db.update({'wishlist': current}, Query().user == ctx.author.id)
+        await ctx.send('Successfully added!')
+
+    @commands.command(description='remove from your wish list\n.wish_list_remove 169181', aliases=['wlr'])
+    async def wish_list_remove(self, ctx, anime_id: int):
+        current = anime_db(ctx.author.id, 'wishlist')
+        if current is None:
+            await ctx.end("You do not have any wished characters in your list yet")
+            return
+        if anime_id in current:
+            current.remove(anime_id)
+            with TinyDB('./data/anime.json') as db:
+                db.update({'wishlist': current}, Query().user == ctx.author.id)
+            await ctx.send('Wished character removed successfully')
+        else:
+            await ctx.send('This character is not in your list')
+
+    @commands.command(description='clear owned from your wish list\n.wish_list_clear', aliases=['wlc'])
+    async def wish_list_clear(self, ctx):
+        current = anime_db(ctx.author.id, 'wishlist')
+        if current is None:
+            await ctx.end("You do not have any wished characters in your list yet")
+            return
+        inventory = anime_db(ctx.author.id, 'inventory')
+        count = 0
+        for item in inventory:
+            if any(item['mal_id'] == char_id for char_id in current):
+                current.remove(item['mal_id'])
+                count+=1
+
+        with TinyDB('./data/anime.json') as db:
+            db.update({'wishlist': current}, Query().user == ctx.author.id)
+            await ctx.send(f'All owned characters ({count}) are cleared from your wishlist')
 
 
 def setup(client):
