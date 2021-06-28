@@ -42,6 +42,14 @@ def profile_exists(user_id):
         return True
 
 
+def _parse_about(about, item):
+    index = about.find(item)
+    parse = about[index:].partition('\\n')[0]
+    if len(parse) > 50:
+        parse = about[index:].partition('\n')[0]
+    return parse
+
+
 class Anime(commands.Cog):
 
     def __init__(self, client):
@@ -117,7 +125,7 @@ class Anime(commands.Cog):
         embed = discord.Embed(title=f"**{char['name']}**", description=desc)
         embed.set_image(url=image)
         embed.set_footer(text=str(c_id))
-        msg = await channel.send(content='Anime character appearance!', embed=embed, delete_after=600)
+        msg = await channel.send(content='Anime character appearance!', embed=embed, delete_after=1800)
         await msg.add_reaction('🍪')
 
     @commands.Cog.listener()
@@ -350,6 +358,9 @@ class Anime(commands.Cog):
             if inventory[index] is not None:
                 character_id = inventory[index]['mal_id']
         elif not character_id.isdigit():
+            if len(character_id) <= 3:
+                await ctx.send("Please search for a name that is longer than three letters")
+                return
             anime_results = self.jikan.search('character', character_id)
             content = "Anime Character Search Results - use .achar <MAL ID> for a detailed view of this character!\n"
             count = 0
@@ -360,39 +371,27 @@ class Anime(commands.Cog):
                 content += f"\n[**{anime['mal_id']}**] {anime['name']}"
             await ctx.send(content)
             return
+
         try:
             character = self.mal_character(character_id)
         except APIException:
             await ctx.send('Sorry, nibbles cannot find this character right now, pls try again later?')
             return
-
         about_var = []
         if 'Age: ' in character['about']:
-            index = character['about'].find('Age: ')
-            about_var.append(character['about'][index:].partition('\\n')[0])
+            about_var.append(_parse_about(character['about'], 'Age: '))
         if 'Birthday: ' in character['about']:
-            index = character['about'].find('Birthday: ')
-            about_var.append(character['about'][index:].partition('\\n')[0])
+            about_var.append(_parse_about(character['about'], 'Birthday: '))
         if 'Height: ' in character['about']:
-            index = character['about'].find('Height: ')
-            about_var.append(character['about'][index:].partition('\\n')[0])
+            about_var.append(_parse_about(character['about'], 'Height: '))
         if 'Weight: ' in character['about']:
-            index = character['about'].find('Weight: ')
-            about_var.append(character['about'][index:].partition('\\n')[0])
+            about_var.append(_parse_about(character['about'], 'Weight: '))
         if 'Affiliation: ' in character['about']:
-            index = character['about'].find('Affiliation: ')
-            about_var.append(character['about'][index:].partition('\\n')[0])
+            about_var.append(_parse_about(character['about'], 'Affiliation: '))
         about = ''
         for var in about_var:
             about += var + '\n'
-        ag = character['animeography']
-        animes = f"[{ag[0]['mal_id']}] {ag[0]['name']}"
-        for anime in ag[1:-1]:
-            animes += f', [{anime["mal_id"]}] {anime["name"]}'
-        if len(character['animeography']) > 1:
-            animes += f" and [{ag[-1]['mal_id']}] {ag[-1]['name']}"
-
-        desc = f"Favorite by {character['member_favorites']} members\n{about}\n\nAppears in: {animes}"
+        desc = f"Favorite by {character['member_favorites']} members\n{about}\n[MyAnimeList profile]({character['url']})"
         embed = discord.Embed(title=f"**{character['name']}** {character['name_kanji']}", description=desc)
         inventory = anime_db(ctx.author.id, 'inventory')
         if inventory is None:
