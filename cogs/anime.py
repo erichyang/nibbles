@@ -101,7 +101,10 @@ class Anime(commands.Cog):
         self.interactions = []
 
     async def anime_char_spawn(self, channel):
+        log = await self.client.fetch_channel(819271204468031508)
+        await log.send('starting timer')
         await asyncio.sleep(random.randint(0, 900))
+        await log.send('attempting anime character send to ' + channel.name)
         chatters = []
         async for message in channel.history(limit=100):
             if message.author.id not in chatters:
@@ -154,6 +157,7 @@ class Anime(commands.Cog):
 
         msg = await channel.send(content=f'Anime character appearance!\n{unarr(pings)}', embed=embed, delete_after=1800)
         await msg.add_reaction('🍪')
+        await log.send(f'character sent to {channel.name}')
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
