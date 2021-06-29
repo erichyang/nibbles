@@ -95,6 +95,7 @@ class Anime(commands.Cog):
         time.sleep(0.5)
         return anime
 
+    @tasks.loop(minutes=45)
     async def anime_char_timer(self):
         for channel in await self.server.anime_channels():
             await self.anime_char_spawn(channel)
