@@ -1,6 +1,7 @@
 import asyncio
 import math
 import random
+import threading
 import time
 from functools import lru_cache
 
@@ -98,7 +99,9 @@ class Anime(commands.Cog):
     @tasks.loop(minutes=45)
     async def anime_char_timer(self):
         for channel in await self.server.anime_channels():
-            await self.anime_char_spawn(channel)
+            send_fut = asyncio.run_coroutine_threadsafe(self.anime_char_spawn(channel), self.client.loop)
+            _thread = threading.Thread(target=send_fut.result, args=())
+            _thread.start()
         self.interactions = []
 
     async def anime_char_spawn(self, channel):

@@ -136,8 +136,9 @@ async def on_command_error(ctx, error):
 async def on_guild_join(guild):
     await guild.owner.send("Haiii I'm nibbles, I am happy to meet you <a:ChikaYay:846769277944332319>")
     await guild.owner.send("Set up for nibbles is ez! There are numerous things that nibbles can do, use the command "
-                           ".settings in a channel you would want nibbles to be in to start!")
-    await guild.owner.send("If you run into any issues, you could always ask ʙɪᴛ#5595!")
+                           ".settings and .help in a channel you would want nibbles to be in to start!")
+    await guild.owner.send("If you run into any issues, you could always join the support server "
+                           "linked in .help and ask ʙɪᴛ#5595!")
     return
 
 utility = ['choose', 'poll', 'get_pfp', 'size', 'profile', 'set_desc', 'set_birthday']
@@ -158,7 +159,9 @@ async def descriptions(ctx):
 
     embed = discord.Embed(title="Nibbles is here to help", color=random.randint(0, 0xFFFFFF), description=desc)
 
-    embed.add_field(name='**Anime** <a:KannaEat:844266819430776924>', value=str(anime))
+    simplified_anime = ['anime_list', 'anime_inventory', 'anime_search', 'anime_character', 'anime_character_kick',
+                        'anime_give', 'wish_list']
+    embed.add_field(name='**Anime** <a:KannaEat:844266819430776924>', value=str(simplified_anime))
     embed.add_field(name='**Genshin** <:genshin:849405822781227069>', value=str(genshin))
     embed.add_field(name='**Economy** 💰', value=str(economy))
     if ctx.guild.id == 607298393370394625:
