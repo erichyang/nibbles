@@ -45,7 +45,7 @@ class Exp(commands.Cog):
             tdelta = now - last
             if message.content[0] == '.' or tdelta.seconds < random.randrange(45, 60):
                 return
-            val = random.randrange(6, 8)
+            val = random.randrange(25, 43)
 
             if message.channel.id not in [752676890413629471] and message.guild.id == 607298393370394625:
                 if message.author.id == 513424144541417483:

@@ -166,32 +166,19 @@ class Gamble(commands.Cog):
 
         msg = await channel.send(content="Spinning the Wheel of Fortune", embed=embed, delete_after=75)
 
-        result = random.randint(1, 100)
-        prize = 150
-        if result <= 1:
-            prize = 10000
-        elif 2 <= result <= 3:
-            prize = 5000
-        elif 90 < result <= 100:
-            prize = 400
-        elif 80 < result <= 90:
-            prize = 320
-        elif 70 < result <= 80:
-            prize = 240
-        elif 50 <= result <= 60:
-            prize = 160
-        elif 40 <= result <= 50:
-            prize = 80
+        result = random.randint(700, 2100)
+        if result in [746, 1581, 1566, 2043, 885, 1068, 1578, 851, 1257, 1610, 1637, 1479, 1401, 1945, 1835, 1449]:
+            result = 10000
 
         embed = discord.Embed(title="**REWARDS**", colour=discord.Colour(random.randint(0, 0xFFFFFF)))
         embed.set_thumbnail(url=author.avatar_url)
         embed.set_author(name=str(author))
-        embed.add_field(name="Prize", value=str(prize) + " nom noms", inline=False)
-        embed.add_field(name="Current Balance", value=str(bal[0] + prize), inline=False)
+        embed.add_field(name="Prize", value=str(result) + " nom noms", inline=False)
+        embed.add_field(name="Current Balance", value=str(bal[0] + result), inline=False)
         embed.set_footer(text='use .help to find out what nom noms do!')
 
         await asyncio.sleep(4)
-        await self.db.update(db='users', var='bal', amount='+' + (str(prize)), user=str(author.id))
+        await self.db.update(db='users', var='bal', amount='+' + (str(result)), user=str(author.id))
         await msg.edit(content='Wheel of Fortune Results', embed=embed)
 
     @commands.command(description='give your money to someone else, but why would you do that if you could give them '

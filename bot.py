@@ -78,21 +78,18 @@ async def announce_year_progress(channels):
         await channel.send(f'{datetime.today().year} Progress Bar: \n{year_progress} {(percent * 100):.2f}%')
 
 
-@tasks.loop(hours=12)
+@tasks.loop(hours=24)
 async def announcement_manager():
     # wheel
     await client.get_cog('Gamble').announce_wheel(await servers.wheel_channels())
-
-    now = datetime.utcnow()
-    if now.hour != 18:
-        # genshin_banner
-        await client.get_cog('Summon').new_banner_rotation(await servers.banner_channels())
-        # year_progress
-        await announce_year_progress(await servers.year_progress_channels())
-        # birthday
-        birthdays = servers.birthday_channels()
-        for birthday in birthdays:
-            await client.get_cog('Summon').birthday(birthday[0], birthday[1])
+    # genshin_banner
+    await client.get_cog('Summon').new_banner_rotation(await servers.banner_channels())
+    # year_progress
+    await announce_year_progress(await servers.year_progress_channels())
+    # birthday
+    birthdays = servers.birthday_channels()
+    for birthday in birthdays:
+        await client.get_cog('Summon').birthday(birthday[0], birthday[1])
 
 
 @tasks.loop(minutes=random.randrange(10, 45))

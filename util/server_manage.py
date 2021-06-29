@@ -129,7 +129,7 @@ class ServerManage(commands.Cog):
         embed = discord.Embed(title='Server Settings', description=content)
         self.c.execute("SELECT * FROM servers WHERE guild = ?", (guild_id,))
         channels = self.c.fetchone()
-        embed.add_field(name='1️⃣ bi-daily new wheel available', value=self._parse(channels[1]))
+        embed.add_field(name='1️⃣ daily new wheel available', value=self._parse(channels[1]))
         embed.add_field(name='2️⃣ daily year progress bar', value=self._parse(channels[2]))
         embed.add_field(name='3️⃣ daily genshin banner', value=self._parse(channels[3]))
         embed.add_field(name='4️⃣ server member birthday', value=self._parse(channels[4]))
