@@ -504,9 +504,16 @@ class Anime(commands.Cog):
                 await msg.add_reaction('🙌')
                 await msg.add_reaction('💞')
 
-    @commands.command(description='give an anime character you have claimed to someone else\n.give 118739 @bit',
-                      aliases=['give'])
-    async def anime_give(self, ctx, c_id: int):
+    @commands.command(description='give an anime character you have claimed to someone else\n.agift 118739 @bit',
+                      aliases=['agift'])
+    async def anime_gift(self, ctx, arg1: str, arg2: str):
+        if arg1.isdigit():
+            c_id = int(arg1)
+        elif arg2.isdigit():
+            c_id = int(arg2)
+        else:
+            await ctx.send('Please gift by using .agift @user MAL_ID')
+            return
         inventory = anime_db(ctx.author.id, 'inventory')
         if inventory is None:
             return

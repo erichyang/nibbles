@@ -139,9 +139,10 @@ async def on_guild_join(guild):
     return
 
 utility = ['choose', 'poll', 'get_pfp', 'size', 'profile', 'set_desc', 'set_birthday']
-genshin = ['banner', 'event_wish', 'reg_wish', 'genshin_inventory', 'genshin_character', 'pity', 'quick_sell']
+genshin = ['banner', 'event_wish', 'reg_wish', 'genshin_inventory', 'genshin_character', 'genshin_gift', 'pity',
+           'quick_sell']
 anime = ['anime_list', 'anime_list_add', 'anime_list_remove', 'anime_inventory', 'anime_search', 'anime_character',
-         'anime_character_kick', 'anime_give', 'wish_list', 'wish_list_add', 'wish_list_remove', 'wish_list_clear']
+         'anime_character_kick', 'anime_gift', 'wish_list', 'wish_list_add', 'wish_list_remove', 'wish_list_clear']
 economy = ['gamble_black_jack', 'gamble_coin', 'bal', 'transfer']
 leaderboard = ['leaderboard', 'rank']
 todo = ['todo_list', 'todo_add', 'todo_check']
@@ -157,7 +158,7 @@ async def descriptions(ctx):
     embed = discord.Embed(title="Nibbles is here to help", color=random.randint(0, 0xFFFFFF), description=desc)
 
     simplified_anime = ['anime_list', 'anime_inventory', 'anime_search', 'anime_character', 'anime_character_kick',
-                        'anime_give', 'wish_list']
+                        'anime_gift', 'wish_list']
     embed.add_field(name='**Anime** <a:KannaEat:844266819430776924>', value=str(simplified_anime))
     embed.add_field(name='**Genshin** <:genshin:849405822781227069>', value=str(genshin))
     embed.add_field(name='**Economy** 💰', value=str(economy))

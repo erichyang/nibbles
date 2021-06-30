@@ -237,6 +237,19 @@ class Summon(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    @commands.command(description='Gift a Genshin trading card that unlocks after C6 to someone!\n'
+                                  '.genshin_gift @kit Klee; .ggift Klee @kit', aliases=['ggift'])
+    async def genshin_gift(self, ctx, _, *, char_name):
+        user = ctx.message.mentions[0]
+        if len(idb.search(user.id)) == 0:
+            await ctx.send("The receiver has not created an inventory yet! Please start by summoning. ")
+            return
+        if idb.transfer_card(ctx.author.id, char_name) == 'done':
+            idb.add_char(user.id, char_name)
+            await ctx.send("sent " + char_name + " to " + ctx.message.mentions[0].display_name)
+        else:
+            await ctx.send("You do not have this card transferable")
+
 
 def setup(client):
     client.add_cog(Summon(client))

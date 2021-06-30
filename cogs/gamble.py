@@ -192,21 +192,6 @@ class Gamble(commands.Cog):
             return
         if amount.isdigit():
             amount = int(amount)
-        # hard code hu tao name
-        if amount == "Hu":
-            amount = "Hu Tao"
-        if isinstance(amount, str):
-            if len(idb.search(receiver_id)) == 0:
-                await ctx.send("The receiver has not created an inventory yet! Please start by summoning. ")
-                return
-            if idb.transfer_card(sender_id, amount) == 'done':
-                idb.add_char(receiver_id, amount)
-                await ctx.send("sent " + amount + " to " + ctx.message.mentions[0].display_name)
-            else:
-                await ctx.send("You do not have this card transferable")
-            return
-        else:
-            amount = int(amount)
 
         if int(amount) <= 0:
             await ctx.send("hey you can't do that")

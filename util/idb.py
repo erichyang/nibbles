@@ -142,7 +142,9 @@ class InventoryDatabase(commands.Cog):
         trading = inv.get('trading_cards')
         if trading is not None:
             characters = Counter(trading)
-            embed.add_field(name='Transferable cards', value=str(characters).replace("'", "")[9:-2])
+            value = str(characters).replace("'", "")[9:-2]
+            if value != '':
+                embed.add_field(name='Transferable cards', value=value)
         await ctx.send(embed=embed)
 
     def main_inventory_view(self, _id, inv, color, author, sect):
