@@ -202,7 +202,8 @@ class Anime(commands.Cog):
                 await self.udb.update('users', 'bal', f'-{cost}', user.id)
 
                 anime_inventory_add(user.id, mal_id)
-                await channel.send(f'**{user.name}** claimed [{mal_id}] {reaction.message.embeds[0].title} '
+                name = user.name if user.display_name is None else user.display_name
+                await channel.send(f'**{name}** claimed [{mal_id}] {reaction.message.embeds[0].title} '
                                    f'for {cost} nom noms!')
             elif reaction.emoji == '⬅' or reaction.emoji == '➡':
                 footer = reaction.message.embeds[0].footer.text.split('-')
@@ -257,7 +258,9 @@ class Anime(commands.Cog):
                         db.update({'inventory': inventory}, Query().user == user.id)
                     await reaction.message.channel.send('Successfully set!')
 
-    @commands.command(description='your list of animes that you would like to appear\n.anime_list', aliases=['al'])
+    @commands.command(description='your list of animes that you would like to appear. '
+                                  'Anime characters will only start spawning if a channel has ten unique animes from '
+                                  'it\'s active members. \n.anime_list', aliases=['al'])
     async def anime_list(self, ctx):
         user = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
         if not profile_exists(user.id):
@@ -479,7 +482,7 @@ class Anime(commands.Cog):
                 title = 'Friendship'
             else:
                 title = 'Romance'
-            embed.add_field(name=f'{title} - {relationship}', value=f"{char['affection']}♥")
+            embed.add_field(name=f'{title} - {relationship}', value=f"{char['affection']}♥ (lvl: {lvl})")
             if char['relationship'] is None:
                 embed.add_field(name='React 🙌 or 💞', value='to choose between friendship or romance, respectively. '
                                                              'Choose wisely, you only get this choice once per character!')
@@ -651,7 +654,7 @@ class Anime(commands.Cog):
         for item in inventory:
             if any(item['mal_id'] == char_id for char_id in current):
                 current.remove(item['mal_id'])
-                count+=1
+                count += 1
 
         with TinyDB('./data/anime.json') as db:
             db.update({'wishlist': current}, Query().user == ctx.author.id)

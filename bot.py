@@ -143,7 +143,7 @@ genshin = ['banner', 'event_wish', 'reg_wish', 'genshin_inventory', 'genshin_cha
            'quick_sell']
 anime = ['anime_list', 'anime_list_add', 'anime_list_remove', 'anime_inventory', 'anime_search', 'anime_character',
          'anime_character_kick', 'anime_gift', 'wish_list', 'wish_list_add', 'wish_list_remove', 'wish_list_clear']
-economy = ['gamble_black_jack', 'gamble_coin', 'bal', 'transfer']
+economy = ['gamble_black_jack', 'gamble_coin', 'gamble_rock_paper_scissors', 'bal', 'transfer']
 leaderboard = ['leaderboard', 'rank']
 todo = ['todo_list', 'todo_add', 'todo_check']
 mod = ['purge', 'settings']
@@ -202,7 +202,7 @@ async def send_data(ctx):
 
 @client.event
 async def on_message(message):
-    if message.reference is None and client.user.mentioned_in(message):
+    if message.reference is None and client.user.mentioned_in(message) and str(client.user.id) in message.content:
         eight_ball = [
             'Nibbles agree.', 'Yesssu!', 'Yes yes.', 'Nibbles approve.',
             'You can bet nom noms on it.', 'Nibbles thinks that is correct.',
@@ -236,7 +236,9 @@ async def on_reaction_add(reaction, user):
         elif str(reaction.emoji) == '<a:KannaEat:844266819430776924>':
             embed = discord.Embed(title='Anime', description='Collect all your favorite waifus! To get started, '
                                                              'add some of your favorite animes to your anime list to '
-                                                             'make characters appear in a designated channel.')
+                                                             'make characters appear in a designated channel. '
+                                                             'A channel must have 10 unique animes shared among it\'s '
+                                                             'active chatters in order to spawn characters')
             for comm_name in anime:
                 embed.add_field(name=comm_name, value=help_embed_value(comm_name), inline=False)
         elif reaction.emoji == '💰':
