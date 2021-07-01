@@ -6,7 +6,7 @@ import discord
 import time
 from datetime import datetime
 from discord.ext import commands
-from discord.ext.commands import has_permissions, cooldown, BucketType, CommandOnCooldown
+from discord.ext.commands import has_permissions, cooldown, BucketType, CommandOnCooldown, BadArgument
 import random
 
 from util import udb, idb
@@ -388,6 +388,56 @@ class Gamble(commands.Cog):
             await self.db.update(db='users', var='bal', amount='-' + str(self.bj['bet']), user=str(self.bj['init'].id))
 
         self.bj.pop('msg', None)
+
+    @commands.command(aliases=['rps'], description='play rock paper scissors against nibbles!\n.rps rock 20')
+    async def gamble_rock_paper_scissors(self, ctx, hand: str, bet: int):
+        user = ctx.author
+        if bet > 3200:
+            await ctx.send("Please don't gamble more than 3200 nom noms, I can't count them all! "
+                           "<:ShibaNervous:703366029425901620>")
+            return
+
+        user_bal = self.db.find_user(db='users', user=str(user.id), var='bal')
+        user_bal = user_bal[0]
+        if user_bal < bet:
+            await ctx.send("Hey " + user.display_name + ", you don't have that much nom noms!")
+            return
+        hand = hand.lower()
+        options = ['rock', 'paper', 'scissors']
+        if hand not in options:
+            await ctx.send('sowwy what did you choose in rock, paper, scissors?')
+            return
+        choice = random.choice(['rock', 'paper', 'scissors'])
+        if hand == choice:
+            await ctx.send('You tied with nibbles!\nYou both chose ' + hand)
+            return
+        elif hand == 'rock':
+            if choice == 'paper':
+                change = -1
+            else:
+                change = 1
+        elif hand == 'paper':
+            if choice == 'scissors':
+                change = -1
+            else:
+                change = 1
+        else:
+            if choice == 'rock':
+                change = -1
+            else:
+                change = 1
+
+        if change == -1:
+            await ctx.send(f'You lost! You chose {hand} and nibbles chose {choice}')
+            await self.db.update(db='users', var='bal', amount='-' + str(bet), user=str(ctx.author.id))
+        elif change == 1:
+            await ctx.send(f'You won! You chose {hand} and nibbles chose {choice}')
+            await self.db.update(db='users', var='bal', amount='+' + str(bet), user=str(ctx.author.id))
+
+    @gamble_rock_paper_scissors.error
+    async def gamble_rock_paper_scissors_error(self, ctx, error):
+        if isinstance(error, BadArgument):
+            await ctx.send('Please do .rps <choice> <nom noms amount>')
 
 
 def setup(client):
