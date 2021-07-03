@@ -172,13 +172,13 @@ class Exp(commands.Cog):
         planets = guild.get_role(709910163879886917)
         stars = guild.get_role(698255109406326876)
 
-        if xp >= 1500 and author.id in t6:
+        if xp >= 7000 and author.id in t6:
             await author.add_roles(stars)
             if planets in author.roles:
                 await author.remove_roles(planets)
             if moons in author.roles:
                 await author.remove_roles(moons)
-        elif xp >= 250 and author.id:
+        elif xp >= 1250 and author.id:
             await author.add_roles(planets)
             if stars in author.roles:
                 await author.remove_roles(stars)

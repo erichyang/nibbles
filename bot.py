@@ -50,10 +50,7 @@ def launch_tasks():
     midnight = midnight.astimezone(pytz.timezone("America/Chicago"))
     tdelta = midnight - now
     midnight_time = tdelta.total_seconds() % (24 * 3600)
-    if midnight_time > 43200:
-        time.sleep(midnight_time-43200)
-    else:
-        time.sleep(midnight_time)
+    time.sleep(midnight_time)
     announcement_manager.start()
 
 
