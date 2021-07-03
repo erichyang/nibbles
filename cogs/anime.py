@@ -128,8 +128,8 @@ class Anime(commands.Cog):
         # await asyncio.sleep(20)
         while 'questionmark_23' in image or 'apple-touch-icon' in image:
             try:
-                if len(animes) < 10:
-                    return
+                # if len(animes) < 10:
+                #     return
                 anime = self.mal_anime(random.choice(animes))
                 c_id = random.choice(self.jikan.anime(anime['mal_id'], extension='characters_staff')['characters'])[
                     'mal_id']
@@ -392,13 +392,14 @@ class Anime(commands.Cog):
             await msg.add_reaction('⬅')
             await msg.add_reaction('➡')
 
-    @commands.command(aliases=['achar'], description='Look up an anime character by name or ID. '
-                                                     'Quickly access the top of your inventory with A-E. '
-                                                     'Name search term must be longer than three characters.\n'
-                                                     'If a character is not found here, use the cast of characters '
-                                                     'from the description of the anime using .al <ID> to find your '
-                                                     'character. Sowwy for the inconvenience.\n'
-                                                     '.anime_character Kanna Kamui; .achar 170466; .achar A')
+    @commands.command(aliases=['achar', 'ac'], description='Look up an anime character by name or ID. '
+                                                           'Quickly access the top of your inventory with A-E. '
+                                                           'Name search term must be longer than three characters.\n'
+                                                           'If a character is not found here, '
+                                                           'use the cast of characters'
+                                                           'from the description of the anime using .al <ID> to '
+                                                           'find your character. Sowwy for the inconvenience.\n'
+                                                           '.anime_character Kanna Kamui; .achar 170466; .achar A')
     async def anime_character(self, ctx, *, character_id):
         if character_id in ['A', 'B', 'C', 'D', 'E']:
             inventory = anime_db(ctx.author.id, 'inventory')
@@ -417,20 +418,27 @@ class Anime(commands.Cog):
                 await ctx.send('This query could not locate any results')
                 return
             anime_results = anime_results['results']
-            content = "Anime Character Search Results - use .achar <MAL ID> for a detailed view of this character!\n"
+            content = "Anime Character Search Results - say a number for a detailed view of this character!\n"
             count = 0
+            simple = ''
             for anime in anime_results:
                 count += 1
                 if count == 11:
                     break
                 content += f"\n[**{anime['mal_id']}**] {anime['name']}"
-            await ctx.send(content)
-            return
+                simple += str(anime['mal_id']) + ' '
+            if count == 1:
+                character_id = anime_results[0]['mal_id']
+            else:
+                await ctx.send(content, embed=discord.Embed(title='results', description=simple))
+                return
+            await self.character_embed(ctx.channel, ctx.author, character_id)
 
+    async def character_embed(self, channel, author, character_id):
         try:
             character = self.mal_character(character_id)
         except APIException:
-            await ctx.send('Sorry, nibbles cannot find this character right now, pls try again later?')
+            await channel.send('Sorry, nibbles cannot find this character right now, pls try again later?')
             return
         about_var = []
         if 'Age: ' in character['about']:
@@ -448,7 +456,7 @@ class Anime(commands.Cog):
             about += var + '\n'
         desc = f"Favorite by {character['member_favorites']} members\n{about}\n[MyAnimeList profile]({character['url']})"
         embed = discord.Embed(title=f"**{character['name']}** {character['name_kanji']}", description=desc)
-        inventory = anime_db(ctx.author.id, 'inventory')
+        inventory = anime_db(author.id, 'inventory')
         if inventory is None:
             return
         char = next((x for x in inventory if x['mal_id'] == int(character_id)), None)
@@ -485,7 +493,7 @@ class Anime(commands.Cog):
             embed.add_field(name=f'{title} - {relationship}', value=f"{char['affection']}♥ (lvl: {lvl})")
             if char['relationship'] is None:
                 embed.add_field(name='React 🙌 or 💞', value='to choose between friendship or romance, respectively. '
-                                                             'Choose wisely, you only get this choice once per character!')
+                                'Choose wisely, you only get this choice once per character!')
             # multiplier of 1000 for converting between genshin and anime levels
             # 0 - strangers
             # 20 - acquaintances
@@ -500,12 +508,28 @@ class Anime(commands.Cog):
             # 90 - married
         embed.set_image(url=character['image_url'])
         embed.set_footer(text=character_id)
-        msg = await ctx.send(embed=embed)
+        msg = await channel.send(embed=embed)
         if char is not None:
             await msg.add_reaction('👋')
             if char['relationship'] is None:
                 await msg.add_reaction('🙌')
                 await msg.add_reaction('💞')
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.content.startswith('.ac'):
+            channel = message.channel
+
+            def check(m):
+                return m.content.isdigit() and m.channel == channel and m.reference is not None
+
+            msg = await self.client.wait_for('message', check=check)
+            ids = msg.reference.cached_message.embeds[0].description.split(' ')
+            which = int(msg.content)
+            try:
+                await self.character_embed(msg.channel, msg.author, ids[which-1])
+            except IndexError:
+                pass
 
     @commands.command(description='give an anime character you have claimed to someone else\n.agift 118739 @bit',
                       aliases=['agift'])
