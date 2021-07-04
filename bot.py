@@ -269,18 +269,18 @@ def help_embed_value(comm_name):
 
 @client.event
 async def on_raw_reaction_add(payload):
-    if payload.emoji.name == '🍪' and payload.message_id == 804860150195945493:
+    if payload.message_id == 804860150195945493:
         guild = await client.fetch_guild(payload.guild_id)
         member = await guild.fetch_member(payload.user_id)
-        await member.add_roles(discord.utils.get(guild.roles, name='Cookie Squad'))
+        await member.add_roles(role)
 
 
 @client.event
 async def on_raw_reaction_remove(payload):
-    if payload.emoji.name == '🍪' and payload.message_id == 804860150195945493:
+    if payload.message_id == 804860150195945493:
         guild = await client.fetch_guild(payload.guild_id)
         member = await guild.fetch_member(payload.user_id)
-        await member.remove_roles(discord.utils.get(guild.roles, name='Cookie Squad'))
+        await member.remove_roles(role)
 
 client.run('NzM2MDEzNjQ1MDQ1MzAxMzAx.XxooHw.90H7LW32mCJIzmtVyZTQehjhfSE')
 
