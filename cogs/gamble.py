@@ -1,9 +1,8 @@
 import asyncio
-from threading import Thread
 
 import discord
 
-import time
+from collections import Counter
 from datetime import datetime
 from discord.ext import commands
 from discord.ext.commands import has_permissions, cooldown, BucketType, CommandOnCooldown, BadArgument
@@ -22,7 +21,7 @@ def _bj_total(hand):
             val += 10
         else:
             val += card[0]
-    val += num_ace*11
+    val += num_ace * 11
     while val > 21:
         val -= 10
         num_ace -= 1
@@ -55,6 +54,20 @@ def _bj_display(hand, opp_hand):
     else:
         o_output = str(opp_hand[0][0])
     return output, o_output + ':' + opp_hand[0][1] + ': ' + str(len(opp_hand) - 1) + 'x:flower_playing_cards:'
+
+
+S = ["<:KannaWow:843900425555410996>", "<:NingguangWhale:805147592345518111>", "<:BreadCult:850541848790695996>",
+     "<:MonaNiceu:804422012613034065>", "<:ChikaRawr:846769276966404176>"]
+
+
+def slots_ascii(lots):
+    temp = []
+    for _ in lots:
+        if _ == -1:
+            temp.append('❔')
+        else:
+            temp.append(S[_])
+    return f'———————\n| {temp[0]} | {temp[1]} | {temp[2]} |\n———————'
 
 
 class Gamble(commands.Cog):
@@ -438,6 +451,75 @@ class Gamble(commands.Cog):
     async def gamble_rock_paper_scissors_error(self, ctx, error):
         if isinstance(error, BadArgument):
             await ctx.send('Please do .rps <choice> <nom noms amount>')
+
+    @commands.command(aliases=['slots', 'slot'])
+    async def gamble_slots(self, ctx, bet=0):
+            if bet == 0:
+                embed = discord.Embed(title='Slots!')
+                desc = f'{S[4] * 2}❔ = -0.5x\n' \
+                       f'{S[3] * 2}❔ = -0x\n' \
+                       f'{S[4] * 3} = +1x\n' \
+                       f'{S[2] * 2}❔ = +1x\n' \
+                       f'{S[3] * 3} = +2x\n' \
+                       f'{S[2] * 3} = +3x\n' \
+                       f'{S[1] * 2}❔ = +4x\n' \
+                       f'{S[0] * 2}❔ = +5x\n' \
+                       f'{S[1] * 3} = +6x\n' \
+                       f'{S[0] * 3} = +12x\n'
+                embed.add_field(name='Rewards', value=desc)
+                await ctx.send(embed=embed)
+                return
+            color = discord.Colour(random.randint(0, 0xFFFFFF))
+            embed = discord.Embed(title="**SLOTS**", color=color)
+            embed.set_thumbnail(url=ctx.author.avatar_url)
+            embed.set_author(name=str(ctx.author.name))
+            embed.set_footer(text="best of luck!")
+            lots = [-1, -1, -1]
+            embed.add_field(name='🎰', value=slots_ascii(lots))
+            msg = await ctx.send(embed=embed)
+
+            for slot in range(3):
+                await asyncio.sleep(1.5)
+                lots[slot] = random.randint(0, 4)
+                embed.set_field_at(0, name='🎰', value=slots_ascii(lots))
+                await msg.edit(embed=embed)
+
+            embed.set_thumbnail(url=ctx.author.avatar_url)
+            embed.set_author(name=str(ctx.author.name))
+            diff = 0
+            occurances = Counter(lots)
+            for key in occurances:
+                if occurances[key] == 2:
+                    if key == 4:
+                        diff = 0.5
+                    elif key == 3:
+                        diff = 1
+                    elif key == 2:
+                        diff = 2
+                    elif key == 1:
+                        diff = 5
+                    else:
+                        diff = 6
+                    break
+                elif occurances[key] == 3:
+                    if key == 4:
+                        diff = 2
+                    elif key == 3:
+                        diff = 3
+                    elif key == 2:
+                        diff = 4
+                    elif key == 1:
+                        diff = 7
+                    else:
+                        diff = 13
+                    break
+            diff = (-1 + diff)*bet
+            result = "+" if diff >= 0 else ""
+            result += str(int(diff))
+            embed.add_field(name="Outcome", value=result + " nom noms")
+            embed.set_footer(text="")
+            await self.db.update(db='users', var='bal', amount=result, user=str(ctx.author.id))
+            await msg.edit(content='Slots Results', embed=embed)
 
 
 def setup(client):
