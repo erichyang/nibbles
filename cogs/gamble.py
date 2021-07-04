@@ -454,72 +454,80 @@ class Gamble(commands.Cog):
 
     @commands.command(aliases=['slots', 'slot'])
     async def gamble_slots(self, ctx, bet=0):
-            if bet == 0:
-                embed = discord.Embed(title='Slots!')
-                desc = f'{S[4] * 2}❔ = -0.5x\n' \
-                       f'{S[3] * 2}❔ = -0x\n' \
-                       f'{S[4] * 3} = +1x\n' \
-                       f'{S[2] * 2}❔ = +1x\n' \
-                       f'{S[3] * 3} = +2x\n' \
-                       f'{S[2] * 3} = +3x\n' \
-                       f'{S[1] * 2}❔ = +4x\n' \
-                       f'{S[0] * 2}❔ = +5x\n' \
-                       f'{S[1] * 3} = +6x\n' \
-                       f'{S[0] * 3} = +12x\n'
-                embed.add_field(name='Rewards', value=desc)
-                await ctx.send(embed=embed)
-                return
-            color = discord.Colour(random.randint(0, 0xFFFFFF))
-            embed = discord.Embed(title="**SLOTS**", color=color)
-            embed.set_thumbnail(url=ctx.author.avatar_url)
-            embed.set_author(name=str(ctx.author.name))
-            embed.set_footer(text="best of luck!")
-            lots = [-1, -1, -1]
-            embed.add_field(name='🎰', value=slots_ascii(lots))
-            msg = await ctx.send(embed=embed)
 
-            for slot in range(3):
-                await asyncio.sleep(1.5)
-                lots[slot] = random.randint(0, 4)
-                embed.set_field_at(0, name='🎰', value=slots_ascii(lots))
-                await msg.edit(embed=embed)
+        if bet == 0:
+            embed = discord.Embed(title='Slots!')
+            desc = f'{S[4] * 2}❔ = -0.5x\n' \
+                   f'{S[3] * 2}❔ = -0x\n' \
+                   f'{S[4] * 3} = +1x\n' \
+                   f'{S[2] * 2}❔ = +1x\n' \
+                   f'{S[3] * 3} = +2x\n' \
+                   f'{S[2] * 3} = +3x\n' \
+                   f'{S[1] * 2}❔ = +4x\n' \
+                   f'{S[0] * 2}❔ = +5x\n' \
+                   f'{S[1] * 3} = +6x\n' \
+                   f'{S[0] * 3} = +12x\n'
+            embed.add_field(name='Rewards', value=desc)
+            await ctx.send(embed=embed)
+        if bet > 10000:
+            await ctx.send("Please don't bet more than 10000 nom noms!")
+            return
+        bal = self.db.find_user(db='users', var='bal', user=str(ctx.author.id))
+        if bal < bet:
+            await ctx.send("You don't have that many nom noms!")
+            return
 
-            embed.set_thumbnail(url=ctx.author.avatar_url)
-            embed.set_author(name=str(ctx.author.name))
-            diff = 0
-            occurances = Counter(lots)
-            for key in occurances:
-                if occurances[key] == 2:
-                    if key == 4:
-                        diff = 0.5
-                    elif key == 3:
-                        diff = 1
-                    elif key == 2:
-                        diff = 2
-                    elif key == 1:
-                        diff = 5
-                    else:
-                        diff = 6
-                    break
-                elif occurances[key] == 3:
-                    if key == 4:
-                        diff = 2
-                    elif key == 3:
-                        diff = 3
-                    elif key == 2:
-                        diff = 4
-                    elif key == 1:
-                        diff = 7
-                    else:
-                        diff = 13
-                    break
-            diff = (-1 + diff)*bet
-            result = "+" if diff >= 0 else ""
-            result += str(int(diff))
-            embed.add_field(name="Outcome", value=result + " nom noms")
-            embed.set_footer(text="")
-            await self.db.update(db='users', var='bal', amount=result, user=str(ctx.author.id))
-            await msg.edit(content='Slots Results', embed=embed)
+        color = discord.Colour(random.randint(0, 0xFFFFFF))
+        embed = discord.Embed(title="**SLOTS**", color=color)
+        embed.set_thumbnail(url=ctx.author.avatar_url)
+        embed.set_author(name=str(ctx.author.name))
+        embed.set_footer(text="best of luck!")
+        lots = [-1, -1, -1]
+        embed.add_field(name='🎰', value=slots_ascii(lots))
+        msg = await ctx.send(embed=embed)
+
+        for slot in range(3):
+            await asyncio.sleep(1.5)
+            lots[slot] = random.randint(0, 4)
+            embed.set_field_at(0, name='🎰', value=slots_ascii(lots))
+            await msg.edit(embed=embed)
+
+        embed.set_thumbnail(url=ctx.author.avatar_url)
+        embed.set_author(name=str(ctx.author.name))
+        diff = 0
+        occurances = Counter(lots)
+        for key in occurances:
+            if occurances[key] == 2:
+                if key == 4:
+                    diff = 0.5
+                elif key == 3:
+                    diff = 1
+                elif key == 2:
+                    diff = 2
+                elif key == 1:
+                    diff = 5
+                else:
+                    diff = 6
+                break
+            elif occurances[key] == 3:
+                if key == 4:
+                    diff = 2
+                elif key == 3:
+                    diff = 3
+                elif key == 2:
+                    diff = 4
+                elif key == 1:
+                    diff = 7
+                else:
+                    diff = 13
+                break
+        diff = (-1 + diff)*bet
+        result = "+" if diff >= 0 else ""
+        result += str(int(diff))
+        embed.add_field(name="Outcome", value=f"{result} nom noms\nbalance: {bal}")
+        embed.set_footer(text="")
+        await self.db.update(db='users', var='bal', amount=result, user=str(ctx.author.id))
+        await msg.edit(content='Slots Results', embed=embed)
 
 
 def setup(client):
