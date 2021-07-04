@@ -395,7 +395,7 @@ class Anime(commands.Cog):
                                                            'use the cast of characters'
                                                            'from the description of the anime using .al <ID> to '
                                                            'find your character. Sowwy for the inconvenience.\n'
-                                                           '.anime_character Kanna Kamui; .achar 170466; .achar A')
+                                                           '.anime_character Kanna Kamui; .achar 170466; .ac A')
     async def anime_character(self, ctx, *, character_id):
         if character_id in ['A', 'B', 'C', 'D', 'E']:
             inventory = anime_db(ctx.author.id, 'inventory')
@@ -414,7 +414,7 @@ class Anime(commands.Cog):
                 await ctx.send('This query could not locate any results')
                 return
             anime_results = anime_results['results']
-            content = "Anime Character Search Results - say a number for a detailed view of this character!\n"
+            content = "Anime Character Search Results - reply a number to this message for a detailed character view!\n"
             count = 0
             simple = ''
             for anime in anime_results:
@@ -428,7 +428,7 @@ class Anime(commands.Cog):
             else:
                 await ctx.send(content, embed=discord.Embed(title='results', description=simple))
                 return
-            await self.character_embed(ctx.channel, ctx.author, character_id)
+        await self.character_embed(ctx.channel, ctx.author, character_id)
 
     async def character_embed(self, channel, author, character_id):
         try:

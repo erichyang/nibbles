@@ -98,6 +98,8 @@ async def change_status():
 @client.event
 async def on_member_join(member):
     channel = servers.greetings_channel(member.guild.id)
+    if channel is None:
+        return
     await channel.send(
         f'Haii {member.name}, '
         f'I\'m nibbles and welcome to the server! <:kayaya:778399319803035699>')
