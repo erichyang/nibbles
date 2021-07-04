@@ -473,7 +473,7 @@ class Gamble(commands.Cog):
             await ctx.send("Please don't bet more than 10000 nom noms!")
             return
         bal = self.db.find_user(db='users', var='bal', user=str(ctx.author.id))
-        if bal < bet:
+        if bal[0] < bet:
             await ctx.send("You don't have that many nom noms!")
             return
 
